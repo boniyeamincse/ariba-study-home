@@ -1,10 +1,17 @@
-// Component Loader
+// Component Loader - rewrites relative paths before injecting into DOM
 async function loadComponent(elementId, componentPath) {
     try {
         const response = await fetch(componentPath);
-        const html = await response.text();
+        let html = await response.text();
         const element = document.getElementById(elementId);
         if (element) {
+            // If on a sub-page, rewrite relative paths in the HTML before injection
+            if (basePath) {
+                // Rewrite href="pages/..." to href="../pages/..."
+                html = html.replace(/href="((?!http|#|\/|\.\.)[^"]+)"/g, `href="${basePath}$1"`);
+                // Rewrite src="(relative)" to src="../relative"
+                html = html.replace(/src="((?!http|\/|\.\.)[^"]+)"/g, `src="${basePath}$1"`);
+            }
             element.innerHTML = html;
         }
     } catch (error) {
@@ -24,8 +31,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => {
         initMobileMenu();
         syncLanguageSelectors();
+        highlightActiveNavLink();
     }, 100);
 });
+
+// Highlight the active navigation link based on current URL
+function highlightActiveNavLink() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-menu a');
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href) return;
+        // Check if the link matches the current page
+        if (currentPath.endsWith('/') && href.includes('index.html')) {
+            link.style.color = 'var(--accent-color, #667eea)';
+            link.style.fontWeight = '700';
+        } else if (currentPath.includes(href.replace('../', '').replace('./', ''))) {
+            link.style.color = 'var(--accent-color, #667eea)';
+            link.style.fontWeight = '700';
+        }
+    });
+}
 
 // Mobile Menu Toggle
 function initMobileMenu() {
