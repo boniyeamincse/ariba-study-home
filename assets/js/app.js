@@ -247,7 +247,7 @@ function showView(viewName) {
     hubView.style.display = 'none';
     linuxView.style.display = 'none';
     lessonView.style.display = 'none';
-    
+
     if (viewName === 'hub') {
         hubView.style.display = 'block';
     } else if (viewName === 'linux') {
@@ -271,7 +271,7 @@ let currentLang = localStorage.getItem('aribaLang') || 'en';
 function setLanguage(lang) {
     currentLang = lang;
     localStorage.setItem('aribaLang', lang);
-    
+
     // Set RTL direction for Arabic
     if (lang === 'ar') {
         document.documentElement.setAttribute('dir', 'rtl');
@@ -280,7 +280,7 @@ function setLanguage(lang) {
         document.documentElement.setAttribute('dir', 'ltr');
         document.documentElement.setAttribute('lang', lang);
     }
-    
+
     translateUI();
     renderModules();
     if (lessonView.style.display === 'block') renderLesson();
@@ -377,7 +377,7 @@ function renderLesson() {
     const displayTitle = translations[currentLang].modules[moduleIndex]?.title || currentModule;
 
     document.getElementById('lessonModuleTitle').innerText = displayTitle;
-    document.getElementById('breadcrumbModule').innerText = 'Linux';
+    document.getElementById('breadcrumbModule').innerText = tUI.breadcrumb_linux;
     document.getElementById('breadcrumbTopic').innerText = lesson.title;
     document.getElementById('lessonContent').innerHTML = lesson.content;
 
@@ -387,7 +387,12 @@ function renderLesson() {
     lessons.forEach((l, i) => {
         const li = document.createElement('li');
         li.className = `sub-topic-item ${i === currentLessonIndex ? 'active' : ''}`;
-        li.innerHTML = `${i + 1}. ${l.title} <span class="check-mark">✓</span>`;
+        const direction = document.documentElement.getAttribute('dir');
+        if (direction === 'rtl') {
+            li.innerHTML = `<span class="check-mark">✓</span> ${l.title} .${i + 1}`;
+        } else {
+            li.innerHTML = `${i + 1}. ${l.title} <span class="check-mark">✓</span>`;
+        }
         li.onclick = () => {
             currentLessonIndex = i;
             renderLesson();
@@ -482,7 +487,7 @@ if (modulesGrid) {
         document.documentElement.setAttribute('dir', 'ltr');
         document.documentElement.setAttribute('lang', currentLang);
     }
-    
+
     translateUI();
     renderModules();
 }

@@ -2,8 +2,10 @@ translations.ar = {
     ui: {
         hub_title: "أريبا ستدي هوم",
         hub_subtitle: "نظام التعلم عالي الدقة الخاص بك",
+        hub_selection: "اختر وحدة تدريبية لبدء رحلتك.",
         enter_module: "دخول الوحدة",
         back_to_hub: "العودة إلى المركز",
+        coming_soon: "قريباً",
         locked: "مقفل",
         available: "متاح",
         completed: "مكتمل",
@@ -15,7 +17,11 @@ translations.ar = {
         submit: "إرسال الإجابة",
         correct: "صحيح! أحسنت.",
         incorrect: "خطأ. حاول مرة أخرى!",
-        progress: "تقدمك"
+        progress: "تقدمك",
+        linux_subtitle: "دليل مستوحى من المحطة الطرفية لإتقان أساسيات لينكس",
+        breadcrumb_linux: "لينكس",
+        no_quiz: "لا يوجد اختبار لهذا الموضوع.",
+        coming_soon_desc: "نحن نعمل على هذا المحتوى!"
     },
     modules: [
         {

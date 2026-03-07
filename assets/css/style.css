@@ -571,6 +571,14 @@ footer {
     flex-direction: row-reverse;
 }
 
+[dir="rtl"] .progress-bar {
+    float: right;
+}
+
+[dir="rtl"] .btn-nav i {
+    transform: scaleX(-1);
+}
+
 /* Language Switcher */
 .lang-switcher {
     position: absolute;

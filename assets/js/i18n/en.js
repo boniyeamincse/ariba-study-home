@@ -3,8 +3,10 @@ const translations = {
         ui: {
             hub_title: "Ariba Study Home",
             hub_subtitle: "Your High-Fidelity Learning Ecosystem",
+            hub_selection: "Select a training module to begin your journey.",
             enter_module: "Enter Module",
             back_to_hub: "Back to Hub",
+            coming_soon: "Coming Soon",
             locked: "Locked",
             available: "Available",
             completed: "Completed",
@@ -16,7 +18,11 @@ const translations = {
             submit: "Submit Answer",
             correct: "Correct! Well done.",
             incorrect: "Incorrect. Try again!",
-            progress: "Your Progress"
+            progress: "Your Progress",
+            linux_subtitle: "Interactive terminal-inspired guide to mastering Linux basics",
+            breadcrumb_linux: "Linux",
+            no_quiz: "No quiz for this topic.",
+            coming_soon_desc: "We are working on this content!"
         },
         modules: [
             {
