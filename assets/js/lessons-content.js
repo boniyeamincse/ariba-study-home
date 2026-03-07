@@ -1604,16 +1604,215 @@ $ ss -tulpn                      # Show all listening ports and the processes ow
         }
     ],
     "Security": [
-        { title: "User Security", content: "<h1>Auth</h1><p>Password policies and authentication.</p>" },
-        { title: "System Security", content: "<h1>Hardening</h1><p>SELinux and AppArmor basics.</p>" }
+        {
+            title: "User Security & Passwords",
+            content: `
+                <h1>Securing User Accounts</h1>
+                <p>The first line of defense is strong authentication policies.</p>
+                <h2>Password Policies</h2>
+                <ul>
+                    <li><strong>passwd:</strong> Change a user's password.</li>
+                    <li><strong>chage:</strong> Change user password expiry information.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ passwd                       # Change your own password
+$ sudo passwd john             # Change John's password
+$ sudo chage -l john           # View John's password aging info
+$ sudo chage -E 2024-12-31 john # Set account expiration date</pre>
+                </div>
+            `,
+            exercises: ["Run <code>chage -l $USER</code> to see when your password expires."],
+            quiz: {
+                question: "Which command is used to view or change password expiration policies?",
+                options: ["passwd", "usermod", "chage", "chmod"],
+                answer: 2
+            }
+        },
+        {
+            title: "Firewalls (UFW & iptables)",
+            content: `
+                <h1>Network Firewalls</h1>
+                <p>Firewalls block unauthorized network traffic while allowing legitimate communication.</p>
+                <h2>UFW (Uncomplicated Firewall)</h2>
+                <p>The default firewall configuration tool for Ubuntu is UFW.</p>
+                <div class="code-block">
+                    <pre>$ sudo ufw status              # Check if it's active
+$ sudo ufw enable              # Turn it on
+$ sudo ufw allow ssh           # Allow SSH connections (port 22)
+$ sudo ufw allow 80/tcp        # Allow plain HTTP traffic
+$ sudo ufw deny 23/tcp         # Block Telnet</pre>
+                </div>
+                <h2>iptables / nftables</h2>
+                <p>UFW is a frontend for <code>iptables</code> (or <code>nftables</code>), the core Linux packet filtering framework. It uses chains (INPUT, OUTPUT, FORWARD) to process packets.</p>
+            `,
+            exercises: ["Check your UFW status using <code>sudo ufw status</code>. (Be careful not to lock yourself out if you are on a remote server!)"],
+            quiz: {
+                question: "What does UFW stand for?",
+                options: ["Universal Firewall", "Uncomplicated Firewall", "Unix Firewall", "User FireWall"],
+                answer: 1
+            }
+        },
+        {
+            title: "System Hardening (SELinux / AppArmor)",
+            content: `
+                <h1>Mandatory Access Control (MAC)</h1>
+                <p>Standard Linux permissions (rwx) are Discretionary Access Control (DAC). MAC systems provide a much stricter security layer.</p>
+                <h2>SELinux (Security-Enhanced Linux)</h2>
+                <p>Created by the NSA, heavily used in Red Hat/CentOS.</p>
+                <ul>
+                    <li>Every process and file has a security "context".</li>
+                    <li>Policies dictate exactly what a process can do. E.g., a web server compromised by a hacker still cannot read <code>/etc/shadow</code> because SELinux policies forbid it.</li>
+                </ul>
+                <pre>$ getenforce                   # Check SELinux status</pre>
+                <h2>AppArmor</h2>
+                <p>The default MAC in Ubuntu/Debian. It isolates applications using profiles.</p>
+                <pre>$ sudo aa-status               # Check AppArmor status</pre>
+            `,
+            exercises: ["Run <code>getenforce</code> (RedHat) or <code>aa-status</code> (Ubuntu) to check your MAC status."],
+            quiz: {
+                question: "Which type of access control does SELinux provide?",
+                options: ["Discretionary Access Control (DAC)", "Mandatory Access Control (MAC)", "Role-Based Access Control (RBAC)", "Network Access Control (NAC)"],
+                answer: 1
+            }
+        }
     ],
     "Scripting & Automation": [
-        { title: "Bash Scripting", content: "<h1>Scripting</h1><p>Variables, loops, and logic.</p>" }
+        {
+            title: "Bash Scripting Basics",
+            content: `
+                <h1>Writing Your First Script</h1>
+                <p>A shell script is simply a text file containing a sequence of commands.</p>
+                <h2>The Shebang (#!)</h2>
+                <p>The first line tells the system which interpreter to use.</p>
+                <div class="code-block">
+                    <pre>#!/bin/bash
+# This is a comment
+echo "Hello, Linux World!"</pre>
+                </div>
+                <h2>Making it Executable</h2>
+                <pre>$ chmod +x myscript.sh
+$ ./myscript.sh                # Run it!</pre>
+            `,
+            exercises: ["Create a script named <code>backup.sh</code> that uses <code>tar</code> to backup your Documents folder."],
+            quiz: {
+                question: "What is the very first line of a bash script usually called?",
+                options: ["The Header", "The Shebang", "The Init Line", "The Comment"],
+                answer: 1
+            }
+        },
+        {
+            title: "Variables, Loops, and Logic",
+            content: `
+                <h1>Adding Programming Logic</h1>
+                <h2>Variables</h2>
+                <pre>NAME="Alice"
+echo "Hello, $NAME"</pre>
+                <h2>If/Else Statements</h2>
+                <div class="code-block">
+                    <pre>if [ -f "/etc/passwd" ]; then
+    echo "The file exists."
+else
+    echo "File not found."
+fi</pre>
+                </div>
+                <h2>For Loops</h2>
+                <div class="code-block">
+                    <pre>for file in *.txt; do
+    echo "Processing $file"
+done</pre>
+                </div>
+            `,
+            exercises: ["Write a loop that prints the numbers 1 through 5."],
+            quiz: {
+                question: "In a bash if-statement, what keyword is used to close the block?",
+                options: ["end", "don", "fi", "endif"],
+                answer: 2
+            }
+        }
     ],
     "Virtualization": [
-        { title: "Containers", content: "<h1>Docker</h1><p>Introduction to containerization.</p>" }
+        {
+            title: "Virtual Machines (KVM/QEMU)",
+            content: `
+                <h1>Hardware Virtualization</h1>
+                <p>Virtual Machines (VMs) emulate an entire hardware system, allowing you to run a full Guest OS on top of your Host OS.</p>
+                <ul>
+                    <li><strong>KVM (Kernel-based Virtual Machine):</strong> Linux kernel module that turns the kernel into a hypervisor.</li>
+                    <li><strong>QEMU:</strong> Does the actual hardware emulation (CPU, disk, network).</li>
+                    <li><strong>libvirt / virsh:</strong> Management tools for interacting with KVM/QEMU.</li>
+                </ul>
+                <p>VMs provide total isolation but consume significant resources (RAM/CPU).</p>
+            `,
+            exercises: ["Research the command <code>virsh list --all</code>."],
+            quiz: {
+                question: "Which Linux kernel module provides hardware virtualization support?",
+                options: ["hyperv", "vbox", "vmware", "kvm"],
+                answer: 3
+            }
+        },
+        {
+            title: "Containers (Docker / Podman)",
+            content: `
+                <h1>OS-Level Virutalization</h1>
+                <p>Containers are lightweight because they share the Host OS's kernel, unlike VMs which boot their own kernel.</p>
+                <h2>Docker Basics</h2>
+                <div class="code-block">
+                    <pre>$ docker pull ubuntu:latest      # Download the Ubuntu image
+$ docker run -it ubuntu bash     # Start a container and open a shell
+$ docker ps                      # List running containers
+$ docker images                  # List downloaded images</pre>
+                </div>
+                <p><strong>Namespaces</strong> isolate the container's processes/network, while <strong>cgroups</strong> limit its resource usage (CPU/RAM).</p>
+            `,
+            exercises: ["If you have Docker installed, try running <code>docker run hello-world</code>."],
+            quiz: {
+                question: "Containers are typically 'lighter' than VMs because they share what with the host?",
+                options: ["Hard Drive", "Network Card", "Operating System Kernel", "RAM"],
+                answer: 2
+            }
+        }
     ],
     "Monitoring & Troubleshooting": [
-        { title: "Troubleshooting", content: "<h1>Diagnostics</h1><p>Analyzing system health.</p>" }
+        {
+            title: "System Diagnostics",
+            content: `
+                <h1>Analyzing Health and Performance</h1>
+                <p>When the system is slow, use these tools to find the bottleneck.</p>
+                <ul>
+                    <li><strong>free -h:</strong> Check RAM usage (look at the 'available' column, not 'free').</li>
+                    <li><strong>df -h:</strong> Check disk space across all mounted filesystems.</li>
+                    <li><strong>du -sh *:</strong> Find out which folders are using the most space in the current directory.</li>
+                    <li><strong>iostat:</strong> Monitor CPU and disk I/O statistics.</li>
+                    <li><strong>vmstat:</strong> Report virtual memory statistics.</li>
+                </ul>
+            `,
+            exercises: ["Run <code>free -m</code> to see your memory in Megabytes."],
+            quiz: {
+                question: "Which command shows the disk space usage of a specific directory and its contents?",
+                options: ["df", "du", "iostat", "free"],
+                answer: 1
+            }
+        },
+        {
+            title: "Network Diagnostics",
+            content: `
+                <h1>Troubleshooting Network Issues</h1>
+                <p>If you lose internet, follow the chain:</p>
+                <ol>
+                    <li><code>ip link</code> : Is the physical interface UP?</li>
+                    <li><code>ip addr</code> : Do I have an IP address?</li>
+                    <li><code>ip route</code> : Do I have a default route (gateway)?</li>
+                    <li><code>ping 8.8.8.8</code> : Can I reach the internet (Google's DNS) by IP?</li>
+                    <li><code>ping google.com</code> : Can I resolve DNS names?</li>
+                </ol>
+                <p>If step 4 works but 5 fails, check your DNS settings in <code>/etc/resolv.conf</code>.</p>
+            `,
+            exercises: ["Ping your default gateway (router) to ensure local connectivity."],
+            quiz: {
+                question: "If you can ping an IP address (8.8.8.8) but cannot ping a domain name (google.com), what is likely the issue?",
+                options: ["Your ethernet cable is unplugged", "Your router is off", "Your DNS server is not configured or unreachable", "Your firewall is blocking all traffic"],
+                answer: 2
+            }
+        }
     ]
 };
