@@ -125,66 +125,6 @@ function renderModules() {
     }
 }
 
-function openQuiz(index) {
-    if (index < unlockedIndex) {
-        // Already completed, maybe show content instead of re-quizzing?
-        // For now, let's allow re-quizzing or just show a message.
-        // The prompt says "hide the quiz" once answered correctly, but let's make it accessible.
-    }
-
-    currentQuizModuleIndex = index;
-    const module = modules[index];
-
-    quizTitle.innerText = `Module ${index + 1}: ${module.title}`;
-    quizQuestion.innerText = module.question;
-    quizFeedback.innerText = '';
-    quizFeedback.className = 'quiz-feedback';
-
-    quizOptions.innerHTML = '';
-    module.options.forEach((option, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-option';
-        btn.innerText = option;
-        btn.onclick = () => checkAnswer(i);
-        quizOptions.appendChild(btn);
-    });
-
-    quizOverlay.style.display = 'flex';
-}
-
-function checkAnswer(optionIndex) {
-    const module = modules[currentQuizModuleIndex];
-    if (optionIndex === module.answer) {
-        quizFeedback.innerText = "✓ Correct! Logic unlocked.";
-        quizFeedback.className = "quiz-feedback feedback-right";
-
-        setTimeout(() => {
-            if (currentQuizModuleIndex === unlockedIndex) {
-                unlockedIndex++;
-                localStorage.setItem('linuxStudy_unlockedIndex', unlockedIndex);
-            }
-            quizOverlay.style.display = 'none';
-            renderModules();
-
-            if (unlockedIndex === modules.length) {
-                alert("Congratulations! You've completed all modules.");
-            }
-        }, 1000);
-    } else {
-        quizFeedback.innerText = "✗ Try again! Remember the terminal never lies.";
-        quizFeedback.className = "quiz-feedback feedback-wrong";
-    }
-}
-
-closeQuiz.onclick = () => {
-    quizOverlay.style.display = 'none';
-};
-
-// Close on background click
-quizOverlay.onclick = (e) => {
-    if (e.target === quizOverlay) quizOverlay.style.display = 'none';
-};
-
 // View Management
 const hubView = document.getElementById('hubView');
 const linuxView = document.getElementById('linuxView');
@@ -411,7 +351,18 @@ function renderLesson() {
             currentLessonIndex++;
             renderLesson();
         } else {
+            // Module Finished Flow
+            const moduleIndex = modules.findIndex(m => m.title === currentModule);
+            if (moduleIndex === unlockedIndex && unlockedIndex < modules.length - 1) {
+                unlockedIndex++;
+                localStorage.setItem('linuxStudy_unlockedIndex', unlockedIndex);
+            }
+            renderModules();
             showView('linux');
+
+            if (unlockedIndex === modules.length) {
+                alert("Congratulations! You've completed all modules.");
+            }
         }
     };
 }
