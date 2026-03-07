@@ -154,11 +154,13 @@ function renderModules() {
             statusClass = 'unlocked';
         }
 
+        const tModule = translations[currentLang].modules[index] || module;
+
         card.innerHTML = `
-            <img src="assets/images/${module.icon}.png" alt="${module.title}" class="module-icon">
-            <h3 class="module-title">${module.title}</h3>
-            <p class="module-desc">${module.desc}</p>
-            <div class="status-badge ${statusClass}">${statusText}</div>
+            <img src="assets/images/${module.icon}.png" alt="${tModule.title}" class="module-icon">
+            <h3 class="module-title">${tModule.title}</h3>
+            <p class="module-desc">${tModule.desc}</p>
+            <div class="status-badge ${statusClass}" data-i18n="${statusClass}">${statusText}</div>
         `;
 
         if (!isLocked) {

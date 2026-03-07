@@ -22,7 +22,11 @@ const translations = {
             linux_subtitle: "Interactive terminal-inspired guide to mastering Linux basics",
             breadcrumb_linux: "Linux",
             no_quiz: "No quiz for this topic.",
-            coming_soon_desc: "We are working on this content!"
+            coming_soon_desc: "We are working on this content!",
+            github: "Github",
+            github_desc: "Master version control and collaboration.",
+            ai: "AI",
+            ai_desc: "Explore the frontiers of intelligence."
         },
         modules: [
             {
