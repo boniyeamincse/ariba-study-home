@@ -459,5 +459,472 @@ const lessonsContent = {
                 answer: 1
             }
         }
+    ],
+    "Command Line": [
+        {
+            title: "The Shell",
+            content: `
+                <h1>The Shell</h1>
+                <p>The shell is a command-line interface that allows you to interact with your operating system. It's one of the most powerful tools in Linux.</p>
+                <h2>What is a Shell?</h2>
+                <p>A shell is a program that takes commands from the keyboard and gives them to the operating system to perform. It's called a shell because it wraps around the kernel.</p>
+                <h2>Types of Shells</h2>
+                <ul>
+                    <li><strong>Bash (Bourne Again Shell):</strong> Most popular, default on many systems</li>
+                    <li><strong>Zsh (Z Shell):</strong> Feature-rich, highly customizable</li>
+                    <li><strong>Fish (Friendly Interactive Shell):</strong> User-friendly with auto-suggestions</li>
+                    <li><strong>Sh (Bourne Shell):</strong> Original Unix shell</li>
+                    <li><strong>Ksh (Korn Shell):</strong> Combines features of sh and csh</li>
+                </ul>
+                <h2>The Terminal</h2>
+                <p>The terminal (or terminal emulator) is the program that runs the shell. Popular terminals include GNOME Terminal, Konsole, Terminator, and iTerm2.</p>
+                <h2>Shell Prompt</h2>
+                <p>The prompt is where you type commands. A typical prompt looks like:</p>
+                <pre>username@hostname:~$</pre>
+                <ul>
+                    <li><strong>username:</strong> Your login name</li>
+                    <li><strong>hostname:</strong> Computer name</li>
+                    <li><strong>~:</strong> Current directory (~ means home)</li>
+                    <li><strong>$:</strong> Regular user (# for root)</li>
+                </ul>
+                <h2>Why Use the Shell?</h2>
+                <ul>
+                    <li>Faster than GUI for many tasks</li>
+                    <li>Automation through scripts</li>
+                    <li>Remote server management</li>
+                    <li>Powerful text processing</li>
+                    <li>System administration</li>
+                </ul>
+            `,
+            exercises: [
+                "Check your shell - Run: echo $SHELL to see which shell you're using",
+                "Explore the prompt - Type commands and observe how the prompt behaves"
+            ],
+            quiz: {
+                question: "What is the most commonly used shell in Linux?",
+                options: ["Fish", "Zsh", "Bash", "Ksh"],
+                answer: 2
+            }
+        },
+        {
+            title: "pwd, cd, ls",
+            content: `
+                <h1>Navigation Commands: pwd, cd, ls</h1>
+                <p>These three commands are essential for navigating the Linux filesystem.</p>
+                <h2>pwd - Print Working Directory</h2>
+                <p>Shows your current location in the filesystem.</p>
+                <pre>$ pwd
+/home/username/Documents</pre>
+                <h2>cd - Change Directory</h2>
+                <p>Move between directories.</p>
+                <pre>$ cd /var/log        # Go to /var/log
+$ cd ..              # Go up one level
+$ cd ~               # Go to home directory
+$ cd -               # Go to previous directory
+$ cd                 # Go to home (same as cd ~)</pre>
+                <h3>Special Paths</h3>
+                <ul>
+                    <li><strong>.</strong> - Current directory</li>
+                    <li><strong>..</strong> - Parent directory</li>
+                    <li><strong>~</strong> - Home directory</li>
+                    <li><strong>/</strong> - Root directory</li>
+                    <li><strong>-</strong> - Previous directory</li>
+                </ul>
+                <h2>ls - List Directory Contents</h2>
+                <p>Display files and directories.</p>
+                <pre>$ ls                 # List files
+$ ls -l              # Long format with details
+$ ls -a              # Show hidden files
+$ ls -lh             # Human-readable sizes
+$ ls -la             # Combine options
+$ ls -R              # Recursive listing
+$ ls -t              # Sort by modification time</pre>
+                <h3>Understanding ls -l Output</h3>
+                <pre>-rw-r--r-- 1 user group 1234 Mar 7 10:30 file.txt</pre>
+                <ul>
+                    <li>Permissions: -rw-r--r--</li>
+                    <li>Links: 1</li>
+                    <li>Owner: user</li>
+                    <li>Group: group</li>
+                    <li>Size: 1234 bytes</li>
+                    <li>Date: Mar 7 10:30</li>
+                    <li>Name: file.txt</li>
+                </ul>
+            `,
+            exercises: [
+                "Navigate your system - Use cd to explore /etc, /var, and /usr directories",
+                "Practice ls options - Try different combinations like ls -lah, ls -ltr"
+            ],
+            quiz: {
+                question: "Which command shows your current directory?",
+                options: ["cd", "ls", "pwd", "dir"],
+                answer: 2
+            }
+        },
+        {
+            title: "touch, file, cat, less, history",
+            content: `
+                <h1>File Viewing Commands</h1>
+                <h2>touch - Create Files or Update Timestamps</h2>
+                <p>Create empty files or update modification times.</p>
+                <pre>$ touch newfile.txt           # Create empty file
+$ touch file1 file2 file3    # Create multiple files
+$ touch existing.txt         # Update timestamp</pre>
+                <h2>file - Determine File Type</h2>
+                <p>Identify what type of file you're dealing with.</p>
+                <pre>$ file document.pdf
+document.pdf: PDF document, version 1.4
+$ file script.sh
+script.sh: Bash shell script, ASCII text executable
+$ file image.jpg
+image.jpg: JPEG image data</pre>
+                <h2>cat - Concatenate and Display Files</h2>
+                <p>Display file contents, combine files, or create new files.</p>
+                <pre>$ cat file.txt              # Display file
+$ cat file1 file2           # Display multiple files
+$ cat file1 file2 > merged  # Combine files
+$ cat > newfile.txt         # Create file (Ctrl+D to save)</pre>
+                <h2>less - View Files Page by Page</h2>
+                <p>Better for large files, allows scrolling and searching.</p>
+                <pre>$ less largefile.log</pre>
+                <h3>less Navigation</h3>
+                <ul>
+                    <li><strong>Space:</strong> Next page</li>
+                    <li><strong>b:</strong> Previous page</li>
+                    <li><strong>/pattern:</strong> Search forward</li>
+                    <li><strong>?pattern:</strong> Search backward</li>
+                    <li><strong>n:</strong> Next search result</li>
+                    <li><strong>q:</strong> Quit</li>
+                    <li><strong>G:</strong> Go to end</li>
+                    <li><strong>g:</strong> Go to beginning</li>
+                </ul>
+                <h2>history - Command History</h2>
+                <p>View and reuse previous commands.</p>
+                <pre>$ history                # Show all commands
+$ history 10             # Show last 10 commands
+$ !100                   # Run command #100
+$ !!                     # Run last command
+$ !cat                   # Run last cat command
+$ Ctrl+R                 # Search history interactively</pre>
+            `,
+            exercises: [
+                "Create test files - Use touch to create several files, then view them with cat and less",
+                "Explore history - Run various commands, then use history and try rerunning commands with !"
+            ],
+            quiz: {
+                question: "Which command is best for viewing large log files?",
+                options: ["cat", "touch", "less", "file"],
+                answer: 2
+            }
+        },
+        {
+            title: "cp, mv, mkdir, rm",
+            content: `
+                <h1>File Management Commands</h1>
+                <h2>cp - Copy Files and Directories</h2>
+                <p>Duplicate files and directories.</p>
+                <pre>$ cp source.txt destination.txt    # Copy file
+$ cp file.txt /tmp/                 # Copy to directory
+$ cp -r folder/ backup/             # Copy directory recursively
+$ cp -i file.txt dest.txt           # Interactive (ask before overwrite)
+$ cp -v file.txt dest.txt           # Verbose (show what's being done)
+$ cp -p file.txt dest.txt           # Preserve attributes</pre>
+                <h2>mv - Move or Rename Files</h2>
+                <p>Move files to new locations or rename them.</p>
+                <pre>$ mv oldname.txt newname.txt       # Rename file
+$ mv file.txt /tmp/                 # Move to directory
+$ mv file1 file2 /destination/      # Move multiple files
+$ mv -i file.txt dest.txt           # Interactive mode
+$ mv -v file.txt dest.txt           # Verbose mode</pre>
+                <h2>mkdir - Make Directories</h2>
+                <p>Create new directories.</p>
+                <pre>$ mkdir newfolder                   # Create directory
+$ mkdir dir1 dir2 dir3              # Create multiple
+$ mkdir -p parent/child/grandchild  # Create nested directories
+$ mkdir -v folder                   # Verbose output</pre>
+                <h2>rm - Remove Files and Directories</h2>
+                <p>Delete files and directories. <strong>Warning: No undo!</strong></p>
+                <pre>$ rm file.txt                       # Remove file
+$ rm file1 file2 file3              # Remove multiple files
+$ rm -i file.txt                    # Interactive (ask confirmation)
+$ rm -r folder/                     # Remove directory recursively
+$ rm -rf folder/                    # Force remove (dangerous!)
+$ rm -v file.txt                    # Verbose output</pre>
+                <h3>Safety Tips</h3>
+                <ul>
+                    <li>Always use <code>-i</code> flag when learning</li>
+                    <li>Double-check before using <code>rm -rf</code></li>
+                    <li>Use <code>ls</code> first to verify what you're deleting</li>
+                    <li>Never run <code>rm -rf /</code> (deletes everything!)</li>
+                </ul>
+            `,
+            exercises: [
+                "Practice copying - Create test files and copy them with different options",
+                "Safe deletion - Create test directories and practice rm with -i flag first"
+            ],
+            quiz: {
+                question: "Which flag is needed to copy a directory recursively?",
+                options: ["-i", "-r", "-v", "-p"],
+                answer: 1
+            }
+        },
+        {
+            title: "find",
+            content: `
+                <h1>find - Search for Files</h1>
+                <p>The find command is a powerful tool for searching files and directories based on various criteria.</p>
+                <h2>Basic Syntax</h2>
+                <pre>$ find [path] [options] [expression]</pre>
+                <h2>Find by Name</h2>
+                <pre>$ find . -name "file.txt"          # Find exact name
+$ find . -name "*.txt"              # Find all .txt files
+$ find . -iname "FILE.txt"          # Case-insensitive search
+$ find /home -name "*.log"          # Search in specific directory</pre>
+                <h2>Find by Type</h2>
+                <pre>$ find . -type f                    # Find files only
+$ find . -type d                    # Find directories only
+$ find . -type l                    # Find symbolic links</pre>
+                <h2>Find by Size</h2>
+                <pre>$ find . -size +100M                # Larger than 100MB
+$ find . -size -10k                 # Smaller than 10KB
+$ find . -size 50M                  # Exactly 50MB</pre>
+                <h2>Find by Time</h2>
+                <pre>$ find . -mtime -7                  # Modified in last 7 days
+$ find . -mtime +30                 # Modified more than 30 days ago
+$ find . -atime -1                  # Accessed in last 24 hours</pre>
+                <h2>Find by Permissions</h2>
+                <pre>$ find . -perm 644                  # Exact permissions
+$ find . -perm -644                 # At least these permissions
+$ find . -perm /u+w                 # User writable</pre>
+                <h2>Execute Commands on Results</h2>
+                <pre>$ find . -name "*.tmp" -delete     # Delete found files
+$ find . -name "*.txt" -exec cat {} \;  # Run command on each
+$ find . -type f -exec chmod 644 {} \;  # Change permissions</pre>
+                <h2>Combining Conditions</h2>
+                <pre>$ find . -name "*.log" -size +1M   # AND condition
+$ find . -name "*.txt" -o -name "*.log"  # OR condition
+$ find . ! -name "*.txt"            # NOT condition</pre>
+            `,
+            exercises: [
+                "Find large files - Use find to locate files larger than 100MB on your system",
+                "Clean old files - Find files modified more than 30 days ago in /tmp"
+            ],
+            quiz: {
+                question: "Which find option searches for files by name (case-insensitive)?",
+                options: ["-name", "-iname", "-type", "-size"],
+                answer: 1
+            }
+        },
+        {
+            title: "help, man, whatis, alias, exit",
+            content: `
+                <h1>Help and Utility Commands</h1>
+                <h2>help - Built-in Command Help</h2>
+                <p>Get help for shell built-in commands.</p>
+                <pre>$ help cd                           # Help for cd command
+$ help                              # List all built-ins
+$ help -m printf                    # Manual format</pre>
+                <h2>man - Manual Pages</h2>
+                <p>Comprehensive documentation for commands.</p>
+                <pre>$ man ls                            # Manual for ls
+$ man 5 passwd                      # Section 5 of passwd
+$ man -k search                     # Search manual descriptions
+$ man -f command                    # Same as whatis</pre>
+                <h3>Manual Sections</h3>
+                <ul>
+                    <li><strong>1:</strong> User commands</li>
+                    <li><strong>2:</strong> System calls</li>
+                    <li><strong>3:</strong> Library functions</li>
+                    <li><strong>4:</strong> Special files</li>
+                    <li><strong>5:</strong> File formats</li>
+                    <li><strong>6:</strong> Games</li>
+                    <li><strong>7:</strong> Miscellaneous</li>
+                    <li><strong>8:</strong> System administration</li>
+                </ul>
+                <h3>Navigating man Pages</h3>
+                <ul>
+                    <li><strong>Space:</strong> Next page</li>
+                    <li><strong>b:</strong> Previous page</li>
+                    <li><strong>/pattern:</strong> Search</li>
+                    <li><strong>q:</strong> Quit</li>
+                </ul>
+                <h2>whatis - Brief Command Description</h2>
+                <p>One-line description of commands.</p>
+                <pre>$ whatis ls
+ls (1) - list directory contents
+$ whatis cp mv rm
+cp (1) - copy files and directories
+mv (1) - move (rename) files
+rm (1) - remove files or directories</pre>
+                <h2>alias - Create Command Shortcuts</h2>
+                <p>Create custom shortcuts for commands.</p>
+                <pre>$ alias ll='ls -lah'                # Create alias
+$ alias                             # List all aliases
+$ unalias ll                        # Remove alias
+$ alias rm='rm -i'                  # Make rm safer</pre>
+                <h3>Permanent Aliases</h3>
+                <p>Add to ~/.bashrc or ~/.bash_aliases:</p>
+                <pre>alias update='sudo apt update && sudo apt upgrade'
+alias ..='cd ..'
+alias ...='cd ../..'</pre>
+                <h2>exit - Exit the Shell</h2>
+                <p>Close the terminal or shell session.</p>
+                <pre>$ exit                              # Exit with last status
+$ exit 0                            # Exit with success status
+$ exit 1                            # Exit with error status</pre>
+            `,
+            exercises: [
+                "Explore man pages - Read man pages for 5 different commands",
+                "Create useful aliases - Set up aliases for your most-used commands"
+            ],
+            quiz: {
+                question: "Which command provides a one-line description of a command?",
+                options: ["help", "man", "whatis", "info"],
+                answer: 2
+            }
+        },
+        {
+            title: "Command-Line Shortcuts & Tips",
+            content: `
+                <h1>Command-Line Shortcuts & Tips</h1>
+                <p>Master these shortcuts to become a command-line ninja!</p>
+                <h2>Navigation Shortcuts</h2>
+                <ul>
+                    <li><strong>Ctrl + A:</strong> Move to beginning of line</li>
+                    <li><strong>Ctrl + E:</strong> Move to end of line</li>
+                    <li><strong>Ctrl + B:</strong> Move back one character</li>
+                    <li><strong>Ctrl + F:</strong> Move forward one character</li>
+                    <li><strong>Alt + B:</strong> Move back one word</li>
+                    <li><strong>Alt + F:</strong> Move forward one word</li>
+                </ul>
+                <h2>Editing Shortcuts</h2>
+                <ul>
+                    <li><strong>Ctrl + U:</strong> Cut from cursor to beginning</li>
+                    <li><strong>Ctrl + K:</strong> Cut from cursor to end</li>
+                    <li><strong>Ctrl + W:</strong> Cut previous word</li>
+                    <li><strong>Ctrl + Y:</strong> Paste (yank) cut text</li>
+                    <li><strong>Ctrl + D:</strong> Delete character under cursor</li>
+                    <li><strong>Ctrl + H:</strong> Delete character before cursor (backspace)</li>
+                    <li><strong>Alt + D:</strong> Delete word after cursor</li>
+                    <li><strong>Alt + Backspace:</strong> Delete word before cursor</li>
+                </ul>
+                <h2>History Shortcuts</h2>
+                <ul>
+                    <li><strong>Ctrl + R:</strong> Reverse search history</li>
+                    <li><strong>Ctrl + P:</strong> Previous command (↑)</li>
+                    <li><strong>Ctrl + N:</strong> Next command (↓)</li>
+                    <li><strong>!!:</strong> Repeat last command</li>
+                    <li><strong>!$:</strong> Last argument of previous command</li>
+                    <li><strong>!*:</strong> All arguments of previous command</li>
+                    <li><strong>!n:</strong> Run command number n from history</li>
+                </ul>
+                <h2>Control Shortcuts</h2>
+                <ul>
+                    <li><strong>Ctrl + C:</strong> Cancel current command</li>
+                    <li><strong>Ctrl + Z:</strong> Suspend current process</li>
+                    <li><strong>Ctrl + L:</strong> Clear screen (same as clear)</li>
+                    <li><strong>Ctrl + S:</strong> Pause output</li>
+                    <li><strong>Ctrl + Q:</strong> Resume output</li>
+                    <li><strong>Ctrl + D:</strong> Exit shell (EOF)</li>
+                </ul>
+                <h2>Tab Completion</h2>
+                <ul>
+                    <li><strong>Tab:</strong> Auto-complete commands and filenames</li>
+                    <li><strong>Tab Tab:</strong> Show all possible completions</li>
+                </ul>
+                <h2>Useful Tips</h2>
+                <pre>$ cd -                              # Go to previous directory
+$ mkdir -p path/to/nested/dir       # Create nested directories
+$ command &                         # Run in background
+$ command1 && command2              # Run command2 if command1 succeeds
+$ command1 || command2              # Run command2 if command1 fails
+$ command1 ; command2               # Run both regardless
+$ command > file.txt                # Redirect output to file
+$ command >> file.txt               # Append output to file
+$ command 2> error.log              # Redirect errors
+$ command &> all.log                # Redirect both output and errors</pre>
+            `,
+            exercises: [
+                "Practice shortcuts - Spend 10 minutes using only keyboard shortcuts",
+                "Master Ctrl+R - Use reverse search to find and rerun old commands"
+            ],
+            quiz: {
+                question: "Which shortcut clears the terminal screen?",
+                options: ["Ctrl + C", "Ctrl + L", "Ctrl + D", "Ctrl + Z"],
+                answer: 1
+            }
+        },
+        {
+            title: "Environment Variables",
+            content: `
+                <h1>Environment Variables</h1>
+                <p>Environment variables are dynamic values that affect the behavior of processes and programs in your shell.</p>
+                <h2>What are Environment Variables?</h2>
+                <p>They store information about your system environment, such as paths, user preferences, and system settings.</p>
+                <h2>Viewing Environment Variables</h2>
+                <pre>$ env                               # List all environment variables
+$ printenv                          # Same as env
+$ printenv HOME                     # Show specific variable
+$ echo $HOME                        # Display variable value
+$ echo $PATH                        # Show PATH variable</pre>
+                <h2>Common Environment Variables</h2>
+                <ul>
+                    <li><strong>$HOME:</strong> User's home directory (/home/username)</li>
+                    <li><strong>$USER:</strong> Current username</li>
+                    <li><strong>$PATH:</strong> Directories to search for commands</li>
+                    <li><strong>$SHELL:</strong> Current shell (/bin/bash)</li>
+                    <li><strong>$PWD:</strong> Current working directory</li>
+                    <li><strong>$OLDPWD:</strong> Previous working directory</li>
+                    <li><strong>$LANG:</strong> System language and locale</li>
+                    <li><strong>$EDITOR:</strong> Default text editor</li>
+                    <li><strong>$TERM:</strong> Terminal type</li>
+                </ul>
+                <h2>Setting Variables</h2>
+                <h3>Temporary (Current Session Only)</h3>
+                <pre>$ MY_VAR="Hello World"              # Create variable
+$ echo $MY_VAR                      # Display it
+$ export MY_VAR="Hello"             # Make available to child processes</pre>
+                <h3>Permanent (Add to ~/.bashrc or ~/.bash_profile)</h3>
+                <pre>export EDITOR=vim
+export PATH=$PATH:/new/directory
+export MY_APP_CONFIG=/path/to/config</pre>
+                <h2>The PATH Variable</h2>
+                <p>PATH tells the shell where to look for executable files.</p>
+                <pre>$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+# Add directory to PATH
+$ export PATH=$PATH:/new/directory
+
+# Add to beginning (higher priority)
+$ export PATH=/new/directory:$PATH</pre>
+                <h2>Unsetting Variables</h2>
+                <pre>$ unset MY_VAR                      # Remove variable</pre>
+                <h2>Special Variables</h2>
+                <ul>
+                    <li><strong>$?:</strong> Exit status of last command (0 = success)</li>
+                    <li><strong>$$:</strong> Process ID of current shell</li>
+                    <li><strong>$0:</strong> Name of the shell or script</li>
+                    <li><strong>$1, $2, ...:</strong> Script arguments</li>
+                    <li><strong>$#:</strong> Number of arguments</li>
+                    <li><strong>$@:</strong> All arguments</li>
+                </ul>
+                <h2>Practical Examples</h2>
+                <pre>$ export JAVA_HOME=/usr/lib/jvm/java-11
+$ export PATH=$PATH:$JAVA_HOME/bin
+$ export HISTSIZE=10000             # Increase history size
+$ export HISTFILESIZE=20000</pre>
+            `,
+            exercises: [
+                "Explore your environment - Use env to see all variables, then research 5 unfamiliar ones",
+                "Customize PATH - Add a custom directory to your PATH and test it",
+                "Create persistent variables - Add custom variables to ~/.bashrc"
+            ],
+            quiz: {
+                question: "Which variable contains directories where the shell looks for commands?",
+                options: ["$HOME", "$PATH", "$SHELL", "$USER"],
+                answer: 1
+            }
+        }
     ]
 };
