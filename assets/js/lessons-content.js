@@ -929,120 +929,393 @@ $ export HISTFILESIZE=20000</pre>
     ],
     "Basic Text-Fu": [
         {
-            title: "Standard I/O Redirection",
+            title: "stdout (Standard Out)",
             content: `
-                <h1>Standard I/O Redirection</h1>
-                <p>Everything in Linux is a file, including your keyboard and your screen. Programs use three standard data streams:</p>
-                <ul>
-                    <li><strong>Standard Input (stdin / 0):</strong> Usually your keyboard.</li>
-                    <li><strong>Standard Output (stdout / 1):</strong> Usually your screen.</li>
-                    <li><strong>Standard Error (stderr / 2):</strong> Error messages, usually also on your screen.</li>
-                </ul>
+                <h1>stdout (Standard Out)</h1>
+                <p>Welcome to Text-Fu! In Linux, everything is a file. When a command runs successfully and produces output, it sends that text to a special stream called <strong>Standard Output (stdout)</strong>. By default, stdout is connected to your terminal screen.</p>
+                <h2>Redirecting stdout (>)</h2>
+                <p>You can capture stdout and send it into a file instead of the screen using the <code>></code> (overwrite) or <code>>></code> (append) operators.</p>
                 <div class="code-block">
-                    <pre>$ command > file   # Redirect stdout (overwrite)
-$ command >> file  # Redirect stdout (append)
-$ command 2> file  # Redirect stderr
-$ command &> file  # Redirect both stdout and stderr
-$ command < file   # Take input from file</pre>
+                    <pre>$ echo "Hello, Linux!" > greeting.txt    # Creates or overwrites the file
+$ echo "Welcome back." >> greeting.txt   # Appends to the end of the file
+$ ls -l > files_list.txt                 # Saves the directory listing to a file</pre>
                 </div>
+                <div class="note"><strong>File Descriptor:</strong> stdout is formally known as file descriptor <code>1</code>. Typing <code>1></code> is exactly the same as typing <code>></code>.</div>
             `,
-            exercises: ["Execute <code>ls /nonexistent 2> errors.log</code> and check the file content.", "Use <code>cat < /etc/hostname</code> to see your computer's name."],
+            exercises: ["Run <code>echo 'My first redirect' > test.txt</code>, then use <code>cat test.txt</code> to view it."],
             quiz: {
-                question: "Which file descriptor represents Standard Error (stderr)?",
-                options: ["0", "1", "2", "3"],
-                answer: 2
-            }
-        },
-        {
-            title: "Pipes and Tee",
-            content: `
-                <h1>Pipes and the 'tee' Command</h1>
-                <p>The pipe <code>|</code> is the most powerful tool in the Linux philosophy: "Do one thing and do it well, and work together."</p>
-                <h2>What is a Pipe?</h2>
-                <p>A pipe takes the <strong>stdout</strong> of the left command and sends it as <strong>stdin</strong> to the right command.</p>
-                <div class="code-block">
-                    <pre>$ ls -l /etc | less                # Page through a long list
-$ ls /bin | grep "zip"             # Find zip-related binaries</pre>
-                </div>
-                <h2>The 'tee' Command</h2>
-                <p>Named after a T-shaped pipe joint, <code>tee</code> splits the output. It saves to a file AND displays it to stdout.</p>
-                <pre>$ ls | tee manifest.txt | wc -l    # Save list AND count files</pre>
-            `,
-            exercises: ["List the content of /etc and count the lines using <code>ls /etc | wc -l</code>", "Use <code>tee</code> to save the current date to 'date.txt' and see it on screen simultaneously."],
-            quiz: {
-                question: "What does the 'tee' command do?",
-                options: ["Redirects only to files", "Redirects only to screen", "Sends output to a file and screen simultaneously", "Deletes the output after reading"],
-                answer: 2
-            }
-        },
-        {
-            title: "Text Processing (cut, head, tail, sort, uniq)",
-            content: `
-                <h1>Basic Text Utilities</h1>
-                <p>Linux offers a massive array of small tools that manipulate text data efficiently.</p>
-                <ul>
-                    <li><strong>env:</strong> List environment variables or run programs in modified env.</li>
-                    <li><strong>cut:</strong> Extract sections from each line (columns/fields).</li>
-                    <li><strong>head / tail:</strong> View the top or bottom of a file.</li>
-                    <li><strong>sort:</strong> Arrange lines of text alphabetically or numerically.</li>
-                    <li><strong>uniq:</strong> Removes duplicate lines (requires sorted input).</li>
-                </ul>
-                <div class="code-block">
-                    <pre>$ cut -d: -f1 /etc/passwd            # Get list of usernames
-$ head -n 5 /etc/passwd              # Show first 5 users
-$ sort names.txt | uniq               # Get unique sorted names</pre>
-                </div>
-            `,
-            exercises: ["Use <code>tail -f /var/log/syslog</code> (or any log) to see it update in real-time.", "Sort <code>/etc/group</code> alphabetically."],
-            quiz: {
-                question: "Which command would you use to see the last 10 lines of a file?",
-                options: ["head", "cut", "tail", "nl"],
-                answer: 2
-            }
-        },
-        {
-            title: "Advanced Utilities (expand, join, split, wc, nl)",
-            content: `
-                <h1>Expanding your Toolbelt</h1>
-                <p>More specialized tools for structured data management.</p>
-                <ul>
-                    <li><strong>expand / unexpand:</strong> Convert tabs to spaces (and vice versa).</li>
-                    <li><strong>join:</strong> Combine two files based on a common field (like a SQL JOIN).</li>
-                    <li><strong>split:</strong> Break a large file into smaller pieces.</li>
-                    <li><strong>wc:</strong> Word count (lines, words, characters).</li>
-                    <li><strong>nl:</strong> Number the lines of a file.</li>
-                </ul>
-                <pre>$ wc -l file.txt                    # Count lines in a file
-$ nl script.sh                       # Display script with line numbers</pre>
-            `,
-            exercises: ["Count how many unique users are on your system using a pipe.", "Split a large text file into 10-line chunks."],
-            quiz: {
-                question: "Which command counts the number of lines, words, and characters in a file?",
-                options: ["nl", "wc", "count", "stat"],
+                question: "Which operator is used to append standard output to the end of an existing file without overwriting it?",
+                options: [">", ">>", "<", "|"],
                 answer: 1
             }
         },
         {
-            title: "Searching with Grep (grep, egrep, fgrep)",
+            title: "stdin (Standard In)",
             content: `
-                <h1>Mastering Grep</h1>
-                <p><code>grep</code> (Global Regular Expression Print) is the gold standard for searching text.</p>
-                <ul>
-                    <li><strong>grep:</strong> Basic searching.</li>
-                    <li><strong>egrep:</strong> Extended grep (supports more complex regex).</li>
-                    <li><strong>fgrep:</strong> Fixed grep (ignores special regex characters, very fast).</li>
-                </ul>
+                <h1>stdin (Standard In)</h1>
+                <p><strong>Standard Input (stdin)</strong> is the stream where commands expect to receive their input data. By default, stdin is connected to your keyboard.</p>
+                <h2>Redirecting stdin (<)</h2>
+                <p>You can force a command to read from a file instead of waiting for you to type on the keyboard using the <code><</code> operator.</p>
                 <div class="code-block">
-                    <pre>$ grep "root" /etc/passwd            # Find root user
-$ grep -i "linux" readme.txt         # Case-insensitive search
-$ grep -r "TODO" ./src               # Recursive search in folder
-$ grep -v "debug" app.log            # Invert match (exclude lines)</pre>
+                    <pre>$ sort < unsorted_names.txt        # Sends the file contents into the 'sort' command
+$ wc -l < script.sh                  # Counts the lines in the script</pre>
+                </div>
+                <div class="tip"><strong>File Descriptor:</strong> stdin is formally known as file descriptor <code>0</code>.</div>
+            `,
+            exercises: ["Use the cat command to read a file by redirecting stdin: <code>cat < /etc/hostname</code>"],
+            quiz: {
+                question: "Which file descriptor number represents Standard Input (stdin)?",
+                options: ["0", "1", "2", "3"],
+                answer: 0
+            }
+        },
+        {
+            title: "stderr (Standard Error)",
+            content: `
+                <h1>stderr (Standard Error)</h1>
+                <p>When a command fails or produces a warning, it does <strong>not</strong> send that text to stdout. Instead, it uses a separate stream called <strong>Standard Error (stderr)</strong>. This ensures that error messages don't get mixed up with actual data.</p>
+                <h2>Redirecting stderr (2>)</h2>
+                <p>Because stderr is file descriptor <code>2</code>, you redirect it using <code>2></code>.</p>
+                <div class="code-block">
+                    <pre>$ ls /nonexistent_folder 2> error.log    # The error message goes to the file, not the screen
+$ find / -name "secret" 2> /dev/null     # Throw away all "Permission denied" errors!</pre>
+                </div>
+                <h2>Redirecting Both</h2>
+                <p>Sometimes you want to capture both successful output and errors into the same file.</p>
+                <div class="code-block">
+                    <pre>$ command > all_output.log 2>&1    # The classic way (redirect 2 into 1)
+$ command &> all_output.log        # The modern, shorter way</pre>
                 </div>
             `,
-            exercises: ["Search for your username in <code>/etc/passwd</code>", "List all lines in a log file that DO NOT contain 'error' using <code>-v</code>."],
+            exercises: ["Try running <code>ls /root 2> oops.txt</code> (as a normal user), then use <code>cat oops.txt</code> to see the captured 'Permission denied' error."],
             quiz: {
-                question: "Which flag makes grep case-insensitive?",
-                options: ["-v", "-r", "-i", "-c"],
+                question: "Which command safely discards all error messages (stderr) without cluttering the screen?",
+                options: ["command > /dev/null", "command 2> /dev/null", "command < /dev/null", "command | /dev/null"],
+                answer: 1
+            }
+        },
+        {
+            title: "pipe and tee",
+            content: `
+                <h1>Piping Commands Together</h1>
+                <p>The pipe <code>|</code> takes the <strong>stdout</strong> of the command on the left, and plugs it directly into the <strong>stdin</strong> of the command on the right.</p>
+                <div class="code-block">
+                    <pre>$ ls -l /etc | less                # Pipe a massive list into a pager so you can scroll
+$ ls /bin | grep "zip"             # Pipe the list into a filter that only shows "zip"</pre>
+                </div>
+                <h2>The 'tee' Command</h2>
+                <p>Named after a T-shaped plumber's pipe, <code>tee</code> splits the stream. It saves the input to a file AND simultaneously passes it straight through to stdout.</p>
+                <div class="code-block">
+                    <pre>$ echo "Server started" | tee server.log      # Writes to file AND prints to screen
+$ ls -l | tee contents.txt | grep "drwx"      # Save full list, but only screen-print directories</pre>
+                </div>
+            `,
+            exercises: ["Run <code>ls -l /etc | tee my_etc.txt | head -n 5</code>. You will see the first 5 lines on screen, but if you check the file, it contains everything!"],
+            quiz: {
+                question: "What is the primary function of the pipe `|` character?",
+                options: ["It saves output to a file.", "It connects the stdout of one command to the stdin of another.", "It runs two commands simultaneously in the background.", "It redirects stderr to stdout."],
+                answer: 1
+            }
+        },
+        {
+            title: "env (Environment)",
+            content: `
+                <h1>Printing and Modifying Environment</h1>
+                <p>The <code>env</code> command is used to print out a list of all your current environment variables (like PATH, USER, HOME), or to run a program in a modified environment without permanently changing your actual shell configuration.</p>
+                <h2>Viewing Variables</h2>
+                <div class="code-block">
+                    <pre>$ env                     # Print all environment variables
+$ env | grep USER         # Quickly find your USER variable</pre>
+                </div>
+                <h2>Running with Modified Variables</h2>
+                <div class="code-block">
+                    <pre>$ env EDITOR=nano visudo  # Temporarily forces the EDITOR variable to 'nano' just for this command
+$ env -i bash             # Start a completely empty, wiped-clean bash shell for testing</pre>
+                </div>
+            `,
+            exercises: ["Run <code>env | less</code> to browse through all the hidden variables your Linux system uses to track your session."],
+            quiz: {
+                question: "What does the `env -i` flag do when executing a command?",
+                options: ["Installs the environment.", "Ignores the current environment, starting with an empty one.", "Interactive mode.", "Inverts the variables."],
+                answer: 1
+            }
+        },
+        {
+            title: "cut",
+            content: `
+                <h1>Slicing Text Columns</h1>
+                <p>The <code>cut</code> command removes sections from each line of a file. It is incredibly useful for extracting specific columns from structured data like CSVs or system logs.</p>
+                <h2>Extracting by Delimiter (-d) and Field (-f)</h2>
+                <p>The <code>/etc/passwd</code> file uses colons <code>:</code> to separate user data.</p>
+                <div class="code-block">
+                    <pre>$ cut -d: -f1 /etc/passwd            # Extract field 1 (usernames) using colon as delimiter
+$ cut -d: -f1,7 /etc/passwd          # Extract field 1 (username) AND field 7 (shell)
+$ echo "apple,banana,cherry" | cut -d, -f2  # Returns 'banana'</pre>
+                </div>
+                <h2>Extracting by Character (-c)</h2>
+                <div class="code-block">
+                    <pre>$ echo "abcdefgh" | cut -c2-5        # Extract characters 2 through 5 (returns 'bcde')</pre>
+                </div>
+            `,
+            exercises: ["Use <code>cut -d: -f1 /etc/passwd</code> to generate a list of every user account on your machine."],
+            quiz: {
+                question: "If you have a comma-separated file, which flags tell `cut` to use commas and extract the 3rd column?",
+                options: ["-c 3 -d ,", "-d , -f 3", "-s , -c 3", "-w , -f 3"],
+                answer: 1
+            }
+        },
+        {
+            title: "paste",
+            content: `
+                <h1>Merging Lines of Files</h1>
+                <p>While <code>cat</code> stacks files vertically (one after another), the <code>paste</code> command merges files <strong>horizontally</strong>, joining corresponding lines side-by-side.</p>
+                <h2>Basic Usage</h2>
+                <p>Imagine <code>names.txt</code> has "Alice" and "Bob", and <code>ages.txt</code> has "25" and "30".</p>
+                <div class="code-block">
+                    <pre>$ paste names.txt ages.txt 
+Alice   25
+Bob     30</pre>
+                </div>
+                <h2>Custom Delimiters</h2>
+                <p>By default, <code>paste</code> uses a Tab character to separate the joined lines. You can change this using <code>-d</code>.</p>
+                <div class="code-block">
+                    <pre>$ paste -d "=" names.txt ages.txt
+Alice=25
+Bob=30</pre>
+                </div>
+            `,
+            exercises: ["Create two small files using `echo` and `>`. Then use `paste` to merge them side-by-side on your screen."],
+            quiz: {
+                question: "What character does `paste` use by default to separate the merged lines?",
+                options: ["Space", "Comma", "Tab", "Newline"],
+                answer: 2
+            }
+        },
+        {
+            title: "head",
+            content: `
+                <h1>Viewing the Top of a File</h1>
+                <p>The <code>head</code> command outputs the first part of a file. By default, it prints exactly the first 10 lines.</p>
+                <h2>Basic Usage</h2>
+                <div class="code-block">
+                    <pre>$ head /var/log/syslog              # View the first 10 lines
+$ head -n 5 /etc/passwd             # View exactly the first 5 lines</pre>
+                </div>
+                <h2>Extracting Bytes</h2>
+                <p>Instead of lines, you can grab a specific number of bytes.</p>
+                <div class="code-block">
+                    <pre>$ head -c 20 /dev/urandom | base64  # Grab 20 random bytes for a rapid password generator</pre>
+                </div>
+            `,
+            exercises: ["Run <code>head -n 3 /etc/os-release</code> to quickly check what flavor of Linux you are currently running."],
+            quiz: {
+                question: "By default, how many lines does the `head` command output if no `-n` flag is provided?",
+                options: ["5", "10", "20", "50"],
+                answer: 1
+            }
+        },
+        {
+            title: "tail",
+            content: `
+                <h1>Viewing the Bottom of a File</h1>
+                <p>The <code>tail</code> command outputs the last part of a file. Like <code>head</code>, it defaults to 10 lines.</p>
+                <h2>Basic Usage</h2>
+                <div class="code-block">
+                    <pre>$ tail /var/log/syslog              # View the last 10 lines (most recent logs)
+$ tail -n 20 /var/log/auth.log      # View the last 20 lines</pre>
+                </div>
+                <h2>Following Live Logs (-f)</h2>
+                <p>The most important feature of <code>tail</code> is the "follow" flag. It keeps the file open and instantly prints new lines to your screen the moment they are written by the system.</p>
+                <div class="code-block">
+                    <pre>$ tail -f /var/log/syslog           # Watch the system logs actively scroll in real-time
+# Press Ctrl+C to exit follow mode!</pre>
+                </div>
+            `,
+            exercises: ["Open a terminal and run <code>tail -f /var/log/syslog</code>. Open a second terminal and do something (like restart a service or plug in a USB) to watch the live output."],
+            quiz: {
+                question: "Which flag allows `tail` to continuously monitor a file and print new text as it is added?",
+                options: ["-c", "-n", "-f", "-live"],
+                answer: 2
+            }
+        },
+        {
+            title: "expand and unexpand",
+            content: `
+                <h1>Converting Tabs and Spaces</h1>
+                <p>Tabs vs. Spaces is a classic programmer debate. The <code>expand</code> and <code>unexpand</code> tools settle the dispute by seamlessly converting between the two.</p>
+                <h2>expand (Tabs to Spaces)</h2>
+                <p>Converts all Tab characters into Spaces.</p>
+                <div class="code-block">
+                    <pre>$ expand code.py > fixed_code.py    # Replaces tabs with spaces (default is 8 spaces per tab)
+$ expand -t 4 code.py               # Replaces each tab with exactly 4 spaces</pre>
+                </div>
+                <h2>unexpand (Spaces to Tabs)</h2>
+                <p>Converts Spaces back into Tab characters.</p>
+                <div class="code-block">
+                    <pre>$ unexpand -a spaces.txt > tabs.txt # The -a flag forces it to convert ALL spaces, not just leading indentation</pre>
+                </div>
+            `,
+            exercises: ["Create a file with deep tab indentation, then run <code>expand -t 2 file.txt</code> to compress the visual width."],
+            quiz: {
+                question: "If you want `expand` to replace every tab character with exactly 4 spaces, which option do you use?",
+                options: ["-s 4", "-t 4", "-n 4", "--spaces=4"],
+                answer: 1
+            }
+        },
+        {
+            title: "join and split",
+            content: `
+                <h1>Advanced File Data Management</h1>
+                <h2>join (Relational Data)</h2>
+                <p><code>join</code> works exactly like a SQL JOIN in an database. It merges the lines of two files that share a common field (column). <strong>Important: Both files must be sorted first!</strong></p>
+                <div class="code-block">
+                    <pre># file1 has: "1 Alice", file2 has "1 HR"
+$ join file1.txt file2.txt          # Output: "1 Alice HR"</pre>
+                </div>
+                <h2>split (Breaking Large Files)</h2>
+                <p>If you have a massive 10GB log file and need to email it or open it in a basic text editor, <code>split</code> breaks it into manageable chunks.</p>
+                <div class="code-block">
+                    <pre>$ split -l 1000 biglog.txt chunk_   # Splits into files of 1000 lines each (chunk_aa, chunk_ab...)
+$ split -b 50M bigvideo.mp4 vpart_  # Splits a binary file into exactly 50 Megabyte pieces
+$ cat vpart_* > bigvideo.mp4        # How to easily glue them back together!</pre>
+                </div>
+            `,
+            exercises: ["Run <code>split -b 1M /var/log/syslog test_</code> and then <code>ls -l</code> to see the chopped up 1 Megabyte files."],
+            quiz: {
+                question: "What is a strict requirement for the two files before you can successfully use the `join` command on them?",
+                options: ["They must have the same file extension.", "They must be exactly the same size.", "They must be sorted based on the join field.", "They must contain only numbers."],
+                answer: 2
+            }
+        },
+        {
+            title: "sort",
+            content: `
+                <h1>Ordering Text</h1>
+                <p>The <code>sort</code> command arranges lines of text sequentially. This is typically required before using commands like <code>uniq</code> or <code>join</code>.</p>
+                <h2>Basic Sorting</h2>
+                <div class="code-block">
+                    <pre>$ sort fruits.txt                   # Sorted alphabetically (A to Z)
+$ sort -r fruits.txt                # Reverse sort (Z to A)</pre>
+                </div>
+                <h2>Numeric Sorting</h2>
+                <p>Alphabetical sort thinks "10" comes before "2". To sort mathematically, you must tell it to treat the text as numbers.</p>
+                <div class="code-block">
+                    <pre>$ sort -n prices.txt                # Sort numerically (1, 2, 10, 20)
+$ sort -h sizes.txt                 # Human-readable numeric sort (handles 1K, 5M, 2G sizes!)</pre>
+                </div>
+                <h2>Sorting by Column</h2>
+                <div class="code-block">
+                    <pre>$ ls -l | sort -k 5 -n              # Sort directory listing by the 5th column (file size) numerically</pre>
+                </div>
+            `,
+            exercises: ["Run <code>ls -lh /etc | sort -k 5 -h</code> to sort the files in /etc by their human-readable size."],
+            quiz: {
+                question: "Which flag allows `sort` to correctly order sizes like 500M and 2G?",
+                options: ["-s", "-n", "-h", "-c"],
+                answer: 2
+            }
+        },
+        {
+            title: "tr (Translate)",
+            content: `
+                <h1>Character Translation</h1>
+                <p>The <code>tr</code> command translates, squashes, or deletes characters. It reads <strong>strictly from stdin</strong>, so it is almost universally used inside a pipe <code>|</code>.</p>
+                <h2>Converting Case</h2>
+                <div class="code-block">
+                    <pre>$ echo "hello world" | tr 'a-z' 'A-Z'   # Output: HELLO WORLD</pre>
+                </div>
+                <h2>Deleting Characters (-d)</h2>
+                <div class="code-block">
+                    <pre>$ echo "Phone: 555-1234" | tr -d '-'    # Removes all hyphens</pre>
+                </div>
+                <h2>Squeezing Repeats (-s)</h2>
+                <p>Perfect for cleaning up messy formatting with too many spaces.</p>
+                <div class="code-block">
+                    <pre>$ echo "Name       Age      City" | tr -s ' '  # Squeezes multiple spaces down to a single space</pre>
+                </div>
+            `,
+            exercises: ["Use <code>cat /etc/hostname | tr 'a-z' 'A-Z'</code> to print your computer's name in all uppercase."],
+            quiz: {
+                question: "Why does the command `tr 'a-z' 'A-Z' file.txt` fail to work?",
+                options: ["tr only works on numbers.", "tr does not accept file names as arguments; it strictly requires data from stdin.", "The syntax for uppercase is wrong.", "You need root privileges."],
+                answer: 1
+            }
+        },
+        {
+            title: "uniq (Unique)",
+            content: `
+                <h1>Filtering Duplicate Lines</h1>
+                <p>The <code>uniq</code> command filters out adjacent duplicate lines. <strong>Crucial concept: It only detects duplicates if they are right next to each other!</strong> This is why you almost always pipe data through <code>sort</code> first.</p>
+                <h2>Finding Uniques</h2>
+                <div class="code-block">
+                    <pre>$ sort names.txt | uniq             # The standard way to get a list of unique names</pre>
+                </div>
+                <h2>Counting Occurrences (-c)</h2>
+                <p>One of the most useful data analysis pipelines in all of Linux:</p>
+                <div class="code-block">
+                    <pre>$ sort access.log | uniq -c         # Groups the text and prints a count next to each unique line
+$ sort access.log | uniq -c | sort -nr # Count occurrences, then sort highest-to-lowest (Top 10 list!)</pre>
+                </div>
+                <h2>Showing Only Duplicates (-d)</h2>
+                <div class="code-block">
+                    <pre>$ sort emails.txt | uniq -d         # Only print emails that appeared more than once</pre>
+                </div>
+            `,
+            exercises: ["Create a file with some repeated words on different lines. Run `uniq` on it without sorting first to see it fail, then run `sort file.txt | uniq` to see it succeed."],
+            quiz: {
+                question: "To generate a 'Top 10' frequency list of items in a file, which sequence of commands is required?",
+                options: ["uniq file.txt | sort -c", "sort file.txt | uniq -c | sort -n", "count file.txt | sort | head 10", "grep -c file.txt"],
+                answer: 1
+            }
+        },
+        {
+            title: "wc and nl",
+            content: `
+                <h1>Counting and Numbering</h1>
+                <h2>wc (Word Count)</h2>
+                <p>Despite the name, <code>wc</code> counts lines, words, and characters.</p>
+                <div class="code-block">
+                    <pre>$ wc /etc/passwd                    # Outputs: Lines Words Characters Filename
+$ wc -l /etc/passwd                 # Only output the Line count
+$ ls -1 /etc | wc -l                # Amazing trick: Count exactly how many files are in a directory!</pre>
+                </div>
+                <h2>nl (Number Lines)</h2>
+                <p>Sometimes you need to add reference line numbers to script output or configuration files.</p>
+                <div class="code-block">
+                    <pre>$ nl code.py                        # Prints the file with numbered lines
+$ cat -n code.py                    # (Alternative using cat. Very similar result!)</pre>
+                </div>
+            `,
+            exercises: ["Run <code>ls -1 /usr/bin | wc -l</code> to find out exactly how many command-line binaries your system has installed!"],
+            quiz: {
+                question: "If you want to quickly count how many files exist in the current directory, which pipeline works perfectly?",
+                options: ["ls -l | num", "ls -1 | wc -l", "count *", "find . | nl"],
+                answer: 1
+            }
+        },
+        {
+            title: "grep",
+            content: `
+                <h1>The Ultimate Search Tool (grep)</h1>
+                <p><code>grep</code> (Global Regular Expression Print) searches text for patterns and returns the matching lines. It is arguably the most frequently used text command in Linux.</p>
+                <h2>Core Grep Commands</h2>
+                <div class="code-block">
+                    <pre>$ grep "root" /etc/passwd           # Search for the exact word 'root'
+$ ls -l | grep "drwx"               # Pipe output into grep to filter for directories
+$ grep -i "failed" /var/log/auth.log # Case-insensitive (finds FAILED, Failed, failed)
+$ grep -v "debug" app.log           # Invert match: Print all lines that DO NOT contain 'debug'</pre>
+                </div>
+                <h2>Investigation Tools</h2>
+                <div class="code-block">
+                    <pre>$ grep -r "TODO" ./src/             # Recursive: Search through every file in a folder!
+$ grep -n "function" file.js        # Print the Line Number alongside the matches
+$ grep -C 2 "error" server.log      # Context: Print the match AND 2 lines above/below it</pre>
+                </div>
+            `,
+            exercises: ["Run <code>grep -r 'nameserver' /etc/</code> to find exactly which file configures your DNS servers."],
+            quiz: {
+                question: "Which grep flag is used to 'Invert' the match, returning only lines that do NOT contain the pattern?",
+                options: ["-i", "-r", "-v", "-n"],
                 answer: 2
             }
         }
