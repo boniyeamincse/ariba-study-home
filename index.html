@@ -19,8 +19,14 @@
     <div id="hubView" class="view">
         <header class="header">
             <div class="container text-center">
-                <h1 class="glitch-text">Ariba Study Home</h1>
-                <p class="subtitle">Select a training module to begin your journey.</p>
+                <div class="lang-switcher">
+                    <select id="langSelect" class="lang-select">
+                        <option value="en">English</option>
+                        <option value="bn">বাংলা</option>
+                    </select>
+                </div>
+                <h1 class="glitch-text" data-i18n="hub_title">Ariba Study Home</h1>
+                <p class="subtitle" data-i18n="hub_subtitle">Select a training module to begin your journey.</p>
             </div>
         </header>
 
@@ -139,6 +145,8 @@
         </div>
     </div>
 
+    <script src="assets/js/i18n/en.js"></script>
+    <script src="assets/js/i18n/bn.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 

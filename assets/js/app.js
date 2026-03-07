@@ -243,36 +243,93 @@ const backToHubBtn = document.getElementById('backToHub');
 
 const footer = document.querySelector('footer');
 
-function showView(viewName) {
-    hubView.style.display = 'none';
-    linuxView.style.display = 'none';
-    lessonView.style.display = 'none';
-    if (footer) footer.style.display = 'block';
+// i18n State
+let currentLang = localStorage.getItem('aribaLang') || 'en';
 
-    if (viewName === 'hub') {
-        hubView.style.display = 'block';
-        document.body.className = 'hub-page';
-    } else if (viewName === 'linux') {
-        linuxView.style.display = 'block';
-        document.body.className = '';
-        renderModules();
-    } else if (viewName === 'lesson') {
-        lessonView.style.display = 'block';
-        document.body.className = '';
-        if (footer) footer.style.display = 'none';
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('aribaLang', lang);
+    translateUI();
+    renderModules();
+    if (lessonView.style.display === 'block') renderLesson();
+}
+
+function translateUI() {
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang].ui[key]) {
+            el.innerText = translations[currentLang].ui[key];
+        }
+    });
+
+    // Update switcher value
+    if (langSelect) langSelect.value = currentLang;
+}
+
+const langSelect = document.getElementById('langSelect');
+if (langSelect) {
+    langSelect.onchange = (e) => setLanguage(e.target.value);
+}
+
+function renderModules() {
+    if (!modulesGrid) return;
+    modulesGrid.innerHTML = '';
+
+    // Get translated versions of module info
+    const tModules = translations[currentLang].modules;
+    const tUI = translations[currentLang].ui;
+
+    modules.forEach((module, index) => {
+        const isLocked = index > unlockedIndex;
+        const isCompleted = index < unlockedIndex;
+
+        const card = document.createElement('div');
+        card.className = `module-card ${isLocked ? 'locked' : 'unlocked'} ${isCompleted ? 'completed' : ''}`;
+
+        let statusText = tUI.locked;
+        let statusClass = 'locked';
+
+        if (isCompleted) {
+            statusText = tUI.completed;
+            statusClass = 'completed';
+        } else if (!isLocked) {
+            statusText = tUI.enter_module;
+            statusClass = 'unlocked';
+        }
+
+        const tModule = tModules[index] || module;
+
+        card.innerHTML = `
+            <img src="assets/images/${module.icon}.png" alt="${tModule.title}" class="module-icon">
+            <h3 class="module-title">${tModule.title}</h3>
+            <p class="module-desc">${tModule.desc}</p>
+            <div class="status-badge ${statusClass}">${statusText}</div>
+        `;
+
+        if (!isLocked) {
+            card.onclick = () => startLesson(module.title);
+        }
+
+        modulesGrid.appendChild(card);
+    });
+
+    if (progressBar) {
+        const progressPercent = Math.round((unlockedIndex / modules.length) * 100);
+        progressBar.style.width = `${progressPercent}%`;
     }
 }
 
-if (enterLinuxBtn) {
-    enterLinuxBtn.onclick = () => showView('linux');
-}
-
-if (backToHubBtn) {
-    backToHubBtn.onclick = () => showView('hub');
+// Update startLesson to handle title mapping
+function getOriginalTitle(translatedTitle) {
+    const tModules = translations[currentLang].modules;
+    const index = tModules.findIndex(m => m.title === translatedTitle);
+    if (index !== -1) return modules[index].title;
+    return translatedTitle;
 }
 
 function startLesson(moduleTitle) {
-    currentModule = moduleTitle;
+    currentModule = moduleTitle; // Store original title for content lookup
     currentLessonIndex = 0;
     showView('lesson');
     renderLesson();
@@ -281,8 +338,13 @@ function startLesson(moduleTitle) {
 function renderLesson() {
     const lessons = lessonsContent[currentModule] || [{ title: "Content Coming Soon", content: "<p>We are working on this content!</p>" }];
     const lesson = lessons[currentLessonIndex];
+    const tUI = translations[currentLang].ui;
 
-    document.getElementById('lessonModuleTitle').innerText = currentModule;
+    // Map module title for display
+    const moduleIndex = modules.findIndex(m => m.title === currentModule);
+    const displayTitle = translations[currentLang].modules[moduleIndex]?.title || currentModule;
+
+    document.getElementById('lessonModuleTitle').innerText = displayTitle;
     document.getElementById('breadcrumbModule').innerText = 'Linux';
     document.getElementById('breadcrumbTopic').innerText = lesson.title;
     document.getElementById('lessonContent').innerHTML = lesson.content;
@@ -301,6 +363,11 @@ function renderLesson() {
         subTopicList.appendChild(li);
     });
 
+    // UI Static Labels
+    document.querySelector('.panel-section h3').innerText = tUI.exercises;
+    document.querySelectorAll('.panel-section h3')[1].innerText = tUI.quiz;
+    document.getElementById('submitLessonQuiz').innerText = tUI.submit;
+
     // Exercises
     const exerciseList = document.getElementById('exerciseList');
     exerciseList.innerHTML = '';
@@ -311,7 +378,7 @@ function renderLesson() {
             exerciseList.appendChild(li);
         });
     } else {
-        exerciseList.innerHTML = '<li>More exercises coming soon!</li>';
+        exerciseList.innerHTML = `<li>${tUI.completed}</li>`;
     }
 
     // Quiz
@@ -343,7 +410,8 @@ function renderLesson() {
 
     // Nav
     document.getElementById('prevTopic').style.visibility = currentLessonIndex > 0 ? 'visible' : 'hidden';
-    document.getElementById('nextTopic').innerText = currentLessonIndex < lessons.length - 1 ? 'Next Topic' : 'Finish Module';
+    document.getElementById('prevTopic').innerText = tUI.prev_topic;
+    document.getElementById('nextTopic').innerText = currentLessonIndex < lessons.length - 1 ? tUI.next_topic : tUI.finish_module;
 
     document.getElementById('prevTopic').onclick = () => {
         currentLessonIndex--;
@@ -362,16 +430,18 @@ function renderLesson() {
 
 function checkLessonQuiz(selectedIndex, correctIndex) {
     const feedback = document.getElementById('lessonQuizFeedback');
+    const tUI = translations[currentLang].ui;
     if (selectedIndex === correctIndex) {
-        feedback.innerText = "Correct! Well done.";
+        feedback.innerText = tUI.correct;
         feedback.style.color = "var(--success-color)";
     } else {
-        feedback.innerText = "Incorrect. Try again!";
+        feedback.innerText = tUI.incorrect;
         feedback.style.color = "var(--error-color)";
     }
 }
 
 // Initial render
 if (modulesGrid) {
+    translateUI();
     renderModules();
 }
