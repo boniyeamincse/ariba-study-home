@@ -772,25 +772,92 @@ $ sudo dmidecode           # Print detailed motherboard serial numbers, RAM cloc
 
 ## Filesystem & Storage
 
-### Disk Partitioning and Formatting
+### Disk Partitioning (fdisk & parted)
 
 ```bash
-$ sudo fdisk /dev/sdb    # Opens the interactive partition tool for a 2nd drive
-
-$ sudo mkfs.ext4 /dev/sdb1 # Creates an ext4 filesystem on partition 1 of sdb
+$ sudo fdisk /dev/sdb        # Classic interactive MBR/GPT partition editor
+$ sudo parted /dev/sdb       # Modern partitioning tool, supports GPT natively
+$ sudo gdisk /dev/sdb        # GPT-focused partition editor
 
 ```
 
-### Mounting and /etc/fstab
+### Filesystem Formats (ext4, xfs, btrfs)
 
 ```bash
-$ sudo mkdir -p /mnt/backup          # First, create an empty mount point folder
-$ sudo mount /dev/sdb1 /mnt/backup   # Hook the drive into the folder
-$ sudo umount /mnt/backup            # Safely unhook the drive (unmount)
+$ sudo mkfs.ext4 /dev/sdb1     # Format partition 1 with ext4
+$ sudo mkfs.xfs  /dev/sdb2     # Format partition 2 with xfs
+$ df -Th                        # View the type of every currently mounted filesystem
 
-# Inside /etc/fstab
-# Device        Mount_Point    Filesystem    Options     Dump  Pass
-/dev/sdb1       /mnt/backup    ext4          defaults    0     2
+```
+
+### Mounting & Unmounting Storage
+
+```bash
+$ sudo mkdir -p /mnt/data           # Step 1: Create an empty mount point directory
+$ sudo mount /dev/sdb1 /mnt/data    # Step 2: Attach the new partition to that directory
+$ ls /mnt/data                      # Now browse the drive's contents just like a normal folder!
+$ sudo umount /mnt/data             # Step 3: Safely detach the drive when finished
+
+```
+
+### Persistent Mounts (/etc/fstab)
+
+```bash
+$ sudo blkid /dev/sdb1              # Get the UUID for the drive (safer than using /dev name)
+$ cat /etc/fstab                    # View current permanent mounts
+$ sudo mount -a                     # Test fstab by mounting everything declared in it (catch typos!)
+
+```
+
+### Inodes & the VFS
+
+```bash
+$ ls -i <filename>             # Display the inode number of a file
+$ df -i                        # Show inode usage (you can run OUT of inodes even with free disk space!)
+$ stat <filename>              # Show full inode metadata: size, timestamps, inode number, etc.
+
+```
+
+### Hard Links & Soft Links
+
+```bash
+$ ln original.txt hardlink.txt     # Create a hard link (no 'softlink' flag needed)
+
+$ ln -s /var/www/html /webroot      # Create a convenient shortcut at /webroot
+$ ls -la /webroot                   # Shows: /webroot -> /var/www/html
+
+```
+
+### Disk Space Management
+
+```bash
+$ df -h                    # Human readable: shows how full every partition is
+
+$ du -sh /var/log/*        # See the sizes of everything in the log directory
+$ du -sh /* 2>/dev/null   # A quick health check: see the top-level folder sizes from root
+
+$ du -ah /home | sort -rh | head -20    # Find the 20 largest files/folders in /home
+
+```
+
+### Swap Space
+
+```bash
+$ sudo fallocate -l 4G /swapfile    # Create a 4 Gigabyte empty file
+$ sudo chmod 600 /swapfile          # Secure it so only root can read it
+$ sudo mkswap /swapfile             # Tell the kernel this file is a swap area
+$ sudo swapon /swapfile             # Activate the new swap immediately
+$ free -h                           # Verify the swap total increased!
+
+```
+
+### LVM (Logical Volume Manager)
+
+```bash
+$ sudo pvcreate /dev/sdb           # Create a Physical Volume from /dev/sdb
+$ sudo vgcreate my_vg /dev/sdb    # Create a Volume Group called 'my_vg'
+$ sudo lvcreate -L 50G -n data my_vg  # Carve a 50GB Logical Volume named 'data'
+$ sudo lvextend -L +20G /dev/my_vg/data  # Grow the volume by 20GB ONLINE (no downtime!)
 
 ```
 

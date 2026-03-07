@@ -2452,74 +2452,243 @@ $ dmesg -w                 # Follow mode: Leave it open to watch the kernel reac
     ],
     "Filesystem & Storage": [
         {
-            title: "Filesystem Hierarchy Standard",
+            title: "Filesystem Hierarchy Standard (FHS)",
             content: `
-                <h1>The Linux Directory Tree</h1>
-                <p>Linux doesn't have "C:" or "D:" drives. Everything starts at the root (<code>/</code>) and branches out according to the Filesystem Hierarchy Standard.</p>
+                <h1>The One-Root Tree</h1>
+                <p>Unlike Windows with its lettered drives (C:, D:), Linux has only <strong>one</strong> root (<code>/</code>). Every single file on the system — regardless of which drive it is physically stored on — appears somewhere under this single root tree, defined by the Filesystem Hierarchy Standard.</p>
+                <h2>Key Directories</h2>
                 <ul>
-                    <li><code>/</code> : The Root directory. The absolute top of the tree.</li>
-                    <li><code>/etc</code> : System-wide configuration files (e.g., <code>/etc/ssh/sshd_config</code>).</li>
-                    <li><code>/var</code> : Variable data that grows over time (Logs, databases, web server files).</li>
-                    <li><code>/home</code> : Personal user data and configuration (e.g., <code>/home/alice</code>).</li>
-                    <li><code>/bin</code> & <code>/sbin</code> : Essential system binary executables (your command-line tools).</li>
-                    <li><code>/usr</code> : User programs and data installed by your package manager.</li>
-                    <li><code>/tmp</code> : Temporary files. (Usually automatically wiped clean upon reboot).</li>
+                    <li><code>/</code> — The Root. The absolute top of the tree.</li>
+                    <li><code>/etc</code> — System-wide configuration files (e.g., <code>/etc/ssh/sshd_config</code>).</li>
+                    <li><code>/home</code> — Personal user data (e.g., <code>/home/alice</code>).</li>
+                    <li><code>/var</code> — Variable data: logs, databases, web files that grow constantly.</li>
+                    <li><code>/bin</code> & <code>/usr/bin</code> — Essential user command executables.</li>
+                    <li><code>/sbin</code> & <code>/usr/sbin</code> — System administrator binaries (require root).</li>
+                    <li><code>/tmp</code> — Temporary files wiped clean at every reboot.</li>
+                    <li><code>/proc</code> & <code>/sys</code> — Virtual kernel filesystems (inspected earlier).</li>
                 </ul>
             `,
-            exercises: ["Navigate to <code>/var/log</code> and list the files. This is where your system records events."],
+            exercises: ["Navigate to <code>/var/log</code> and list the file sizes using <code>ls -lh</code>. This is where your system constantly writes events."],
             quiz: {
-                question: "Which directory holds system-wide configuration files?",
+                question: "Which directory holds system-wide configuration files for installed services?",
                 options: ["/bin", "/home", "/var", "/etc"],
                 answer: 3
             }
         },
         {
-            title: "Disk Partitioning and Formatting",
+            title: "Disk Partitioning (fdisk & parted)",
             content: `
-                <h1>Preparing New Hard Drives</h1>
-                <p>When you plug a raw hard drive into a Linux server, you must partition it, then format it with a filesystem.</p>
-                <h2>1. Partitioning (fdisk)</h2>
-                <p>Dividing a physical drive into logical boundaries.</p>
+                <h1>Slicing a Physical Drive</h1>
+                <p>A raw hard drive has no structure. Before you can store files, you must divide it into <strong>partitions</strong> — logical regions with defined boundaries.</p>
+                <h2>Partition Schemes</h2>
+                <ul>
+                    <li><strong>MBR (Master Boot Record):</strong> The old standard. Max 4 primary partitions, max 2TB per drive.</li>
+                    <li><strong>GPT (GUID Partition Table):</strong> The modern replacement. Supports 128 partitions, drives up to 9.4 Zettabytes.</li>
+                </ul>
+                <h2>The Tools</h2>
                 <div class="code-block">
-                    <pre>$ sudo fdisk /dev/sdb    # Opens the interactive partition tool for a 2nd drive</pre>
-                </div>
-                <h2>2. Formatting (mkfs)</h2>
-                <p>Creating the actual filesystem (the index structure that holds files) on the new partition. The standard Linux filesystem is <strong>ext4</strong>, while servers often use <strong>xfs</strong> or <strong>btrfs</strong>.</p>
-                <div class="code-block">
-                    <pre>$ sudo mkfs.ext4 /dev/sdb1 # Creates an ext4 filesystem on partition 1 of sdb</pre>
+                    <pre>$ sudo fdisk /dev/sdb        # Classic interactive MBR/GPT partition editor
+$ sudo parted /dev/sdb       # Modern partitioning tool, supports GPT natively
+$ sudo gdisk /dev/sdb        # GPT-focused partition editor</pre>
                 </div>
             `,
-            exercises: ["Run <code>df -Th</code> to see the filesystem types (ext4, tmpfs, vfat) currently running on your machine."],
+            exercises: ["Run <code>sudo fdisk -l</code> to list all partition tables. Identify the partition scheme (MBR or GPT) of your primary drive."],
             quiz: {
-                question: "Which command is used to format a partition with a filesystem?",
-                options: ["fdisk", "mkfs", "parted", "mount"],
+                question: "Which partition table format is the modern standard, supports 128+ partitions, and removes the 2TB drive limit?",
+                options: ["MBR", "FAT32", "GPT", "ext4"],
+                answer: 2
+            }
+        },
+        {
+            title: "Filesystem Formats (ext4, xfs, btrfs)",
+            content: `
+                <h1>Formatting: Creating the Index</h1>
+                <p>A partition is just empty space. A <strong>filesystem</strong> is the structure written onto the partition that tells the kernel how to organize, name, and find every single file stored within it.</p>
+                <h2>Linux Filesystem Types</h2>
+                <ul>
+                    <li><strong>ext4:</strong> The default, rock-solid choice for most Linux desktops and servers. Fast, reliable, and widely supported.</li>
+                    <li><strong>xfs:</strong> High-performance, excellent for large files and heavy parallel I/O. Preferred in enterprise settings (Red Hat default).</li>
+                    <li><strong>btrfs:</strong> Modern, feature-rich filesystem with built-in snapshots, RAID, and data integrity checksums.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ sudo mkfs.ext4 /dev/sdb1     # Format partition 1 with ext4
+$ sudo mkfs.xfs  /dev/sdb2     # Format partition 2 with xfs
+$ df -Th                        # View the type of every currently mounted filesystem</pre>
+                </div>
+            `,
+            exercises: ["Run <code>df -Th</code> and look at the 'Type' column. Identify what filesystem your root partition (/) uses."],
+            quiz: {
+                question: "Which command is used to create (format) an ext4 filesystem on a newly created partition?",
+                options: ["fdisk", "mkfs.ext4", "mount", "parted"],
                 answer: 1
             }
         },
         {
-            title: "Mounting and /etc/fstab",
+            title: "Mounting & Unmounting Storage",
             content: `
-                <h1>Making Storage Accessible</h1>
-                <p>Because Linux has a single unified directory tree starting at <code>/</code>, new drives must be <strong>mounted</strong> into an empty folder to be accessible.</p>
-                <h2>The mount command</h2>
+                <h1>Attaching Storage to the Tree</h1>
+                <p>Because Linux has only one directory tree, adding a new hard drive means <strong>mounting</strong> it — attaching it to an empty folder so its contents appear there, seamlessly integrated with the rest of the filesystem.</p>
+                <h2>The mount Command</h2>
                 <div class="code-block">
-                    <pre>$ sudo mkdir -p /mnt/backup          # First, create an empty mount point folder
-$ sudo mount /dev/sdb1 /mnt/backup   # Hook the drive into the folder
-$ sudo umount /mnt/backup            # Safely unhook the drive (unmount)</pre>
+                    <pre>$ sudo mkdir -p /mnt/data           # Step 1: Create an empty mount point directory
+$ sudo mount /dev/sdb1 /mnt/data    # Step 2: Attach the new partition to that directory
+$ ls /mnt/data                      # Now browse the drive's contents just like a normal folder!
+$ sudo umount /mnt/data             # Step 3: Safely detach the drive when finished</pre>
                 </div>
-                <h2>Persistent Mounts (/etc/fstab)</h2>
-                <p>A manual <code>mount</code> disappears if you reboot! To make a mount permanent, you must declare it in the <strong>File System Table</strong>.</p>
-                <div class="code-block">
-                    <pre># Inside /etc/fstab
-# Device        Mount_Point    Filesystem    Options     Dump  Pass
-/dev/sdb1       /mnt/backup    ext4          defaults    0     2</pre>
-                </div>
-                <div class="note"><strong>Pro Tip:</strong> After editing <code>/etc/fstab</code>, always run <code>sudo mount -a</code> to test it. If there's a typo, Linux will crash on the next reboot!</div>
+                <div class="note">You <strong>cannot</strong> unmount a drive if any process has a file open on it. Use <code>lsof /mnt/data</code> to find and kill the culprit first.</div>
             `,
-            exercises: ["Review the contents of your <code>/etc/fstab</code> using <code>cat /etc/fstab</code>."],
+            exercises: ["Run <code>mount | grep -v '^none'</code> to see a list of every storage device and virtual filesystem currently mounted."],
             quiz: {
-                question: "Which file is read by the system during boot to automatically mount hard drives?",
-                options: ["/etc/mounts", "/etc/fstab", "/etc/partitions", "/etc/drives"],
+                question: "After running 'sudo mount /dev/sdb1 /mnt/data', where will the drive's contents appear?",
+                options: ["Under /dev/sdb1", "Directly at /", "Under /mnt/data", "At /media/"],
+                answer: 2
+            }
+        },
+        {
+            title: "Persistent Mounts (/etc/fstab)",
+            content: `
+                <h1>Surviving Reboots</h1>
+                <p>A manual <code>mount</code> command only lasts until you reboot. To make a drive mount <em>automatically and permanently</em> on every boot, you declare it in the <strong>File System Table</strong>.</p>
+                <h2>The /etc/fstab File</h2>
+                <p>Each line specifies one filesystem to mount. The 6 tab-separated fields are:</p>
+                <ol>
+                    <li><strong>Device</strong> (e.g., <code>/dev/sdb1</code> or <code>UUID=abc123</code>)</li>
+                    <li><strong>Mount Point</strong> (e.g., <code>/mnt/data</code>)</li>
+                    <li><strong>Filesystem Type</strong> (e.g., <code>ext4</code>)</li>
+                    <li><strong>Options</strong> (e.g., <code>defaults</code>)</li>
+                    <li><strong>Dump</strong> (backup flag, almost always <code>0</code>)</li>
+                    <li><strong>Pass</strong> (filesystem check order. Use <code>2</code> for non-root drives.)</li>
+                </ol>
+                <div class="code-block">
+                    <pre>$ sudo blkid /dev/sdb1              # Get the UUID for the drive (safer than using /dev name)
+$ cat /etc/fstab                    # View current permanent mounts
+$ sudo mount -a                     # Test fstab by mounting everything declared in it (catch typos!)</pre>
+                </div>
+                <div class="tip">Always use the UUID instead of <code>/dev/sdb1</code>. Device letter order can change when drives are added or swapped!</div>
+            `,
+            exercises: ["Run <code>cat /etc/fstab</code>. Compare the mount points listed there against what <code>mount</code> shows as currently active."],
+            quiz: {
+                question: "After editing /etc/fstab, which command lets you test the configuration and mount all declared entries without rebooting?",
+                options: ["mount --all", "sudo fstab -test", "sudo mount -a", "sudo reload fstab"],
+                answer: 2
+            }
+        },
+        {
+            title: "Inodes & the VFS",
+            content: `
+                <h1>How Files Are Really Stored</h1>
+                <p>When you save a file, Linux splits it into two parts: its <strong>data blocks</strong> (the raw content) and its <strong>inode</strong> (a tiny metadata record). A filename is just a label pointing to an inode number.</p>
+                <h2>The Inode</h2>
+                <p>An inode stores everything <em>about</em> a file except its name: owner, permissions, size, timestamps, and pointers to the data blocks where the content is physically written on disk.</p>
+                <div class="code-block">
+                    <pre>$ ls -i <filename>             # Display the inode number of a file
+$ df -i                        # Show inode usage (you can run OUT of inodes even with free disk space!)
+$ stat <filename>              # Show full inode metadata: size, timestamps, inode number, etc.</pre>
+                </div>
+            `,
+            exercises: ["Run <code>stat /etc/hostname</code> to see the complete inode metadata for a system file, including access and modification times."],
+            quiz: {
+                question: "What critical piece of information does a file's inode store?",
+                options: ["The filename", "The file's metadata and pointer to its data blocks", "The partition table", "The mount point"],
+                answer: 1
+            }
+        },
+        {
+            title: "Hard Links & Soft Links",
+            content: `
+                <h1>Multiple Names for Files</h1>
+                <p>Linux has two types of file links.</p>
+                <h2>Hard Links</h2>
+                <p>A hard link is a <strong>second directory entry pointing to the exact same inode</strong> (and thus the same data). The file only disappears from disk when ALL hard links are deleted.</p>
+                <div class="code-block">
+                    <pre>$ ln original.txt hardlink.txt     # Create a hard link (no 'softlink' flag needed)</pre>
+                </div>
+                <h2>Soft (Symbolic) Links</h2>
+                <p>A soft link (symlink) is like a <strong>shortcut or alias</strong>. It points to the <em>name</em> of a file, not its inode. If the original is deleted, the symlink breaks.</p>
+                <div class="code-block">
+                    <pre>$ ln -s /var/www/html /webroot      # Create a convenient shortcut at /webroot
+$ ls -la /webroot                   # Shows: /webroot -> /var/www/html</pre>
+                </div>
+            `,
+            exercises: ["Create a file called <code>test.txt</code>, then create a symlink to it using <code>ln -s test.txt link.txt</code>. Delete <code>test.txt</code> and see what happens to <code>link.txt</code>."],
+            quiz: {
+                question: "What is the key difference between a hard link and a symbolic (soft) link?",
+                options: ["Hard links can only link directories", "Soft links point to the inode directly, hard links point to the name", "Hard links point to the same inode; soft links point to the filename", "They are functionally identical"],
+                answer: 2
+            }
+        },
+        {
+            title: "Disk Space Management",
+            content: `
+                <h1>Monitoring Space Consumption</h1>
+                <p>A full disk is one of the most common causes of server crashes and application failures.</p>
+                <h2>df (Disk Free)</h2>
+                <p>Shows overall available space per mounted filesystem/partition.</p>
+                <div class="code-block">
+                    <pre>$ df -h                    # Human readable: shows how full every partition is</pre>
+                </div>
+                <h2>du (Disk Usage)</h2>
+                <p>Drills down to see <em>which specific directories and files</em> are consuming the space.</p>
+                <div class="code-block">
+                    <pre>$ du -sh /var/log/*        # See the sizes of everything in the log directory
+$ du -sh /* 2>/dev/null   # A quick health check: see the top-level folder sizes from root</pre>
+                </div>
+                <h2>Finding Space Hogs</h2>
+                <div class="code-block">
+                    <pre>$ du -ah /home | sort -rh | head -20    # Find the 20 largest files/folders in /home</pre>
+                </div>
+            `,
+            exercises: ["Run <code>df -h</code> on your system. Is any partition above 80% full? That's the warning threshold for a production server."],
+            quiz: {
+                question: "You need to find which specific subdirectory within /var is consuming the most disk space. Which command is best suited?",
+                options: ["df -h /var", "lsblk /var", "du -sh /var/*", "fdisk /var"],
+                answer: 2
+            }
+        },
+        {
+            title: "Swap Space",
+            content: `
+                <h1>Overflow RAM on Disk</h1>
+                <p><strong>Swap</strong> is a designated area of the hard drive that the Linux kernel uses as overflow memory when physical RAM is full. It is much slower than RAM but prevents Out-Of-Memory (OOM) crashes.</p>
+                <h2>Creating a Swap File</h2>
+                <p>A permanent swap partition is configured at install time, but you can add a <strong>swap file</strong> to an existing system without repartitioning!</p>
+                <div class="code-block">
+                    <pre>$ sudo fallocate -l 4G /swapfile    # Create a 4 Gigabyte empty file
+$ sudo chmod 600 /swapfile          # Secure it so only root can read it
+$ sudo mkswap /swapfile             # Tell the kernel this file is a swap area
+$ sudo swapon /swapfile             # Activate the new swap immediately
+$ free -h                           # Verify the swap total increased!</pre>
+                </div>
+            `,
+            exercises: ["Run <code>free -h</code> and inspect the 'Swap' row. Is any swap currently in use? Heavy swap usage signals the system is under memory pressure."],
+            quiz: {
+                question: "What is the purpose of Linux Swap space?",
+                options: ["A backup of the RAM content", "A disk area used as overflow memory when RAM is full", "Temporary file storage for /tmp", "A specialized filesystem for logs"],
+                answer: 1
+            }
+        },
+        {
+            title: "LVM (Logical Volume Manager)",
+            content: `
+                <h1>Flexible Storage Abstraction</h1>
+                <p>Traditional disk partitions are rigid — you can't easily resize them without downtime. <strong>LVM</strong> (Logical Volume Manager) adds a flexible virtualization layer between physical disks and the filesystem.</p>
+                <h2>Key LVM Concepts</h2>
+                <ul>
+                    <li><strong>Physical Volume (PV):</strong> A raw disk or partition you "donate" to LVM (e.g., <code>/dev/sdb</code>).</li>
+                    <li><strong>Volume Group (VG):</strong> A pool combining one or more PVs into one large, unified resource.</li>
+                    <li><strong>Logical Volume (LV):</strong> A flexible partition carved out from the VG. This is what you format and mount.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ sudo pvcreate /dev/sdb           # Create a Physical Volume from /dev/sdb
+$ sudo vgcreate my_vg /dev/sdb    # Create a Volume Group called 'my_vg'
+$ sudo lvcreate -L 50G -n data my_vg  # Carve a 50GB Logical Volume named 'data'
+$ sudo lvextend -L +20G /dev/my_vg/data  # Grow the volume by 20GB ONLINE (no downtime!)</pre>
+                </div>
+            `,
+            exercises: ["Run <code>sudo lvs</code> or <code>sudo pvs</code> to check if LVM is already configured on your system."],
+            quiz: {
+                question: "What is LVM's key advantage over traditional disk partitions?",
+                options: ["LVM partitions run faster", "LVM allows logical volumes to be resized dynamically without downtime", "LVM prevents data loss", "LVM is required for ext4"],
                 answer: 1
             }
         }
