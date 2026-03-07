@@ -172,6 +172,11 @@ if (backToHubBtn) {
     backToHubBtn.onclick = () => showView('hub');
 }
 
+const lessonBackToHubBtn = document.getElementById('lessonBackToHub');
+if (lessonBackToHubBtn) {
+    lessonBackToHubBtn.onclick = () => showView('linux');
+}
+
 // i18n State
 let currentLang = localStorage.getItem('aribaLang') || 'en';
 
