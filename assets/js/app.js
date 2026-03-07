@@ -289,8 +289,6 @@ function renderLesson() {
     const displayTitle = translations[currentLang].modules[moduleIndex]?.title || currentModule;
 
     document.getElementById('lessonModuleTitle').innerText = displayTitle;
-    document.getElementById('breadcrumbModule').innerText = tUI.breadcrumb_linux;
-    document.getElementById('breadcrumbTopic').innerText = lesson.title;
     document.getElementById('lessonContent').innerHTML = lesson.content;
 
     // Sidebar

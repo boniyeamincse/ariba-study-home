@@ -67,7 +67,14 @@
     <div id="linuxView" class="view" style="display: none;">
         <header class="header">
             <div class="container">
-                <a href="#" id="backToHub" class="btn-back" data-i18n="back_to_hub">← Back to Hub</a>
+                <nav class="lesson-breadcrumb"
+                    style="justify-content: center; color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 1rem;">
+                    <a href="#" id="backToHub" class="breadcrumb-link"
+                        style="color: rgba(255,255,255,0.7); text-decoration: none;"><i class="fas fa-home"></i> <span
+                            data-i18n="ariba_study">Ariba Study</span></a>
+                    <span class="breadcrumb-separator" style="margin: 0 10px;">/</span>
+                    <span class="breadcrumb-current" data-i18n="linux_study" style="color: white;">Linux Study</span>
+                </nav>
                 <h1 class="glitch-text">cat linux_study.txt $</h1>
                 <p class="subtitle" data-i18n="linux_subtitle">Interactive terminal-inspired guide to mastering Linux
                     basics</p>
@@ -113,10 +120,13 @@
             </aside>
 
             <main class="lesson-main">
-                <nav class="lesson-breadcrumb">
-                    <a href="#" id="lessonBackToHub" class="btn-back" data-i18n="back_to_hub"
-                        style="margin-right: 15px; text-decoration: none;">← Back to Hub</a>
-                    <span id="breadcrumbModule">Linux</span> &nbsp;/&nbsp; <span id="breadcrumbTopic">History</span>
+                <nav class="lesson-breadcrumb"
+                    style="font-size: 1rem; color: #64748b; margin-bottom: 2rem; text-transform: none; letter-spacing: normal;">
+                    <a href="#" id="lessonBackToHub" class="breadcrumb-link"
+                        style="color: #64748b; text-decoration: none; transition: color 0.2s;"><i
+                            class="fas fa-home"></i> <span data-i18n="ariba_study">Ariba Study</span></a>
+                    <span class="breadcrumb-separator" style="margin: 0 10px;">/</span>
+                    <span class="breadcrumb-current" data-i18n="linux_study" style="color: #334155;">Linux Study</span>
                 </nav>
                 <div id="lessonContent" class="lesson-content">
                     <!-- Content rendered by JS -->
