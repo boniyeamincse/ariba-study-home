@@ -926,5 +926,73 @@ $ export HISTFILESIZE=20000</pre>
                 answer: 1
             }
         }
+    ],
+    "Basic Text-Fu": [
+        { title: "Standard I/O Redirection", content: "<h1>Standard I/O</h1><p>Learn about stdout, stdin, and stderr.</p>" },
+        { title: "Pipes and Tee", content: "<h1>Pipes</h1><p>Connect commands using | and tee.</p>" },
+        { title: "Text Processing 1", content: "<h1>Utilities</h1><p>Usage of env, cut, paste, head, and tail.</p>" },
+        { title: "Text Processing 2", content: "<h1>Transform</h1><p>Usage of expand, unexpand, join, and split.</p>" },
+        { title: "Sorting and Unique", content: "<h1>Organize</h1><p>Usage of sort, tr, uniq, wc, and nl.</p>" },
+        { title: "Searching with Grep", content: "<h1>Search</h1><p>Usage of grep, egrep, and fgrep.</p>" }
+    ],
+    "Advanced Text-Fu": [
+        { title: "Regular Expressions", content: "<h1>Regex</h1><p>Mastering pattern matching.</p>" },
+        { title: "Vim Essentials", content: "<h1>Vim</h1><p>Navigation, editing, and saving.</p>" },
+        { title: "Emacs Basics", content: "<h1>Emacs</h1><p>Buffers and navigation.</p>" },
+        { title: "Sed & Awk", content: "<h1>Stream Editors</h1><p>Introduction to sed and awk.</p>" }
+    ],
+    "User Management": [
+        { title: "Users and Groups", content: "<h1>Users</h1><p>Understanding user accounts and groups.</p>" },
+        { title: "Root and Sudo", content: "<h1>Privileges</h1><p>Managing administrative access.</p>" },
+        { title: "System Auth Files", content: "<h1>Config</h1><p>/etc/passwd and /etc/shadow.</p>" },
+        { title: "Permissions", content: "<h1>Ownership</h1><p>Managing file permissions and ownership.</p>" },
+        { title: "Advanced Permissions", content: "<h1>Special Bits</h1><p>SUID, SGID, and Sticky Bit.</p>" }
+    ],
+    "Processes & Jobs": [
+        { title: "Process Monitoring", content: "<h1>Monitoring</h1><p>Using ps, top, and htop.</p>" },
+        { title: "Signals and Kill", content: "<h1>Control</h1><p>Sending termination signals.</p>" },
+        { title: "Job Control", content: "<h1>Background</h1><p>Managing background and foreground jobs.</p>" }
+    ],
+    "Software Management": [
+        { title: "Software Repositories", content: "<h1>Repos</h1><p>How Linux distributes software.</p>" },
+        { title: "Package Managers", content: "<h1>Tools</h1><p>Usage of apt, yum, and dnf.</p>" },
+        { title: "Archives & Source", content: "<h1>Compiling</h1><p>Tarballs and compiling from source.</p>" }
+    ],
+    "Devices & Hardware": [
+        { title: "Device Files", content: "<h1>/dev</h1><p>Understanding block and character devices.</p>" },
+        { title: "Hardware Discovery", content: "<h1>Discovery</h1><p>Using lsusb and lspci.</p>" },
+        { title: "Mounting Storage", content: "<h1>Mount</h1><p>Attaching external drives.</p>" }
+    ],
+    "Filesystem & Storage": [
+        { title: "Filesystem Hierarchy", content: "<h1>FHS</h1><p>The Linux directory structure.</p>" },
+        { title: "Disk Partitioning", content: "<h1>Partitioning</h1><p>Fdisk, parted, and filesystems.</p>" },
+        { title: "Mounting & fstab", content: "<h1>Persistence</h1><p>Configuring /etc/fstab.</p>" }
+    ],
+    "Boot & Kernel": [
+        { title: "The Boot Process", content: "<h1>Boot</h1><p>From BIOS to Login prompt.</p>" },
+        { title: "Intit Systems", content: "<h1>Systemd</h1><p>Managing services and targets.</p>" },
+        { title: "Kernel Modules", content: "<h1>Modules</h1><p>Loading and unloading drivers.</p>" }
+    ],
+    "System Administration": [
+        { title: "Automated Tasks", content: "<h1>Cron</h1><p>Scheduling jobs with cron and anacron.</p>" },
+        { title: "System Logging", content: "<h1>Logs</h1><p>Managing /var/log and journald.</p>" }
+    ],
+    "Networking": [
+        { title: "Networking Basics", content: "<h1>TCP/IP</h1><p>IP addresses and subnetting.</p>" },
+        { title: "Network Tools", content: "<h1>Tools</h1><p>Ping, traceroute, and netstat.</p>" },
+        { title: "SSH & Remote Access", content: "<h1>SSH</h1><p>Secure remote management.</p>" }
+    ],
+    "Security": [
+        { title: "User Security", content: "<h1>Auth</h1><p>Password policies and authentication.</p>" },
+        { title: "System Security", content: "<h1>Hardening</h1><p>SELinux and AppArmor basics.</p>" }
+    ],
+    "Scripting & Automation": [
+        { title: "Bash Scripting", content: "<h1>Scripting</h1><p>Variables, loops, and logic.</p>" }
+    ],
+    "Virtualization": [
+        { title: "Containers", content: "<h1>Docker</h1><p>Introduction to containerization.</p>" }
+    ],
+    "Monitoring & Troubleshooting": [
+        { title: "Troubleshooting", content: "<h1>Diagnostics</h1><p>Analyzing system health.</p>" }
     ]
 };

@@ -31,35 +31,67 @@ const translations = {
         modules: [
             {
                 title: "Getting Started",
-                desc: "What is Linux? Get started with choosing a distribution and installation."
+                desc: "Linux History, Distros, Installation, and VMs."
             },
             {
                 title: "Command Line",
-                desc: "Learn the fundamentals of the command line, navigating files, and more."
+                desc: "Shell, Navigation, File Management, and Search."
             },
             {
-                title: "Text-Fu",
-                desc: "Learn basic text manipulation and navigation."
+                title: "Basic Text-Fu",
+                desc: "I/O Redirection, Pipes, and text processing utilities."
             },
             {
                 title: "Advanced Text-Fu",
-                desc: "Navigate text like a Linux spider monkey with Vim and Emacs."
+                desc: "Regex, Vim, Emacs, sed, and awk."
             },
             {
                 title: "User Management",
-                desc: "Learn about user roles and management."
+                desc: "Users, Groups, Sudo, and Permissions."
             },
             {
-                title: "Permissions",
-                desc: "Learn about permission levels and modifying permissions."
+                title: "Processes & Jobs",
+                desc: "Monitoring, Signals, and Job Control."
             },
             {
-                title: "Processes",
-                desc: "Learn about the running processes on the system."
+                title: "Software Management",
+                desc: "Repositories, Package managers, and Compiling."
             },
             {
-                title: "Packages",
-                desc: "Learn all about dpkg, apt-get, rpm, and yum package management tools."
+                title: "Devices & Hardware",
+                desc: "/dev, udev rules, and Mounting."
+            },
+            {
+                title: "Filesystem & Storage",
+                desc: "FHS, Partitioning, fstab, and Inodes."
+            },
+            {
+                title: "Boot & Kernel",
+                desc: "Bootloader, Systemd, and Kernel modules."
+            },
+            {
+                title: "System Administration",
+                desc: "Cron, Logging, and Resource monitoring."
+            },
+            {
+                title: "Networking",
+                desc: "TCP/IP, Routing, DNS, SSH, and Firewalls."
+            },
+            {
+                title: "Security",
+                desc: "Password policies, SELinux, and Audit logs."
+            },
+            {
+                title: "Scripting & Automation",
+                desc: "Bash scripting, Loops, and Conditionals."
+            },
+            {
+                title: "Virtualization",
+                desc: "Docker, LXC/LXD, and Containers."
+            },
+            {
+                title: "Monitoring & Troubleshooting",
+                desc: "Journalctl, tcpdump, and performance analysis."
             }
         ]
     }

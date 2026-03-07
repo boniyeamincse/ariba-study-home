@@ -1,67 +1,83 @@
 const modules = [
     {
         title: "Getting Started",
-        desc: "What is Linux? Get started with choosing a distribution and installation.",
-        icon: "getting_started",
-        question: "Who is the original creator of the Linux kernel?",
-        options: ["Bill Gates", "Linus Torvalds", "Steve Jobs", "Richard Stallman"],
-        answer: 1
+        desc: "Linux History, Distros, Installation, and VMs.",
+        icon: "getting_started"
     },
     {
         title: "Command Line",
-        desc: "Learn the fundamentals of the command line, navigating files, and more.",
-        icon: "command_line",
-        question: "Which command shows the absolute path of your current working directory?",
-        options: ["dir", "whereami", "pwd", "ls -p"],
-        answer: 2
+        desc: "Shell, Navigation, File Management, and Search.",
+        icon: "command_line"
     },
     {
-        title: "Text-Fu",
-        desc: "Learn basic text manipulation and navigation.",
-        icon: "text_fu",
-        question: "What flag would you use with 'rm' to recursively delete a directory?",
-        options: ["-r", "-d", "-all", "-f"],
-        answer: 0
+        title: "Basic Text-Fu",
+        desc: "I/O Redirection, Pipes, and text processing utilities.",
+        icon: "text_fu"
     },
     {
         title: "Advanced Text-Fu",
-        desc: "Navigate text like a Linux spider monkey with Vim and Emacs.",
-        icon: "advanced_text_fu",
-        question: "Which command is used to search for a specific pattern inside a file?",
-        options: ["find", "search", "grep", "look"],
-        answer: 2
+        desc: "Regex, Vim, Emacs, sed, and awk.",
+        icon: "advanced_text_fu"
     },
     {
         title: "User Management",
-        desc: "Learn about user roles and management.",
-        icon: "user_management",
-        question: "What numeric mode represents 'rwxr-xr-x' permissions?",
-        options: ["644", "777", "755", "700"],
-        answer: 2
+        desc: "Users, Groups, Sudo, and Permissions.",
+        icon: "user_management"
     },
     {
-        title: "Permissions",
-        desc: "Learn about permission levels and modifying permissions.",
-        icon: "permissions",
-        question: "What is the command to view the reference manual for 'ls'?",
-        options: ["help ls", "ls --manual", "man ls", "info ls"],
-        answer: 2
+        title: "Processes & Jobs",
+        desc: "Monitoring, Signals, and Job Control.",
+        icon: "processes"
     },
     {
-        title: "Processes",
-        desc: "Learn about the running processes on the system.",
-        icon: "processes",
-        question: "Which tool is used to securely log into a remote Linux machine?",
-        options: ["telnet", "ssh", "ftp", "rlogin"],
-        answer: 1
+        title: "Software Management",
+        desc: "Repositories, Package managers, and Compiling.",
+        icon: "packages"
     },
     {
-        title: "Packages",
-        desc: "Learn all about dpkg, apt-get, rpm, and yum package management tools.",
-        icon: "packages",
-        question: "What 'shebang' line should be at the top of a standard bash script?",
-        options: ["#!/bin/sh", "#!/usr/bin/bash", "#!/bin/bash", "Any of these"],
-        answer: 3
+        title: "Devices & Hardware",
+        desc: "/dev, udev rules, and Mounting.",
+        icon: "devices"
+    },
+    {
+        title: "Filesystem & Storage",
+        desc: "FHS, Partitioning, fstab, and Inodes.",
+        icon: "storage"
+    },
+    {
+        title: "Boot & Kernel",
+        desc: "Bootloader, Systemd, and Kernel modules.",
+        icon: "kernel"
+    },
+    {
+        title: "System Administration",
+        desc: "Cron, Logging, and Resource monitoring.",
+        icon: "admin"
+    },
+    {
+        title: "Networking",
+        desc: "TCP/IP, Routing, DNS, SSH, and Firewalls.",
+        icon: "networking"
+    },
+    {
+        title: "Security",
+        desc: "Password policies, SELinux, and Audit logs.",
+        icon: "security"
+    },
+    {
+        title: "Scripting & Automation",
+        desc: "Bash scripting, Loops, and Conditionals.",
+        icon: "scripting"
+    },
+    {
+        title: "Virtualization",
+        desc: "Docker, LXC/LXD, and Containers.",
+        icon: "virtualization"
+    },
+    {
+        title: "Monitoring & Troubleshooting",
+        desc: "Journalctl, tcpdump, and performance analysis.",
+        icon: "troubleshooting"
     }
 ];
 
@@ -106,7 +122,7 @@ function renderModules() {
         const tModule = translations[currentLang].modules[index] || module;
 
         card.innerHTML = `
-            <img src="assets/images/${module.icon}.png" alt="${tModule.title}" class="module-icon">
+            <img src="assets/images/${module.icon}.png" alt="${tModule.title}" class="module-icon" onerror="this.style.display='none'; this.parentElement.classList.add('icon-error');">
             <h3 class="module-title">${tModule.title}</h3>
             <p class="module-desc">${tModule.desc}</p>
             <div class="status-badge ${statusClass}" data-i18n="${statusClass}">${statusText}</div>
