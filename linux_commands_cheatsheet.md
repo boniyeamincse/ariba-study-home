@@ -863,27 +863,82 @@ $ sudo lvextend -L +20G /dev/my_vg/data  # Grow the volume by 20GB ONLINE (no do
 
 ## Boot & Kernel
 
-### Managing Services (systemd)
+### BIOS, UEFI & POST
 
 ```bash
-$ sudo systemctl status nginx     # Check if a service is running and see its recent logs
-$ sudo systemctl start nginx      # Start it right now
-$ sudo systemctl stop nginx       # Stop it right now
-$ sudo systemctl restart nginx    # Stop and start it (causes brief downtime)
+$ sudo dmidecode -t bios     # View detailed BIOS/UEFI version and vendor from the firmware
 
-$ sudo systemctl enable nginx     # Start automatically when the server boots
-$ sudo systemctl disable nginx    # Do NOT start on boot
-$ sudo systemctl is-enabled nginx # Check if it will start on boot
+```
+
+### GRUB Bootloader
+
+```bash
+$ cat /boot/grub/grub.cfg         # View the generated GRUB configuration
+$ sudo nano /etc/default/grub     # Edit GRUB defaults (e.g., add splash=0 for verbose boot)
+$ sudo update-grub                # Re-generate grub.cfg from templates (Debian/Ubuntu)
+$ sudo grub2-mkconfig -o /boot/grub2/grub.cfg   # Red Hat equivalent
+
+```
+
+### The Linux Kernel
+
+```bash
+$ uname -r                         # Print the exact running kernel version
+$ uname -a                         # Print all system info (kernel, arch, hostname)
+$ ls /boot                         # See all installed kernel files
 
 ```
 
 ### Kernel Modules
 
 ```bash
-$ lsmod                           # List all currently loaded modules
-$ modinfo bluetooth               # View detailed info about a specific module (e.g., who wrote it)
-$ sudo modprobe -r bluetooth      # Safely unload a module and its dependencies
-$ sudo modprobe bluetooth         # Safely load the module back into the kernel
+$ lsmod                           # List all currently loaded kernel modules
+$ modinfo bluetooth               # View detailed info (author, license) about a module
+$ sudo modprobe bluetooth         # Safely load the bluetooth driver + its dependencies
+$ sudo modprobe -r bluetooth      # Safely UNLOAD the bluetooth driver
+
+```
+
+### systemd and Targets
+
+```bash
+$ systemctl get-default           # See what target (mode) the system boots into
+$ sudo systemctl set-default multi-user.target   # Boot into text-only mode (no GUI)
+$ sudo systemctl isolate graphical.target        # Switch to graphical mode RIGHT NOW
+
+```
+
+### Managing Services (systemctl)
+
+```bash
+$ sudo systemctl status nginx     # Full health check + recent error log
+$ sudo systemctl start nginx      # Start immediately
+$ sudo systemctl stop nginx       # Stop immediately
+$ sudo systemctl restart nginx    # Stop and restart (brief downtime)
+$ sudo systemctl reload nginx     # Reload config WITHOUT dropping connections!
+
+$ sudo systemctl enable nginx     # Start automatically on EVERY boot
+$ sudo systemctl disable nginx    # Remove from boot sequence
+$ sudo systemctl is-enabled nginx # Check if it is boot-enabled
+
+```
+
+### journalctl (System Logs)
+
+```bash
+$ journalctl -xe                   # Show recent log entries with extended explanations for errors
+$ journalctl -u nginx              # Show ONLY the logs from the nginx service
+$ journalctl -f                    # Follow mode: watch new log lines appear in real time
+$ journalctl --since "1 hour ago" # Show only the last hour of logs
+$ journalctl -p err                # Show ONLY error-level (and worse) messages
+
+```
+
+### Boot Troubleshooting
+
+```bash
+$ sudo mount -o remount,rw /       # Make the root filesystem writable in recovery mode
+$ sudo fsck /dev/sda1              # Check and repair a corrupted filesystem
 
 ```
 
@@ -892,145 +947,270 @@ $ sudo modprobe bluetooth         # Safely load the module back into the kernel
 ### Automated Tasks (Cron)
 
 ```bash
-$ crontab -e      # Edit your personal cron jobs
-$ crontab -l      # List your scheduled jobs
-$ sudo crontab -e # Edit the root user's cron jobs (for system tasks)
+$ crontab -e              # Open your personal crontab for editing
+$ crontab -l              # List your scheduled jobs
+$ sudo crontab -e         # Edit the root user's cron jobs
 
-* * * * * /path/to/command
-| | | | |
-| | | | +---- Day of week (0-7, Sunday is 0 or 7)
-| | | +------ Month (1-12)
-| | +-------- Day of month (1-31)
-| +---------- Hour (0-23)
-+------------ Minute (0-59)
+# MIN  HOUR  DOM  MON  DOW   COMMAND
+  30    2    *    *    *    /usr/local/bin/backup-db.sh   # Every day at 2:30 AM
+  */15  *    *    *    *    /opt/scripts/healthcheck.sh   # Every 15 minutes
+  0     9    *    *    1-5  /home/user/morning-report.sh  # Weekdays at 9 AM
+# DOM=Day of Month, DOW=Day of Week (0=Sunday)
 
-# Run a backup script every day at 2:30 AM
-30 2 * * * /usr/local/bin/backup-db.sh
+```
 
-# Clear a temp folder every Monday at midnight
-0 0 * * 1 rm -rf /tmp/scratch/*
+### Systemd Timers
 
-# Run a health check script every 15 minutes
-*/15 * * * * /opt/scripts/healthcheck.sh >> /var/log/health.log
+```bash
+$ systemctl list-timers --all       # See all system timers and their next trigger time
+$ sudo systemctl enable --now mytask.timer   # Activate and start a timer immediately
 
 ```
 
 ### System Logging
 
 ```bash
-$ tail -f /var/log/syslog              # 'Follow' the log: watch entries appear in real-time
-$ grep "Failed password" /var/log/auth.log # Hunt for unauthorized SSH brute-force attempts
+$ tail -f /var/log/syslog              # Follow the master system log in real-time
+$ grep "Failed password" /var/log/auth.log  # Hunt for SSH brute-force evidence
 
-$ journalctl -xe                       # Show recent errors with extended explanations
-$ journalctl -u nginx                  # Show logs ONLY for the Nginx web server service
-$ journalctl --since "1 hour ago"      # Filter logs strictly by time
+```
+
+### Log Rotation (logrotate)
+
+```bash
+$ cat /etc/logrotate.conf             # View the global default logrotate configuration
+$ ls /etc/logrotate.d/               # Per-application rotation rules (nginx, apache, etc.)
+$ sudo logrotate -d /etc/logrotate.conf   # Dry-run: see what WOULD happen without doing it
+
+/var/log/nginx/access.log {
+    weekly
+    rotate 52
+    compress
+    missingok
+}
+
+```
+
+### Resource Monitoring
+
+```bash
+$ top                   # Classic real-time process and resource monitor
+$ htop                  # Enhanced interactive version of top (requires install)
+$ vmstat 5              # Show virtual memory, CPU, and I/O stats every 5 seconds
+$ iostat -x 5           # Show extended disk I/O statistics every 5 seconds
+$ sar -u 5 10           # Sample CPU utilization 10 times, every 5 seconds (from sysstat)
+
+```
+
+### Backup Strategies (tar & rsync)
+
+```bash
+$ tar -czvf /backup/website-$(date +%F).tar.gz /var/www/html/
+# c=Create, z=gzip compress, v=Verbose, f=output filename
+# Result: website-2026-03-07.tar.gz
+
+$ rsync -avz /var/www/html/ user@backupserver:/backups/html/
+# -a=Archive mode (preserves permissions/times), v=Verbose, z=compress in transit
+
+```
+
+### Disk Integrity (fsck)
+
+```bash
+$ sudo umount /dev/sdb1              # Step 1: Unmount the suspicious partition
+$ sudo fsck -n /dev/sdb1            # Step 2: Dry run - find errors without fixing
+$ sudo fsck -y /dev/sdb1            # Step 3: Interactive repair (auto-yes all fixes)
+
+```
+
+### User Auditing
+
+```bash
+$ who                      # Who is currently logged in RIGHT NOW
+$ w                        # Like 'who' but also shows WHAT each user is actively doing
+$ last                     # Full login history (read from /var/log/wtmp)
+$ lastfailed               # Show failed login attempts (great for spotting attacks)
+$ sudo aureport -l         # If auditd is running: full security-relevant event report
+$ sudo auditctl -w /etc/passwd -p wa  # Watch for writes to /etc/passwd
 
 ```
 
 ## Networking
 
-### Networking Basics (IP & Interfaces)
+### IP Addressing & Interfaces
 
 ```bash
-$ ip addr show       # Show IP addresses and network interfaces (e.g., eth0, wlan0)
-$ ip route           # Show the routing table (default gateway)
+$ ip addr                  # Show all interfaces and their assigned IP addresses
+$ ip addr show eth0        # Show info for a specific interface only
+$ ip route                 # Show the routing table (find the default gateway)
+$ ifconfig                 # Legacy tool (install via net-tools if missing)
 
 ```
 
-### Network Troubleshooting Tools
+### Connectivity Testing (ping & traceroute)
 
 ```bash
-$ ping -c 4 google.com         # Send exactly 4 pings
-$ dig example.com                # Get DNS info
-$ ss -tulpn                      # Show all listening ports and the processes owning them
+$ ping -c 4 google.com         # Send 4 ICMP packets to test reachability
+$ traceroute google.com        # Show every hop (router) the packet travels through
+$ tracepath google.com         # Like traceroute but no root required
+$ mtr google.com               # Combines ping + traceroute into a live, dynamic view
+
+```
+
+### DNS & Name Resolution
+
+```bash
+$ dig google.com               # Full DNS lookup with detailed section output
+$ dig google.com MX            # Look up MX (mail exchange) records specifically
+$ host google.com              # Simpler DNS lookup command
+$ nslookup google.com          # Legacy DNS lookup (still widely used)
+$ cat /etc/resolv.conf         # See which DNS server your system queries
+
+```
+
+### Ports & Active Connections (ss)
+
+```bash
+$ ss -tulpn                    # TCP/UDP, Listening ports, Process names, Numeric (no DNS resolve)
+$ ss -s                        # Quick summary of socket counts by type
+$ netstat -tulpn               # Legacy equivalent using the net-tools package
 
 ```
 
 ### SSH (Secure Shell)
 
 ```bash
-$ ssh user@192.168.1.100      # Connect to an IP as 'user'
-$ ssh user@example.com -p 2222 # Connect on a custom port instead of default 22
+$ ssh user@192.168.1.100         # Connect by IP
+$ ssh user@server.example.com -p 2222   # Connect on custom port
+$ scp file.txt user@server:/remote/path/  # Securely copy a file TO the server
+$ scp user@server:/remote/file.txt ./    # Securely copy a file FROM the server
 
-$ scp local_file.txt user@server:/remote/path/    # Copy from local to remote
-$ scp user@server:/remote/file.txt ./local_dir/   # Copy from remote to local
+$ ssh-keygen -t ed25519            # Generate a modern cryptographic key pair
+$ ssh-copy-id user@server          # Push your public key to the server
+
+```
+
+### Firewall Basics (UFW)
+
+```bash
+$ sudo ufw status verbose        # View all active rules and the default policy
+$ sudo ufw default deny incoming # GOLDEN RULE: Block everything by default
+$ sudo ufw default allow outgoing # Allow all outbound connections by default
+$ sudo ufw allow ssh             # Allow SSH (port 22) through the firewall
+$ sudo ufw allow 80/tcp          # Allow HTTP web traffic
+$ sudo ufw allow 443/tcp         # Allow HTTPS encrypted web traffic
+$ sudo ufw enable                # Activate the firewall
+
+```
+
+### Network File Transfer (rsync, wget, curl)
+
+```bash
+$ wget https://example.com/file.tar.gz          # Download a file from the internet
+$ curl -O https://example.com/file.zip          # Download silently with curl
+$ curl -I https://google.com                    # Fetch ONLY the HTTP response headers
+$ rsync -avz /local/dir/ user@server:/remote/  # Sync a directory (only changed files)
+
+```
+
+### Network Monitoring (tcpdump & netstat)
+
+```bash
+$ sudo tcpdump -i eth0              # Capture all packets on interface eth0
+$ sudo tcpdump -i eth0 port 80     # Capture ONLY HTTP traffic
+$ sudo tcpdump -i eth0 -w file.pcap  # Save capture to file (open in Wireshark)
+$ netstat -rn                       # Show the kernel routing table (legacy)
 
 ```
 
 ## Security
 
-### User Security & Passwords
+### User Security & Password Policies
 
 ```bash
-$ passwd                       # Change your own password
-$ sudo passwd john             # Change John's password
-$ sudo chage -l john           # View John's password aging info
-$ sudo chage -E 2024-12-31 john # Set account expiration date
+$ sudo passwd john             # Manually set John's password
+$ sudo chage -l john          # View John's password aging configuration
+$ sudo chage -M 90 john       # Set maximum password age to 90 days
+$ sudo chage -E 2026-12-31 john       # Set hard account expiration date
+$ sudo passwd -l john         # LOCK John's account (prepends ! to hash)
+$ sudo passwd -u john         # UNLOCK John's account
 
 ```
 
-### Firewalls (UFW & iptables)
+### File Permissions & ACLs
 
 ```bash
-$ sudo ufw status verbose      # See active rules
-$ sudo ufw default deny incoming # Golden rule: Block everything by default!
-$ sudo ufw allow ssh           # Punch a hole for SSH (Port 22)
-$ sudo ufw allow 80/tcp        # Allow HTTP web traffic
-$ sudo ufw allow 443/tcp       # Allow HTTPS secure web traffic
-$ sudo ufw enable              # Turn the firewall on
+$ chmod 600 ~/.ssh/id_rsa     # Owner read/write, no one else (MUST for SSH keys!)
+$ chmod 755 /usr/local/bin/myscript  # Owner rwx, group+others rx (standard script)
+$ chown alice:devs project/   # Change owner to alice, group to devs
+$ getfacl file.txt            # View extended ACL (if set)
+$ setfacl -m u:bob:r-- file.txt      # Grant bob read-only access via ACL
 
 ```
 
-### System Hardening (SELinux / AppArmor)
+### SSH Hardening
 
 ```bash
-$ sestatus                     # Get detailed SELinux status
-$ sudo setenforce 0                 # Temporarily put SELinux into Permissive (logging only) mode
-
-$ sudo aa-status               # Check which applications are confined
+# Edit /etc/ssh/sshd_config with sudo and change:
+PermitRootLogin no             # Never allow root to log in directly
+PasswordAuthentication no      # Disable password auth, require keys only
+Port 2222                      # Change the default port to reduce bot noise
+AllowUsers alice bob           # Whitelist specific users
+$ sudo systemctl restart sshd  # Apply changes
 
 ```
 
-## Scripting & Automation
-
-### Bash Scripting Basics
+### Fail2Ban (Intrusion Prevention)
 
 ```bash
-#!/bin/bash
-# A simple system info script
-echo "=== System Information ==="
-echo "Date: $(date)"
-echo "Uptime: $(uptime -p)"
-echo "Free Memory: $(free -h | grep Mem | awk '{print $4}')"
-
-$ chmod +x sysinfo.sh          # Make it executable
-$ ./sysinfo.sh                 # Run it! (Current directory requires the ./ prefix)
+$ sudo apt install fail2ban          # Install on Debian/Ubuntu
+$ sudo systemctl enable --now fail2ban  # Enable and start it
+$ sudo fail2ban-client status           # See all active jails
+$ sudo fail2ban-client status sshd      # See stats for the SSH jail (bans, failures)
+$ sudo fail2ban-client set sshd unbanip 1.2.3.4  # Manually unban an IP
 
 ```
 
-### Variables, Loops, and Logic
+### Firewall Rules (iptables)
 
 ```bash
-#!/bin/bash
-BACKUP_DIR="/backup/$(date +%Y-%m-%d)"  # Command substitution
-read -p "Enter username: " USERNAME       # Prompt for user input
-echo "Creating backup for $USERNAME in $BACKUP_DIR"
+$ sudo iptables -L -nv           # List all rules with packet counters
+$ sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT   # Allow SSH
+$ sudo iptables -A INPUT -j DROP   # Drop everything else (MUST be last!)
+$ sudo iptables-save > /etc/iptables/rules.v4   # Persist rules across reboots
 
-#!/bin/bash
-if [ -d "/var/www/html" ]; then
-    echo "Web server directory exists!"
-elif [ -f "/etc/nginx/nginx.conf" ]; then
-    echo "Nginx config found, but no web dir."
-else
-    echo "No web server detected."
-fi
+```
 
-#!/bin/bash
-# Backup all .txt files by appending .bak
-for file in *.txt; do
-    cp "$file" "${file}.bak"
-    echo "Backed up $file"
-done
+### SELinux & AppArmor (MAC)
+
+```bash
+$ sestatus                     # Check SELinux mode (Enforcing/Permissive/Disabled)
+$ sudo setenforce 0            # Temporarily switch to Permissive mode (logs but doesn't block)
+$ ls -Z /var/www/html/         # Show the SELinux security context of files
+
+$ sudo aa-status               # View profiles and their modes
+$ sudo aa-enforce /etc/apparmor.d/usr.sbin.nginx  # Put nginx in enforcing mode
+
+```
+
+### Audit Logging (auditd)
+
+```bash
+$ sudo systemctl status auditd         # Is the audit daemon running?
+$ sudo auditctl -w /etc/passwd -p wa   # Watch /etc/passwd for writes (w) and attribute changes (a)
+$ sudo ausearch -f /etc/passwd         # Search audit logs for events related to /etc/passwd
+$ sudo aureport -l                     # Generate a login/authentication summary report
+
+```
+
+### Vulnerability Scanning & Hardening
+
+```bash
+$ sudo nmap -sV localhost        # Scan your own machine for open ports and service versions
+$ sudo nmap -A 192.168.1.0/24   # Scan your entire local network segment
+$ sudo lynis audit system        # Run a comprehensive security hardening audit report
+$ sudo chkrootkit               # Scan for signs of rootkits on the running system
+$ sudo rkhunter --check         # Alternative rootkit hunter scan
 
 ```
 

@@ -2695,70 +2695,182 @@ $ sudo lvextend -L +20G /dev/my_vg/data  # Grow the volume by 20GB ONLINE (no do
     ],
     "Boot & Kernel": [
         {
-            title: "The Boot Process",
+            title: "BIOS, UEFI & POST",
             content: `
-                <h1>How Linux Boots</h1>
-                <p>Understanding the boot sequence is the first step to recovering a broken server.</p>
-                <ol>
-                    <li><strong>BIOS / UEFI:</strong> The motherboard powers on, performs hardware checks, and finds the boot drive.</li>
-                    <li><strong>Bootloader (GRUB):</strong> Loads from the boot sector. It presents a menu allowing you to choose which OS or Kernel version to load.</li>
-                    <li><strong>The Kernel:</strong> The core Linux engine is loaded into RAM. It unpacks the initramfs, mounts the root filesystem, and initializes drivers.</li>
-                    <li><strong>Init System (systemd):</strong> The kernel hands control to <code>systemd</code> (Process ID 1). Systemd reads its configuration and starts mounting drives, configuring networks, and starting background services like SSH or Nginx.</li>
-                </ol>
+                <h1>Before Linux Loads</h1>
+                <p>When you press the power button, it's the <strong>firmware</strong> that wakes up first — long before the operating system even knows you exist.</p>
+                <h2>POST (Power-On Self-Test)</h2>
+                <p>The very first thing the firmware does is run POST: a rapid health check on the CPU, RAM, storage, and graphics card to confirm everything is wired correctly.</p>
+                <h2>BIOS vs UEFI</h2>
+                <ul>
+                    <li><strong>BIOS (Legacy):</strong> The original 1970s firmware standard. 16-bit, max 2TB drives, MBR partition tables only.</li>
+                    <li><strong>UEFI (Modern):</strong> Replaced BIOS in ~2010. Supports GPT disks up to 9ZB, Secure Boot protection, and has its own built-in shell.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ sudo dmidecode -t bios     # View detailed BIOS/UEFI version and vendor from the firmware</pre>
+                </div>
             `,
-            exercises: ["Read your system's boot log using the command <code>dmesg | less</code>. You will see the kernel detecting your hardware."],
+            exercises: ["Run <code>sudo dmidecode -t bios</code> to read the raw firmware version of your motherboard without rebooting."],
             quiz: {
-                question: "What is the very first user-space program that Linux runs (always assigned PID 1)?",
-                options: ["GRUB", "The Kernel", "systemd (or init)", "bash"],
+                question: "What is the key advantage of UEFI over legacy BIOS?",
+                options: ["UEFI runs faster games", "UEFI supports GPT disks beyond 2TB and includes Secure Boot", "UEFI only works with Linux", "UEFI has no graphics interface"],
+                answer: 1
+            }
+        },
+        {
+            title: "GRUB Bootloader",
+            content: `
+                <h1>The Boot Menu: GRUB</h1>
+                <p>After UEFI/BIOS finds the boot drive, control is handed to the <strong>GRUB bootloader</strong> (GRand Unified Bootloader). GRUB presents the OS/kernel selection menu, then loads whichever kernel you choose into RAM.</p>
+                <h2>Interacting with GRUB</h2>
+                <p>When the kernel update goes wrong, administrators edit the GRUB menu at boot time to select an older working kernel, or to add boot parameters.</p>
+                <div class="code-block">
+                    <pre>$ cat /boot/grub/grub.cfg         # View the generated GRUB configuration
+$ sudo nano /etc/default/grub     # Edit GRUB defaults (e.g., add splash=0 for verbose boot)
+$ sudo update-grub                # Re-generate grub.cfg from templates (Debian/Ubuntu)
+$ sudo grub2-mkconfig -o /boot/grub2/grub.cfg   # Red Hat equivalent</pre>
+                </div>
+            `,
+            exercises: ["View your <code>/boot/grub/grub.cfg</code> file. Find the 'menuentry' blocks that represent each bootable kernel installed."],
+            quiz: {
+                question: "After editing /etc/default/grub, which command must you run to apply changes by regenerating the GRUB configuration file?",
+                options: ["systemctl restart grub", "reboot", "sudo update-grub", "grub --apply"],
                 answer: 2
             }
         },
         {
-            title: "Managing Services (systemd)",
+            title: "The Linux Kernel",
             content: `
-                <h1>systemd and systemctl</h1>
-                <p>Modern Linux uses <code>systemd</code> to manage services (background daemons). The primary tool for interacting with systemd is <code>systemctl</code>.</p>
-                <h2>Essential Service Commands</h2>
+                <h1>The Core of the OS</h1>
+                <p>The Linux <strong>Kernel</strong> is the innermost layer of the operating system. It mediates every interaction between software and hardware. GRUB loads the compressed kernel image into RAM and hands it control.</p>
+                <h2>Kernel Initialization</h2>
+                <ol>
+                    <li>Kernel unpacks itself and initializes core subsystems (memory, interrupts).</li>
+                    <li>Mounts the <strong>initramfs</strong> (initial RAM filesystem) — a temporary mini root filesystem with just enough tools to mount the real root partition.</li>
+                    <li>Mounts the real root filesystem (<code>/</code>) from disk.</li>
+                    <li>Starts the init system (<code>systemd</code>) as PID 1.</li>
+                </ol>
                 <div class="code-block">
-                    <pre>$ sudo systemctl status nginx     # Check if a service is running and see its recent logs
-$ sudo systemctl start nginx      # Start it right now
-$ sudo systemctl stop nginx       # Stop it right now
-$ sudo systemctl restart nginx    # Stop and start it (causes brief downtime)</pre>
+                    <pre>$ uname -r                         # Print the exact running kernel version
+$ uname -a                         # Print all system info (kernel, arch, hostname)
+$ ls /boot                         # See all installed kernel files</pre>
                 </div>
-                <h2>Boot Persistence</h2>
-                <p>Starting a service doesn't mean it will survive a reboot!</p>
-                <div class="code-block">
-                    <pre>$ sudo systemctl enable nginx     # Start automatically when the server boots
-$ sudo systemctl disable nginx    # Do NOT start on boot
-$ sudo systemctl is-enabled nginx # Check if it will start on boot</pre>
-                </div>
-                <div class="tip">If you edit a service file (e.g., in <code>/etc/systemd/system/</code>), you MUST run <code>sudo systemctl daemon-reload</code> to tell systemd to see your changes!</div>
             `,
-            exercises: ["Run <code>systemctl status sshd</code> (or ssh) to see the detailed health and recent logs of your SSH server."],
+            exercises: ["Run <code>uname -a</code> to print your full system information including kernel version, architecture, and compile date."],
             quiz: {
-                question: "Which command ensures that a background service automatically starts up every time the server boots?",
-                options: ["systemctl start", "systemctl enable", "systemctl autostart", "systemctl boot"],
+                question: "What is the purpose of the 'initramfs' during the early stages of Linux boot?",
+                options: ["It's a GUI boot screen", "It's a temporary mini-filesystem giving the kernel tools to load the real root filesystem", "It initializes hardware drivers permanently", "It is the main swap partition"],
                 answer: 1
             }
         },
         {
             title: "Kernel Modules",
             content: `
-                <h1>Kernel Modules (Drivers)</h1>
-                <p>A monolithic kernel would be huge and slow. Therefore, the Linux kernel is modular. You can dynamically load and unload hardware drivers (modules) into the running kernel without rebooting!</p>
-                <h2>Managing Modules</h2>
+                <h1>Loadable Drivers</h1>
+                <p>Including every possible hardware driver inside one massive kernel binary would make it enormous. Instead, Linux uses <strong>kernel modules</strong> — separate driver files that can be dynamically loaded and unloaded into the running kernel without rebooting.</p>
                 <div class="code-block">
-                    <pre>$ lsmod                           # List all currently loaded modules
-$ modinfo bluetooth               # View detailed info about a specific module (e.g., who wrote it)
-$ sudo modprobe -r bluetooth      # Safely unload a module and its dependencies
-$ sudo modprobe bluetooth         # Safely load the module back into the kernel</pre>
+                    <pre>$ lsmod                           # List all currently loaded kernel modules
+$ modinfo bluetooth               # View detailed info (author, license) about a module
+$ sudo modprobe bluetooth         # Safely load the bluetooth driver + its dependencies
+$ sudo modprobe -r bluetooth      # Safely UNLOAD the bluetooth driver</pre>
                 </div>
+                <div class="tip">To make a module load automatically on every boot, add its name to a file in <code>/etc/modules-load.d/</code>.</div>
             `,
-            exercises: ["Run <code>lsmod</code> to see all the drivers currently powering your system. Try piping it into <code>wc -l</code> to count them!"],
+            exercises: ["Run <code>lsmod | wc -l</code> to count how many kernel modules are currently loaded on your system."],
             quiz: {
-                question: "Which command safely loads a kernel module along with any dependencies it requires?",
+                question: "Which command safely loads a kernel module AND automatically resolves and loads any dependencies it requires?",
                 options: ["lsmod", "insmod", "modprobe", "loadmod"],
                 answer: 2
+            }
+        },
+        {
+            title: "systemd and Targets",
+            content: `
+                <h1>The Init System</h1>
+                <p>Once the kernel is loaded, it starts <strong>systemd</strong> (PID 1). Systemd then starts all services, mounts drives, and configures the network in parallel — making boot times dramatically faster than older init systems.</p>
+                <h2>Targets (Replacing Runlevels)</h2>
+                <p>Systemd uses <strong>targets</strong> to define what state the system boots into, replacing the old SysV runlevels.</p>
+                <div class="code-block">
+                    <pre>$ systemctl get-default           # See what target (mode) the system boots into
+$ sudo systemctl set-default multi-user.target   # Boot into text-only mode (no GUI)
+$ sudo systemctl isolate graphical.target        # Switch to graphical mode RIGHT NOW</pre>
+                </div>
+            `,
+            exercises: ["Run <code>systemctl get-default</code> to see if your machine boots into a <code>graphical.target</code> (desktop) or <code>multi-user.target</code> (server)."],
+            quiz: {
+                question: "Which command shows the current default systemd target that the system boots into?",
+                options: ["systemctl status", "systemctl get-default", "runlevel", "init show"],
+                answer: 1
+            }
+        },
+        {
+            title: "Managing Services (systemctl)",
+            content: `
+                <h1>systemctl: The Service Manager</h1>
+                <p>The primary tool for interacting with systemd is <code>systemctl</code>. You use it to start, stop, enable, and diagnose services (background daemons).</p>
+                <h2>Essential Commands</h2>
+                <div class="code-block">
+                    <pre>$ sudo systemctl status nginx     # Full health check + recent error log
+$ sudo systemctl start nginx      # Start immediately
+$ sudo systemctl stop nginx       # Stop immediately
+$ sudo systemctl restart nginx    # Stop and restart (brief downtime)
+$ sudo systemctl reload nginx     # Reload config WITHOUT dropping connections!</pre>
+                </div>
+                <h2>Making Services Persistent</h2>
+                <div class="code-block">
+                    <pre>$ sudo systemctl enable nginx     # Start automatically on EVERY boot
+$ sudo systemctl disable nginx    # Remove from boot sequence
+$ sudo systemctl is-enabled nginx # Check if it is boot-enabled</pre>
+                </div>
+            `,
+            exercises: ["Run <code>systemctl status sshd</code> to see the full status and last 10 log lines of your SSH service."],
+            quiz: {
+                question: "Which systemctl command reloads a service's configuration WITHOUT stopping active connections?",
+                options: ["restart", "refresh", "reload", "update"],
+                answer: 2
+            }
+        },
+        {
+            title: "journalctl (System Logs)",
+            content: `
+                <h1>The Unified Log</h1>
+                <p>All systemd-managed services write their logs into the <strong>systemd Journal</strong>, a binary data store. <code>journalctl</code> is your query tool.</p>
+                <div class="code-block">
+                    <pre>$ journalctl -xe                   # Show recent log entries with extended explanations for errors
+$ journalctl -u nginx              # Show ONLY the logs from the nginx service
+$ journalctl -f                    # Follow mode: watch new log lines appear in real time
+$ journalctl --since "1 hour ago" # Show only the last hour of logs
+$ journalctl -p err                # Show ONLY error-level (and worse) messages</pre>
+                </div>
+            `,
+            exercises: ["Run <code>journalctl -u sshd --since today</code> to view all SSH server log entries generated today."],
+            quiz: {
+                question: "Which journalctl flag filters the output to ONLY show logs from a specific service unit?",
+                options: ["-s", "-f", "-u", "-p"],
+                answer: 2
+            }
+        },
+        {
+            title: "Boot Troubleshooting",
+            content: `
+                <h1>Recovery Mode</h1>
+                <p>When a system fails to boot normally — perhaps due to a filesystem error, a bad kernel module, or a broken <code>/etc/fstab</code> — you must enter recovery mode to fix it.</p>
+                <h2>Entering Recovery Mode</h2>
+                <ol>
+                    <li>Hold <strong>Shift</strong> (BIOS) or press <strong>Esc</strong> repeatedly (UEFI) during boot to force the GRUB menu to appear.</li>
+                    <li>Select <strong>'Advanced options'</strong> and then the <strong>(recovery mode)</strong> kernel entry.</li>
+                    <li>Use the <code>root</code> shell option to get a <code>root</code> terminal.</li>
+                </ol>
+                <div class="code-block">
+                    <pre>$ sudo mount -o remount,rw /       # Make the root filesystem writable in recovery mode
+$ sudo fsck /dev/sda1              # Check and repair a corrupted filesystem</pre>
+                </div>
+            `,
+            exercises: ["Research how to boot into 'single-user mode' on your specific Linux distribution's GRUB menu."],
+            quiz: {
+                question: "After making changes in Recovery Mode, which command ensures the root filesystem is writable before you can edit files?",
+                options: ["chmod 777 /", "sudo mount -o remount,rw /", "fsck /", "systemctl start disk"],
+                answer: 1
             }
         }
     ],
@@ -2767,293 +2879,523 @@ $ sudo modprobe bluetooth         # Safely load the module back into the kernel<
             title: "Automated Tasks (Cron)",
             content: `
                 <h1>Scheduling with Cron</h1>
-                <p>The <code>cron</code> daemon is the standard Linux task scheduler. It runs quietly in the background, executing scripts at precise intervals.</p>
+                <p>The <code>cron</code> daemon is the classic Linux task scheduler. It runs quietly in the background, executing commands at precise intervals without any human interaction.</p>
                 <h2>Managing Your Crontab</h2>
                 <div class="code-block">
-                    <pre>$ crontab -e      # Edit your personal cron jobs
-$ crontab -l      # List your scheduled jobs
-$ sudo crontab -e # Edit the root user's cron jobs (for system tasks)</pre>
+                    <pre>$ crontab -e              # Open your personal crontab for editing
+$ crontab -l              # List your scheduled jobs
+$ sudo crontab -e         # Edit the root user's cron jobs</pre>
                 </div>
-                <h2>Crontab Syntax Decoding</h2>
-                <p>A crontab line combines 5 time layout fields followed by the absolute path to the command.</p>
-                <pre>* * * * * /path/to/command
-| | | | |
-| | | | +---- Day of week (0-7, Sunday is 0 or 7)
-| | | +------ Month (1-12)
-| | +-------- Day of month (1-31)
-| +---------- Hour (0-23)
-+------------ Minute (0-59)</pre>
-                <h2>Real-World Examples</h2>
+                <h2>Crontab Syntax (5 Time Fields)</h2>
                 <div class="code-block">
-                    <pre># Run a backup script every day at 2:30 AM
-30 2 * * * /usr/local/bin/backup-db.sh
-
-# Clear a temp folder every Monday at midnight
-0 0 * * 1 rm -rf /tmp/scratch/*
-
-# Run a health check script every 15 minutes
-*/15 * * * * /opt/scripts/healthcheck.sh >> /var/log/health.log</pre>
+                    <pre># MIN  HOUR  DOM  MON  DOW   COMMAND
+  30    2    *    *    *    /usr/local/bin/backup-db.sh   # Every day at 2:30 AM
+  */15  *    *    *    *    /opt/scripts/healthcheck.sh   # Every 15 minutes
+  0     9    *    *    1-5  /home/user/morning-report.sh  # Weekdays at 9 AM
+# DOM=Day of Month, DOW=Day of Week (0=Sunday)</pre>
                 </div>
             `,
-            exercises: ["Use a tool like <i>crontab.guru</i> online to decipher this cron expression: <code>0 18 * * 1-5</code>. When does it run?"],
+            exercises: ["Use the online tool <a href='https://crontab.guru' target='_blank'>crontab.guru</a> to decipher the cron expression <code>0 18 * * 1-5</code>. When does it run?"],
             quiz: {
-                question: "In the cron expression `*/15 * * * *`, what does the `*/15` in the minute field indicate?",
-                options: ["Run at 15 minutes past the hour.", "Run exactly 15 times a day.", "Run every 15 minutes.", "Run for 15 minutes and stop."],
+                question: "In the cron expression `*/15 * * * *`, what does `*/15` in the minute field mean?",
+                options: ["Run at minute 15 exactly", "Run exactly 15 times per day", "Run every 15 minutes", "Run for 15 minutes"],
                 answer: 2
+            }
+        },
+        {
+            title: "Systemd Timers",
+            content: `
+                <h1>The Modern Alternative to Cron</h1>
+                <p>Systemd provides its own, more powerful timer mechanism. Unlike cron, systemd timers log output to the journal, handle missed events on next boot, and support powerful time expressions.</p>
+                <h2>Anatomy of a Timer</h2>
+                <p>Each timer requires two files: a <code>.timer</code> unit and a matching <code>.service</code> unit.</p>
+                <div class="code-block">
+                    <pre>$ systemctl list-timers --all       # See all system timers and their next trigger time
+$ sudo systemctl enable --now mytask.timer   # Activate and start a timer immediately</pre>
+                </div>
+                <div class="tip">Unlike cron, a systemd timer with <code>Persistent=true</code> will run missed jobs automatically when the machine next boots up, making it perfect for laptops.</div>
+            `,
+            exercises: ["Run <code>systemctl list-timers</code> to see all active systemd timers, including important system maintenance tasks like <code>apt-daily.timer</code>."],
+            quiz: {
+                question: "What key advantage do systemd timers have over cron jobs?",
+                options: ["They run faster", "They can run missed jobs on next boot and log to the journal", "They support more complex time schedules", "All of the above"],
+                answer: 1
             }
         },
         {
             title: "System Logging",
             content: `
-                <h1>Log Analysis</h1>
-                <p>When services crash or servers get hacked, the logs are where you find the forensic evidence.</p>
-                <h2>Traditional Syslog (/var/log)</h2>
-                <ul>
-                    <li><code>/var/log/syslog</code> or <code>messages</code>: Master log of general system activity.</li>
-                    <li><code>/var/log/auth.log</code> or <code>secure</code>: All authentication (failed SSH logins, sudo attempts).</li>
-                </ul>
+                <h1>Where to Find Evidence</h1>
+                <p>When crashes happen or systems get breached, forensic analysis starts in the logs.</p>
+                <h2>Traditional Text Logs (/var/log)</h2>
                 <div class="code-block">
-                    <pre>$ tail -f /var/log/syslog              # 'Follow' the log: watch entries appear in real-time
-$ grep "Failed password" /var/log/auth.log # Hunt for unauthorized SSH brute-force attempts</pre>
+                    <pre>$ tail -f /var/log/syslog              # Follow the master system log in real-time
+$ grep "Failed password" /var/log/auth.log  # Hunt for SSH brute-force evidence</pre>
                 </div>
-                <h2>Modern Systemd Journal (journalctl)</h2>
-                <p>Modern Linux systems centralize logs into a binary format managed by <code>systemd</code>. You query it using <code>journalctl</code>.</p>
+                <h2>Important Log Files</h2>
+                <ul>
+                    <li><code>/var/log/syslog</code> (Debian) or <code>/var/log/messages</code> (RedHat) — General system activity.</li>
+                    <li><code>/var/log/auth.log</code> (Debian) or <code>/var/log/secure</code> (RedHat) — All authentication events.</li>
+                    <li><code>/var/log/kern.log</code> — Kernel-level events and driver messages.</li>
+                    <li><code>/var/log/dpkg.log</code> — History of every package installed or removed.</li>
+                </ul>
+            `,
+            exercises: ["Run <code>grep 'sudo' /var/log/auth.log | tail -20</code> to see the last 20 sudo commands executed on the system."],
+            quiz: {
+                question: "Which log file on a Debian/Ubuntu system records all authentication events, including failed SSH logins?",
+                options: ["/var/log/syslog", "/var/log/kern.log", "/var/log/auth.log", "/var/log/messages"],
+                answer: 2
+            }
+        },
+        {
+            title: "Log Rotation (logrotate)",
+            content: `
+                <h1>Preventing Log Files from Filling Disks</h1>
+                <p>Log files grow forever. The <code>logrotate</code> utility automatically renames, compresses, and eventually deletes old log files, preventing your <code>/var/log</code> partition from filling up and crashing the server.</p>
                 <div class="code-block">
-                    <pre>$ journalctl -xe                       # Show recent errors with extended explanations
-$ journalctl -u nginx                  # Show logs ONLY for the Nginx web server service
-$ journalctl --since "1 hour ago"      # Filter logs strictly by time</pre>
+                    <pre>$ cat /etc/logrotate.conf             # View the global default logrotate configuration
+$ ls /etc/logrotate.d/               # Per-application rotation rules (nginx, apache, etc.)
+$ sudo logrotate -d /etc/logrotate.conf   # Dry-run: see what WOULD happen without doing it</pre>
+                </div>
+                <h2>A Sample Rule</h2>
+                <div class="code-block">
+                    <pre>/var/log/nginx/access.log {
+    weekly
+    rotate 52
+    compress
+    missingok
+}</pre>
                 </div>
             `,
-            exercises: ["Run <code>journalctl -xe</code> to view recent system errors, if any.", "Use <code>grep</code> to search your auth.log to see the history of your own <code>sudo</code> commands."],
+            exercises: ["Look inside <code>/etc/logrotate.d/</code> to see how a specific service's log rotation is configured."],
             quiz: {
-                question: "Which command filters the systemd journal to ONLY show logs generated by the 'ssh' service?",
-                options: ["journalctl -p ssh", "journalctl -u ssh", "journalctl | grep ssh", "tail /var/log/ssh"],
+                question: "What is the primary purpose of the logrotate utility?",
+                options: ["Monitor logs for errors", "Parse logs and send alerts", "Automatically compress and remove old log files to save disk space", "Forward logs to a remote server"],
+                answer: 2
+            }
+        },
+        {
+            title: "Resource Monitoring",
+            content: `
+                <h1>Watching System Health</h1>
+                <p>A responsible sysadmin constantly checks CPU, RAM, and load average to catch performance problems before they become outages.</p>
+                <div class="code-block">
+                    <pre>$ top                   # Classic real-time process and resource monitor
+$ htop                  # Enhanced interactive version of top (requires install)
+$ vmstat 5              # Show virtual memory, CPU, and I/O stats every 5 seconds
+$ iostat -x 5           # Show extended disk I/O statistics every 5 seconds
+$ sar -u 5 10           # Sample CPU utilization 10 times, every 5 seconds (from sysstat)</pre>
+                </div>
+                <div class="tip">The <strong>Load Average</strong> (shown by top and vmstat) represents how many processes are waiting for CPU. On a 4-core machine, a load above 4 means the CPU is overwhelmed.</div>
+            `,
+            exercises: ["Run <code>htop</code> and press <code>F6</code> to sort by Memory usage. Identify which processes are consuming the most RAM."],
+            quiz: {
+                question: "On a server with 4 CPU cores, approximately what load average value indicates the CPUs are saturated (100% utilized)?",
+                options: ["1.0", "4.0", "0.25", "100"],
                 answer: 1
+            }
+        },
+        {
+            title: "Backup Strategies (tar & rsync)",
+            content: `
+                <h1>The Sysadmin's Insurance Policy</h1>
+                <p>You need two types of backups: full archives for disaster recovery, and incremental syncs for changes.</p>
+                <h2>Full Archive (tar)</h2>
+                <div class="code-block">
+                    <pre>$ tar -czvf /backup/website-$(date +%F).tar.gz /var/www/html/
+# c=Create, z=gzip compress, v=Verbose, f=output filename
+# Result: website-2026-03-07.tar.gz</pre>
+                </div>
+                <h2>Incremental Sync (rsync)</h2>
+                <p><code>rsync</code> copies only the <em>differences</em> since the last backup — extremely fast for large directories.</p>
+                <div class="code-block">
+                    <pre>$ rsync -avz /var/www/html/ user@backupserver:/backups/html/
+# -a=Archive mode (preserves permissions/times), v=Verbose, z=compress in transit</pre>
+                </div>
+            `,
+            exercises: ["Create a compressed tar backup of your <code>/etc</code> directory using <code>sudo tar -czvf /tmp/etc-backup.tar.gz /etc</code>."],
+            quiz: {
+                question: "Why is rsync preferred over a simple tar+scp for repeated backups of large directories?",
+                options: ["rsync is more secure", "rsync only transfers changed files, making it much faster for incremental updates", "rsync creates a single archive file", "rsync is built into the kernel"],
+                answer: 1
+            }
+        },
+        {
+            title: "Disk Integrity (fsck)",
+            content: `
+                <h1>Checking and Repairing Filesystems</h1>
+                <p>Improper shutdowns, power failures, or hardware errors can cause filesystem corruption. <code>fsck</code> (File System Consistency Check) diagnoses and repairs these issues.</p>
+                <div class="note">You <strong>MUST</strong> unmount or use a read-only partition before running fsck. Running it on a live mounted filesystem is extremely dangerous!</div>
+                <div class="code-block">
+                    <pre>$ sudo umount /dev/sdb1              # Step 1: Unmount the suspicious partition
+$ sudo fsck -n /dev/sdb1            # Step 2: Dry run - find errors without fixing
+$ sudo fsck -y /dev/sdb1            # Step 3: Interactive repair (auto-yes all fixes)</pre>
+                </div>
+            `,
+            exercises: ["View your system's automatically scheduled filesystem check history by running <code>sudo tune2fs -l /dev/sda1 | grep 'Last checked'</code>."],
+            quiz: {
+                question: "What critical precaution must be taken BEFORE running fsck on a partition?",
+                options: ["Reboot the system first", "The partition must be unmounted", "Backup the partition table with fdisk", "Enable journaling first"],
+                answer: 1
+            }
+        },
+        {
+            title: "User Auditing",
+            content: `
+                <h1>Who Did What, and When?</h1>
+                <p>In multi-user environments, accountability is critical. These tools tell you who is on the system and what they have done.</p>
+                <div class="code-block">
+                    <pre>$ who                      # Who is currently logged in RIGHT NOW
+$ w                        # Like 'who' but also shows WHAT each user is actively doing
+$ last                     # Full login history (read from /var/log/wtmp)
+$ lastfailed               # Show failed login attempts (great for spotting attacks)
+$ sudo aureport -l         # If auditd is running: full security-relevant event report
+$ sudo auditctl -w /etc/passwd -p wa  # Watch for writes to /etc/passwd</pre>
+                </div>
+            `,
+            exercises: ["Run <code>last | head -20</code> to see the last 20 login sessions, including remote IP addresses."],
+            quiz: {
+                question: "Which command shows not only who is logged in, but also what command they are currently executing?",
+                options: ["who", "last", "w", "users"],
+                answer: 2
             }
         }
     ],
     "Networking": [
         {
-            title: "Networking Basics (IP & Interfaces)",
+            title: "IP Addressing & Interfaces",
             content: `
                 <h1>Network Interfaces</h1>
-                <p>How your Linux machine talks to the world.</p>
-                <h2>Finding Your IP Address</h2>
-                <p>The modern tool is <code>ip</code> (replacing the deprecated <code>ifconfig</code>).</p>
-                <pre>$ ip addr show       # Show IP addresses and network interfaces (e.g., eth0, wlan0)
-$ ip route           # Show the routing table (default gateway)</pre>
+                <p>Every network interface (Ethernet, WiFi, loopback) is assigned an IP address. The modern tool is <code>ip</code>, replacing the deprecated <code>ifconfig</code>.</p>
+                <div class="code-block">
+                    <pre>$ ip addr                  # Show all interfaces and their assigned IP addresses
+$ ip addr show eth0        # Show info for a specific interface only
+$ ip route                 # Show the routing table (find the default gateway)
+$ ifconfig                 # Legacy tool (install via net-tools if missing)</pre>
+                </div>
                 <h2>Common Interface Names</h2>
                 <ul>
-                    <li><code>lo</code>: Loopback (127.0.0.1, pointing to yourself).</li>
-                    <li><code>eth0</code>, <code>enp3s0</code>: Wired Ethernet.</li>
-                    <li><code>wlan0</code>, <code>wlp2s0</code>: Wireless interfaces.</li>
+                    <li><code>lo</code> — Loopback (127.0.0.1, points back to yourself).</li>
+                    <li><code>eth0</code>, <code>enp3s0</code> — Wired Ethernet.</li>
+                    <li><code>wlan0</code>, <code>wlp2s0</code> — Wireless (WiFi).</li>
                 </ul>
             `,
-            exercises: ["Run <code>ip addr</code> and find the IP address assigned to your primary network card."],
+            exercises: ["Run <code>ip addr</code> and identify the IP of your primary network card. Is it a private (192.168.x.x / 10.x.x.x) or public IP?"],
             quiz: {
-                question: "What is the modern command used to view IP addresses in Linux?",
-                options: ["ifconfig", "ip addr", "netstat", "ping"],
+                question: "Which modern command replaces the deprecated 'ifconfig' for viewing IP addresses on Linux?",
+                options: ["netstat", "ip addr", "route", "arp"],
                 answer: 1
             }
         },
         {
-            title: "Network Troubleshooting Tools",
+            title: "Connectivity Testing (ping & traceroute)",
             content: `
-                <h1>Diagnosing Connections</h1>
-                <ul>
-                    <li><strong>ping:</strong> Checks if a host is reachable via ICMP.</li>
-                    <li><strong>traceroute (or tracepath):</strong> Shows the path packets take to reach a destination.</li>
-                    <li><strong>ss (Sockets Stat):</strong> Shows active network connections (replaces netstat).</li>
-                    <li><strong>dig / host:</strong> Query DNS servers to resolve domains to IPs.</li>
-                </ul>
+                <h1>Diagnosing Network Paths</h1>
+                <p>Before blaming code, always verify the network path is actually functional.</p>
                 <div class="code-block">
-                    <pre>$ ping -c 4 google.com         # Send exactly 4 pings
-$ dig example.com                # Get DNS info
-$ ss -tulpn                      # Show all listening ports and the processes owning them</pre>
+                    <pre>$ ping -c 4 google.com         # Send 4 ICMP packets to test reachability
+$ traceroute google.com        # Show every hop (router) the packet travels through
+$ tracepath google.com         # Like traceroute but no root required
+$ mtr google.com               # Combines ping + traceroute into a live, dynamic view</pre>
                 </div>
             `,
-            exercises: ["Use <code>ss -tulpn</code> (requires sudo) to see which programs have ports open on your machine."],
+            exercises: ["Run <code>mtr google.com</code>. Watch the packet loss column. Any non-zero value at a hop indicates potential congestion or filtering."],
             quiz: {
-                question: "Which command shows the path network packets take to reach a destination?",
-                options: ["ping", "ss", "dig", "traceroute"],
-                answer: 3
+                question: "Which command shows the entire path packets travel from your computer to a remote host, one router 'hop' at a time?",
+                options: ["ping", "ip route", "traceroute", "ss"],
+                answer: 2
+            }
+        },
+        {
+            title: "DNS & Name Resolution",
+            content: `
+                <h1>Translating Names to IPs</h1>
+                <p>DNS (Domain Name System) converts human-readable domains (google.com) into machine-readable IP addresses (142.250.80.78).</p>
+                <div class="code-block">
+                    <pre>$ dig google.com               # Full DNS lookup with detailed section output
+$ dig google.com MX            # Look up MX (mail exchange) records specifically
+$ host google.com              # Simpler DNS lookup command
+$ nslookup google.com          # Legacy DNS lookup (still widely used)
+$ cat /etc/resolv.conf         # See which DNS server your system queries</pre>
+                </div>
+            `,
+            exercises: ["Run <code>dig google.com</code> and find the 'ANSWER SECTION'. Note the IP address returned and compare it across different networks."],
+            quiz: {
+                question: "Which configuration file specifies the DNS server IP address that the Linux system uses for name resolution?",
+                options: ["/etc/hosts", "/etc/dns.conf", "/etc/resolv.conf", "/etc/network/dns"],
+                answer: 2
+            }
+        },
+        {
+            title: "Ports & Active Connections (ss)",
+            content: `
+                <h1>Socket Statistics</h1>
+                <p><code>ss</code> (Socket Statistics) is the modern replacement for <code>netstat</code>. It lists active network connections and which programs are listening on which ports.</p>
+                <div class="code-block">
+                    <pre>$ ss -tulpn                    # TCP/UDP, Listening ports, Process names, Numeric (no DNS resolve)
+$ ss -s                        # Quick summary of socket counts by type
+$ netstat -tulpn               # Legacy equivalent using the net-tools package</pre>
+                </div>
+                <div class="tip">The -l flag filters to only show <strong>Listening</strong> ports. Any port that appears in <code>ss -tulpn</code> is potentially accessible to the network and should be firewall-reviewed!</div>
+            `,
+            exercises: ["Run <code>sudo ss -tulpn</code> and look at the 'Process' column. Identify what process is listening on port 22 (SSH)."],
+            quiz: {
+                question: "Which command shows all open TCP/UDP ports along with the process name that owns each listening socket?",
+                options: ["ping -l", "dig --ports", "ss -tulpn", "ip addr show"],
+                answer: 2
             }
         },
         {
             title: "SSH (Secure Shell)",
             content: `
-                <h1>Remote Management</h1>
-                <p><code>ssh</code> allows you to securely log into, and execute commands on, remote Linux servers. It uses strong encryption to protect all traffic, preventing eavesdropping.</p>
-                <h2>Basic Connection</h2>
+                <h1>Remote Server Management</h1>
+                <p><code>ssh</code> uses strong encryption to allow you to securely log into and run commands on remote servers across untrusted networks.</p>
                 <div class="code-block">
-                    <pre>$ ssh user@192.168.1.100      # Connect to an IP as 'user'
-$ ssh user@example.com -p 2222 # Connect on a custom port instead of default 22</pre>
+                    <pre>$ ssh user@192.168.1.100         # Connect by IP
+$ ssh user@server.example.com -p 2222   # Connect on custom port
+$ scp file.txt user@server:/remote/path/  # Securely copy a file TO the server
+$ scp user@server:/remote/file.txt ./    # Securely copy a file FROM the server</pre>
                 </div>
-                <h2>Secure File Transfer (SCP)</h2>
-                <p>You can use the SSH protocol to securely copy files between computers using <code>scp</code>.</p>
+                <h2>Key-Based Authentication (No Passwords!)</h2>
                 <div class="code-block">
-                    <pre>$ scp local_file.txt user@server:/remote/path/    # Copy from local to remote
-$ scp user@server:/remote/file.txt ./local_dir/   # Copy from remote to local</pre>
+                    <pre>$ ssh-keygen -t ed25519            # Generate a modern cryptographic key pair
+$ ssh-copy-id user@server          # Push your public key to the server</pre>
                 </div>
-                <h2>Key-Based Authentication</h2>
-                <p>Passwords can be brute-forced. SSH Keys use cryptographic math to provide unbreakable authentication without ever typing a password.</p>
-                <ol>
-                    <li><code>ssh-keygen -t ed25519</code> generates an ultra-secure modern public/private key pair.</li>
-                    <li><code>ssh-copy-id user@host</code> securely pushes your <em>public</em> key to the server's <code>~/.ssh/authorized_keys</code> file.</li>
-                    <li>You can now log in instantly and securely! Keep your <em>private</em> key safe!</li>
-                </ol>
             `,
-            exercises: ["Run <code>ssh-keygen -t ed25519</code> to generate your own modern SSH key pair (just press Enter for the defaults to save it to ~/.ssh/)."],
+            exercises: ["Run <code>ssh-keygen -t ed25519</code> to create an SSH key pair. Inspect the public key content with <code>cat ~/.ssh/id_ed25519.pub</code>."],
             quiz: {
-                question: "Which command uses the SSH protocol to securely copy files between a local computer and a remote server?",
-                options: ["rcp", "ftp", "scp", "ssh-copy"],
+                question: "Which command securely copies a file between systems using the SSH protocol?",
+                options: ["rcp", "ftp", "scp", "cp -r"],
+                answer: 2
+            }
+        },
+        {
+            title: "Firewall Basics (UFW)",
+            content: `
+                <h1>Controlling Network Access</h1>
+                <p><strong>UFW</strong> (Uncomplicated Firewall) is the friendly front-end for the powerful but complex <code>iptables</code> kernel firewall system. It lets you define which traffic is permitted with simple, readable rules.</p>
+                <div class="code-block">
+                    <pre>$ sudo ufw status verbose        # View all active rules and the default policy
+$ sudo ufw default deny incoming # GOLDEN RULE: Block everything by default
+$ sudo ufw default allow outgoing # Allow all outbound connections by default
+$ sudo ufw allow ssh             # Allow SSH (port 22) through the firewall
+$ sudo ufw allow 80/tcp          # Allow HTTP web traffic
+$ sudo ufw allow 443/tcp         # Allow HTTPS encrypted web traffic
+$ sudo ufw enable                # Activate the firewall</pre>
+                </div>
+            `,
+            exercises: ["Run <code>sudo ufw status</code>. Is your firewall active? (WARNING: Before enabling, ALWAYS run <code>sudo ufw allow ssh</code> first if on a remote server!)"],
+            quiz: {
+                question: "What is the 'golden rule' when setting up a new UFW firewall policy?",
+                options: ["Allow all incoming traffic first, then deny specific threats", "Deny all incoming traffic by default, then selectively allow required services", "Disable the firewall during setup", "Allow all ports under 1024"],
+                answer: 1
+            }
+        },
+        {
+            title: "Network File Transfer (rsync, wget, curl)",
+            content: `
+                <h1>Moving Data Across Networks</h1>
+                <div class="code-block">
+                    <pre>$ wget https://example.com/file.tar.gz          # Download a file from the internet
+$ curl -O https://example.com/file.zip          # Download silently with curl
+$ curl -I https://google.com                    # Fetch ONLY the HTTP response headers
+$ rsync -avz /local/dir/ user@server:/remote/  # Sync a directory (only changed files)</pre>
+                </div>
+                <div class="tip"><code>rsync</code> is the gold standard for network syncing because it computes checksums and only transfers <em>differences</em>, making repeat transfers extremely fast.</div>
+            `,
+            exercises: ["Use <code>curl -I https://google.com</code> to view the HTTP response headers. Note the 'Content-Type', 'Server', and redirect status codes returned."],
+            quiz: {
+                question: "Which tool synchronizes directories over a network by only transferring files that have changed since the last sync?",
+                options: ["wget", "ftp", "curl", "rsync"],
+                answer: 3
+            }
+        },
+        {
+            title: "Network Monitoring (tcpdump & netstat)",
+            content: `
+                <h1>Packet Capture & Analysis</h1>
+                <p><code>tcpdump</code> is a command-line packet analyzer. It captures raw network traffic flowing through an interface, which is invaluable for debugging protocols or detecting intrusions.</p>
+                <div class="code-block">
+                    <pre>$ sudo tcpdump -i eth0              # Capture all packets on interface eth0
+$ sudo tcpdump -i eth0 port 80     # Capture ONLY HTTP traffic
+$ sudo tcpdump -i eth0 -w file.pcap  # Save capture to file (open in Wireshark)
+$ netstat -rn                       # Show the kernel routing table (legacy)</pre>
+                </div>
+            `,
+            exercises: ["Run <code>sudo tcpdump -i lo port 22 -c 5</code> and then SSH to localhost in another terminal. Watch the packets appear!"],
+            quiz: {
+                question: "Which tcpdump flag saves captured packets to a file for later analysis in a tool like Wireshark?",
+                options: ["-f", "-r", "-w", "-s"],
                 answer: 2
             }
         }
     ],
     "Security": [
         {
-            title: "User Security & Passwords",
+            title: "User Security & Password Policies",
             content: `
-                <h1>Securing User Accounts</h1>
-                <p>The first line of defense is strong authentication policies.</p>
-                <h2>Password Policies</h2>
-                <ul>
-                    <li><strong>passwd:</strong> Change a user's password.</li>
-                    <li><strong>chage:</strong> Change user password expiry information.</li>
-                </ul>
+                <h1>Account Hardening</h1>
+                <p>The first line of defense is strong, expiring passwords. If an account is compromised, you must be able to detect it and lock it down immediately.</p>
                 <div class="code-block">
-                    <pre>$ passwd                       # Change your own password
-$ sudo passwd john             # Change John's password
-$ sudo chage -l john           # View John's password aging info
-$ sudo chage -E 2024-12-31 john # Set account expiration date</pre>
+                    <pre>$ sudo passwd john             # Manually set John's password
+$ sudo chage -l john          # View John's password aging configuration
+$ sudo chage -M 90 john       # Set maximum password age to 90 days
+$ sudo chage -E 2026-12-31 john       # Set hard account expiration date
+$ sudo passwd -l john         # LOCK John's account (prepends ! to hash)
+$ sudo passwd -u john         # UNLOCK John's account</pre>
                 </div>
             `,
-            exercises: ["Run <code>chage -l $USER</code> to see when your password expires."],
+            exercises: ["Run <code>chage -l $USER</code> to inspect your own account's password aging policy."],
             quiz: {
-                question: "Which command is used to view or change password expiration policies?",
+                question: "Which command is used to view or change password expiration and account aging policies?",
                 options: ["passwd", "usermod", "chage", "chmod"],
                 answer: 2
             }
         },
         {
-            title: "Firewalls (UFW & iptables)",
+            title: "File Permissions & ACLs",
             content: `
-                <h1>Network Firewalls</h1>
-                <p>Firewalls block unauthorized network traffic. If your server is on the internet, a firewall is mandatory.</p>
-                <h2>UFW (Uncomplicated Firewall)</h2>
-                <p>UFW makes managing the complex <code>iptables</code> backend incredibly easy for beginners.</p>
+                <h1>Discretionary Access Control</h1>
+                <p>Linux uses three permission classes (owner, group, others) and three permission types (read, write, execute). This provides basic Discretionary Access Control (DAC).</p>
                 <div class="code-block">
-                    <pre>$ sudo ufw status verbose      # See active rules
-$ sudo ufw default deny incoming # Golden rule: Block everything by default!
-$ sudo ufw allow ssh           # Punch a hole for SSH (Port 22)
-$ sudo ufw allow 80/tcp        # Allow HTTP web traffic
-$ sudo ufw allow 443/tcp       # Allow HTTPS secure web traffic
-$ sudo ufw enable              # Turn the firewall on</pre>
+                    <pre>$ chmod 600 ~/.ssh/id_rsa     # Owner read/write, no one else (MUST for SSH keys!)
+$ chmod 755 /usr/local/bin/myscript  # Owner rwx, group+others rx (standard script)
+$ chown alice:devs project/   # Change owner to alice, group to devs
+$ getfacl file.txt            # View extended ACL (if set)
+$ setfacl -m u:bob:r-- file.txt      # Grant bob read-only access via ACL</pre>
                 </div>
-                <h2>Intrusion Prevention (Fail2Ban)</h2>
-                <p>UFW blocks ports, but what if a hacker finds an open port (like SSH) and tries to guess passwords 10,000 times? <strong>Fail2Ban</strong> monitors your log files and dynamically adds UFW rules to ban IPs that repeatedly fail to login!</p>
+                <div class="note"><code>chmod 777</code> on a file grants <strong>all</strong> users full read/write/execute. On a server, this is almost always a dangerous misconfiguration!</div>
             `,
-            exercises: ["Check your UFW status using <code>sudo ufw status</code>. (Warning: If you are on a remote server, execute <code>sudo ufw allow ssh</code> BEFORE enabling UFW, or you will lock yourself out!)"],
+            exercises: ["Check your SSH private key with <code>ls -la ~/.ssh/id_rsa</code>. It MUST show <code>-rw-------</code> (600). SSH will refuse to use it if it's world-readable!"],
             quiz: {
-                question: "What is universally considered the 'Golden Rule' of configuring a new server firewall?",
-                options: ["Allow all incoming traffic", "Deny all outgoing traffic", "Deny all incoming traffic by default, then selectively permit required ports.", "Disable UFW until the server is fully built."],
+                question: "Which permission value (in octal notation) gives only the file owner read and write access, and denies all access to group and others?",
+                options: ["755", "644", "600", "777"],
                 answer: 2
             }
         },
         {
-            title: "System Hardening (SELinux / AppArmor)",
+            title: "SSH Hardening",
             content: `
-                <h1>Mandatory Access Control (MAC)</h1>
-                <p>Standard Linux permissions (rwx) are Discretionary. If a hacker exploits a weakness in your web server (running as the 'www-data' user), they can read or write any file owned by 'www-data'. MAC prevents this.</p>
-                <h2>SELinux (Security-Enhanced Linux)</h2>
-                <p>Created by the NSA, heavily used in Red Hat Enterprise Linux.</p>
-                <ul>
-                    <li>Every process and file has a strict security "context".</li>
-                    <li>Even if the 'www-data' user gets hacked, SELinux physically prevents the web server process from reading files in <code>/home/</code> because policies dictate web servers cannot look there.</li>
-                </ul>
+                <h1>Securing Remote Access</h1>
+                <p>SSH exposure to the internet makes it a constant target for brute-force attacks. These configuration changes significantly reduce the attack surface.</p>
                 <div class="code-block">
-                    <pre>$ sestatus                     # Get detailed SELinux status
-$ sudo setenforce 0                 # Temporarily put SELinux into Permissive (logging only) mode</pre>
+                    <pre># Edit /etc/ssh/sshd_config with sudo and change:
+PermitRootLogin no             # Never allow root to log in directly
+PasswordAuthentication no      # Disable password auth, require keys only
+Port 2222                      # Change the default port to reduce bot noise
+AllowUsers alice bob           # Whitelist specific users
+$ sudo systemctl restart sshd  # Apply changes</pre>
                 </div>
-                <h2>AppArmor</h2>
-                <p>The default MAC in Ubuntu/Debian. It isolates applications using profile files loaded into the kernel.</p>
-                <pre>$ sudo aa-status               # Check which applications are confined</pre>
+                <div class="tip">After disabling password auth, ensure you have working key-based auth <em>before</em> restarting sshd, or you will lock yourself out!</div>
             `,
-            exercises: ["Run <code>sestatus</code> (RedHat/Fedora) or <code>aa-status</code> (Ubuntu/Debian) to check your system's Mandatory Access Control status."],
+            exercises: ["Review your SSH server configuration: <code>sudo cat /etc/ssh/sshd_config | grep -v '^#' | grep .</code>. Is PermitRootLogin set to no?"],
             quiz: {
-                question: "If a web server is fully compromised, how does Mandatory Access Control (like SELinux) limit the damage?",
-                options: ["It shuts down the server automatically.", "It isolates the process based on strict policies, preventing it from accessing files outside its intended scope.", "It changes the root password.", "It unplugs the network cable."],
+                question: "What is the most important sshd_config change to make after setting up key-based authentication?",
+                options: ["Change the default SSH port", "Set PasswordAuthentication no", "Enable X11 forwarding", "Reduce the connection timeout"],
                 answer: 1
-            }
-        }
-    ],
-    "Scripting & Automation": [
-        {
-            title: "Bash Scripting Basics",
-            content: `
-                <h1>Writing Your First Script</h1>
-                <p>A shell script is simply a text file containing a sequence of commands. By automating repetitive tasks, you amplify your productivity.</p>
-                <h2>The Shebang (#!)</h2>
-                <p>The first line tells the kernel exactly which interpreter should run the script.</p>
-                <div class="code-block">
-                    <pre>#!/bin/bash
-# A simple system info script
-echo "=== System Information ==="
-echo "Date: $(date)"
-echo "Uptime: $(uptime -p)"
-echo "Free Memory: $(free -h | grep Mem | awk '{print $4}')"</pre>
-                </div>
-                <h2>Execution Permissions</h2>
-                <p>By default, text files cannot be executed. You must grant the execute permission using <code>chmod</code>.</p>
-                <div class="code-block">
-                    <pre>$ chmod +x sysinfo.sh          # Make it executable
-$ ./sysinfo.sh                 # Run it! (Current directory requires the ./ prefix)</pre>
-                </div>
-            `,
-            exercises: ["Create <code>sysinfo.sh</code>, copy the code above into it, make it executable, and run it!"],
-            quiz: {
-                question: "Why do we typically type `./` before a script name to run it when we are in the same folder?",
-                options: ["Because the current directory is intentionally not in the $PATH variable for security reasons.", "Because it stands for 'run'.", "To indicate it is a Bash script.", "To run it as an administrator."],
-                answer: 0
             }
         },
         {
-            title: "Variables, Loops, and Logic",
+            title: "Fail2Ban (Intrusion Prevention)",
             content: `
-                <h1>Adding Programming Logic</h1>
-                <h2>Variables & Input</h2>
+                <h1>Automatic IP Banning</h1>
+                <p><strong>Fail2ban</strong> monitors log files for repeated authentication failures and dynamically adds firewall rules to ban attacking IP addresses for a configurable period.</p>
                 <div class="code-block">
-                    <pre>#!/bin/bash
-BACKUP_DIR="/backup/$(date +%Y-%m-%d)"  # Command substitution
-read -p "Enter username: " USERNAME       # Prompt for user input
-echo "Creating backup for $USERNAME in $BACKUP_DIR"</pre>
+                    <pre>$ sudo apt install fail2ban          # Install on Debian/Ubuntu
+$ sudo systemctl enable --now fail2ban  # Enable and start it
+$ sudo fail2ban-client status           # See all active jails
+$ sudo fail2ban-client status sshd      # See stats for the SSH jail (bans, failures)
+$ sudo fail2ban-client set sshd unbanip 1.2.3.4  # Manually unban an IP</pre>
                 </div>
-                <h2>If/Else Statements</h2>
+                <div class="tip">The default SSH jail bans any IP that fails 5 logins within 10 minutes. You can tune <code>maxretry</code> and <code>bantime</code> in <code>/etc/fail2ban/jail.local</code>.</div>
+            `,
+            exercises: ["Install and start Fail2ban, then run <code>sudo fail2ban-client status sshd</code> to see how many bots are already attacking your SSH port."],
+            quiz: {
+                question: "What does Fail2ban do when it detects an IP address with too many failed login attempts?",
+                options: ["It restarts the SSH service", "It adds a firewall rule to temporarily block that IP", "It alerts the system administrator by email", "It disables the user account"],
+                answer: 1
+            }
+        },
+        {
+            title: "Firewall Rules (iptables)",
+            content: `
+                <h1>The Kernel Firewall</h1>
+                <p><code>iptables</code> is the underlying kernel firewall framework that UFW, Fail2ban, and Docker all use under the hood. Understanding it gives you ultimate control.</p>
                 <div class="code-block">
-                    <pre>#!/bin/bash
-if [ -d "/var/www/html" ]; then
-    echo "Web server directory exists!"
-elif [ -f "/etc/nginx/nginx.conf" ]; then
-    echo "Nginx config found, but no web dir."
-else
-    echo "No web server detected."
-fi</pre>
+                    <pre>$ sudo iptables -L -nv           # List all rules with packet counters
+$ sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT   # Allow SSH
+$ sudo iptables -A INPUT -j DROP   # Drop everything else (MUST be last!)
+$ sudo iptables-save > /etc/iptables/rules.v4   # Persist rules across reboots</pre>
                 </div>
-                <h2>For Loops (Batch Processing)</h2>
+                <div class="note">iptables rules are evaluated <strong>top to bottom</strong>. The first matching rule wins. Always add specific ACCEPT rules before a global DROP rule!</div>
+            `,
+            exercises: ["Run <code>sudo iptables -L -nv</code> to see the low-level firewall rules currently in effect. You may see rules added by UFW or Docker."],
+            quiz: {
+                question: "In iptables, rules are evaluated in order. If you add a DROP all rule BEFORE your ACCEPT ssh rule, what happens?",
+                options: ["SSH still works because ACCEPT rules always win", "SSH is blocked because DROP is matched first", "iptables reorders rules automatically", "Only UFW rules matter"],
+                answer: 1
+            }
+        },
+        {
+            title: "SELinux & AppArmor (MAC)",
+            content: `
+                <h1>Mandatory Access Control</h1>
+                <p>Standard Linux permissions are <em>Discretionary</em> — a compromised web server process can read any file the webserver user can access. <strong>MAC</strong> layers enforce policy-based rules that <em>kernel</em> enforces, regardless of the process's identity.</p>
+                <h2>SELinux (Red Hat / Fedora)</h2>
                 <div class="code-block">
-                    <pre>#!/bin/bash
-# Backup all .txt files by appending .bak
-for file in *.txt; do
-    cp "$file" "\${file}.bak"
-    echo "Backed up $file"
-done</pre>
+                    <pre>$ sestatus                     # Check SELinux mode (Enforcing/Permissive/Disabled)
+$ sudo setenforce 0            # Temporarily switch to Permissive mode (logs but doesn't block)
+$ ls -Z /var/www/html/         # Show the SELinux security context of files</pre>
+                </div>
+                <h2>AppArmor (Ubuntu / Debian)</h2>
+                <div class="code-block">
+                    <pre>$ sudo aa-status               # View profiles and their modes
+$ sudo aa-enforce /etc/apparmor.d/usr.sbin.nginx  # Put nginx in enforcing mode</pre>
                 </div>
             `,
-            exercises: ["Write a script that uses a <code>for</code> loop to ping 3 different websites (e.g., google.com, github.com) to check if they are online."],
+            exercises: ["Run <code>sestatus</code> (Red Hat) or <code>sudo aa-status</code> (Ubuntu/Debian) to see if MAC is enabled on your system."],
             quiz: {
-                question: "In heavily used bash conditional tests like `[ -d \"/var/www/\" ]`, what does the `-d` flag check for?",
-                options: ["If a file is deleted.", "If a variable is defined.", "If the path exists and is a Directory.", "If the disk has space."],
+                question: "If a web server running as www-data is compromised, how does SELinux prevent access to /home/user/ files?",
+                options: ["It monitors the process for suspicious activity", "Its policy context restricts the web server process from accessing files outside its defined scope", "It changes the file owner automatically", "It blocks all network connections"],
+                answer: 1
+            }
+        },
+        {
+            title: "Audit Logging (auditd)",
+            content: `
+                <h1>The Security Audit Log</h1>
+                <p>The Linux Audit Daemon (<code>auditd</code>) provides a comprehensive security event logging system. Unlike syslog, it cannot be silenced by a compromised process running as root (the kernel writes it directly).</p>
+                <div class="code-block">
+                    <pre>$ sudo systemctl status auditd         # Is the audit daemon running?
+$ sudo auditctl -w /etc/passwd -p wa   # Watch /etc/passwd for writes (w) and attribute changes (a)
+$ sudo ausearch -f /etc/passwd         # Search audit logs for events related to /etc/passwd
+$ sudo aureport -l                     # Generate a login/authentication summary report</pre>
+                </div>
+            `,
+            exercises: ["Run <code>sudo aureport --summary</code> to get a high-level summary of all security events recorded by the kernel audit system."],
+            quiz: {
+                question: "Which tool writes security audit events DIRECTLY to kernel ring buffer, making them impossible for a compromised root process to tamper with?",
+                options: ["syslog", "journald", "auditd", "rsyslog"],
+                answer: 2
+            }
+        },
+        {
+            title: "Vulnerability Scanning & Hardening",
+            content: `
+                <h1>Proactive Security Assessment</h1>
+                <p>Do not wait for an incident. Regularly scan your own systems to find vulnerabilities before attackers do.</p>
+                <div class="code-block">
+                    <pre>$ sudo nmap -sV localhost        # Scan your own machine for open ports and service versions
+$ sudo nmap -A 192.168.1.0/24   # Scan your entire local network segment
+$ sudo lynis audit system        # Run a comprehensive security hardening audit report
+$ sudo chkrootkit               # Scan for signs of rootkits on the running system
+$ sudo rkhunter --check         # Alternative rootkit hunter scan</pre>
+                </div>
+            `,
+            exercises: ["Install and run <code>sudo lynis audit system</code>. Review the 'Hardening index' score and the 'Suggestions' section at the end of the report."],
+            quiz: {
+                question: "Which tool runs a comprehensive security hardening audit of a Linux system and provides a 'Hardening Index' score?",
+                options: ["nmap", "ncal", "lynis", "fail2ban"],
                 answer: 2
             }
         }
