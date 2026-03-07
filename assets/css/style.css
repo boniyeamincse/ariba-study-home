@@ -497,3 +497,133 @@ footer {
         display: none;
     }
 }
+
+/* RTL Support for Arabic */
+[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .container {
+    direction: rtl;
+}
+
+[dir="rtl"] .hub-card,
+[dir="rtl"] .module-card {
+    text-align: center;
+}
+
+[dir="rtl"] .btn-back {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] .lesson-breadcrumb {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .lesson-layout {
+    grid-template-columns: 340px 1fr 280px;
+}
+
+[dir="rtl"] .lesson-sidebar {
+    border-right: none;
+    border-left: 1px solid var(--border-color);
+}
+
+[dir="rtl"] .lesson-panel {
+    border-left: none;
+    border-right: 1px solid var(--border-color);
+}
+
+[dir="rtl"] .sub-topic-item {
+    border-left: none;
+    border-right: 4px solid transparent;
+}
+
+[dir="rtl"] .sub-topic-item.active {
+    border-left: none;
+    border-right-color: var(--accent-color);
+}
+
+[dir="rtl"] .exercise-list li::before {
+    content: '←';
+}
+
+[dir="rtl"] .lesson-content {
+    text-align: right;
+}
+
+[dir="rtl"] .lesson-content h1,
+[dir="rtl"] .lesson-content h2 {
+    text-align: right;
+}
+
+[dir="rtl"] .btn-option {
+    text-align: right;
+}
+
+[dir="rtl"] .quiz-modal {
+    text-align: right;
+}
+
+[dir="rtl"] .lesson-footer {
+    flex-direction: row-reverse;
+}
+
+/* Language Switcher */
+.lang-switcher {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+}
+
+.lang-select {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.lang-select:hover {
+    border-color: var(--accent-color);
+}
+
+.lang-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+[dir="rtl"] .lang-switcher {
+    right: auto;
+    left: 40px;
+}
+
+@media (max-width: 1400px) {
+    [dir="rtl"] .lesson-layout {
+        grid-template-columns: 300px 1fr 260px;
+    }
+}
+
+@media (max-width: 1100px) {
+    [dir="rtl"] .lesson-layout {
+        grid-template-columns: 1fr 240px;
+    }
+}
+
+@media (max-width: 768px) {
+    .lang-switcher {
+        position: static;
+        margin-bottom: 20px;
+    }
+
+    [dir="rtl"] .lang-switcher {
+        position: static;
+    }
+}

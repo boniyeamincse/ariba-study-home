@@ -243,12 +243,44 @@ const backToHubBtn = document.getElementById('backToHub');
 
 const footer = document.querySelector('footer');
 
+function showView(viewName) {
+    hubView.style.display = 'none';
+    linuxView.style.display = 'none';
+    lessonView.style.display = 'none';
+    
+    if (viewName === 'hub') {
+        hubView.style.display = 'block';
+    } else if (viewName === 'linux') {
+        linuxView.style.display = 'block';
+    } else if (viewName === 'lesson') {
+        lessonView.style.display = 'block';
+    }
+}
+
+if (enterLinuxBtn) {
+    enterLinuxBtn.onclick = () => showView('linux');
+}
+
+if (backToHubBtn) {
+    backToHubBtn.onclick = () => showView('hub');
+}
+
 // i18n State
 let currentLang = localStorage.getItem('aribaLang') || 'en';
 
 function setLanguage(lang) {
     currentLang = lang;
     localStorage.setItem('aribaLang', lang);
+    
+    // Set RTL direction for Arabic
+    if (lang === 'ar') {
+        document.documentElement.setAttribute('dir', 'rtl');
+        document.documentElement.setAttribute('lang', 'ar');
+    } else {
+        document.documentElement.setAttribute('dir', 'ltr');
+        document.documentElement.setAttribute('lang', lang);
+    }
+    
     translateUI();
     renderModules();
     if (lessonView.style.display === 'block') renderLesson();
@@ -442,6 +474,15 @@ function checkLessonQuiz(selectedIndex, correctIndex) {
 
 // Initial render
 if (modulesGrid) {
+    // Set initial direction based on saved language
+    if (currentLang === 'ar') {
+        document.documentElement.setAttribute('dir', 'rtl');
+        document.documentElement.setAttribute('lang', 'ar');
+    } else {
+        document.documentElement.setAttribute('dir', 'ltr');
+        document.documentElement.setAttribute('lang', currentLang);
+    }
+    
     translateUI();
     renderModules();
 }
