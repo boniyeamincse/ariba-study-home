@@ -148,19 +148,27 @@ const lessonView = document.getElementById('lessonView');
 const enterLinuxBtn = document.getElementById('enterLinux');
 const backToHubBtn = document.getElementById('backToHub');
 
-const footer = document.querySelector('footer');
-
 function showView(viewName) {
     hubView.style.display = 'none';
     linuxView.style.display = 'none';
     lessonView.style.display = 'none';
+    
+    // Show/hide header and footer based on view
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    const footerPlaceholder = document.getElementById('footer-placeholder');
 
     if (viewName === 'hub') {
         hubView.style.display = 'block';
+        if (headerPlaceholder) headerPlaceholder.style.display = 'block';
+        if (footerPlaceholder) footerPlaceholder.style.display = 'block';
     } else if (viewName === 'linux') {
         linuxView.style.display = 'block';
+        if (headerPlaceholder) headerPlaceholder.style.display = 'none';
+        if (footerPlaceholder) footerPlaceholder.style.display = 'none';
     } else if (viewName === 'lesson') {
         lessonView.style.display = 'block';
+        if (headerPlaceholder) headerPlaceholder.style.display = 'none';
+        if (footerPlaceholder) footerPlaceholder.style.display = 'none';
     }
 }
 
