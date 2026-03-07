@@ -1,17 +1,19 @@
 :root {
-    --bg-color: #f8fafc;
+    --bg-color: #f1f5f9;
     --card-bg: #ffffff;
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    --accent-color: #3b82f6;
-    /* Modern Blue */
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --accent-color: #2563eb;
+    --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     --accent-light: #eff6ff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
     --border-color: #e2e8f0;
     --success-color: #10b981;
     --error-color: #ef4444;
-    --font-main: 'Inter', sans-serif;
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
     --font-mono: 'Fira Code', monospace;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -57,19 +59,19 @@ h1 {
 .hub-grid,
 .modules-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px;
     margin-bottom: 80px;
 }
 
 .hub-card,
 .module-card {
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 40px 24px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 24px;
+    padding: 48px 32px;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: var(--transition-smooth);
     cursor: pointer;
     box-shadow: var(--card-shadow);
     text-decoration: none;
@@ -77,13 +79,33 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hub-card::after,
+.module-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: var(--transition-smooth);
 }
 
 .hub-card:hover,
 .module-card.unlocked:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-12px);
+    box-shadow: var(--card-shadow-hover);
     border-color: var(--accent-color);
+}
+
+.hub-card:hover::after,
+.module-card.unlocked:hover::after {
+    opacity: 1;
 }
 
 .module-icon,
@@ -435,20 +457,25 @@ footer {
 }
 
 .btn-nav {
-    padding: 14px 28px;
-    border-radius: 10px;
+    padding: 14px 32px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
     background: #fff;
     cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s;
+    font-weight: 700;
+    transition: var(--transition-smooth);
     color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .btn-nav:hover {
     border-color: var(--accent-color);
-    color: var(--accent-color);
-    background: var(--accent-light);
+    color: #fff;
+    background: var(--accent-gradient);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 @media (max-width: 1400px) {
