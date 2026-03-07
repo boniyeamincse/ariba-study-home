@@ -1757,79 +1757,229 @@ $ chmod 644 document.txt       # Standard file: User gets 6 (rw-), Group/Others 
     ],
     "Processes & Jobs": [
         {
-            title: "Monitoring Processes",
+            title: "Introduction to Processes",
             content: `
-                <h1>Managing Processes</h1>
-                <p>A process is an instance of a running program. Tracking them is essential for system health.</p>
-                <h2>The Basics (ps and top)</h2>
+                <h1>What is a Process?</h1>
+                <p>In Linux, a process is an executing instance of a program. Every time you run a command, start an application, or log in, a new process is created.</p>
+                <h2>Key Process Attributes</h2>
                 <ul>
-                    <li><strong>ps (Process Status):</strong> Takes a static snapshot of current processes.</li>
-                    <li><strong>top:</strong> A real-time, dynamic view of processes, CPU usage, and memory.</li>
+                    <li><strong>PID (Process ID):</strong> A unique geographical number assigned to every running process. When a process dies, its PID can be reused.</li>
+                    <li><strong>PPID (Parent Process ID):</strong> The PID of the process that started this one. If you spawn a script from Bash, Bash is the Parent.</li>
+                    <li><strong>UID / GID:</strong> Processes run with the permissions of the user and group who started them.</li>
+                </ul>
+                <div class="tip">The very first process started by the Linux Kernel is always <code>systemd</code> (or <code>init</code> on older systems), and it always has <strong>PID 1</strong>.</div>
+            `,
+            exercises: ["Research what happens to a 'Child' process if its 'Parent' process is suddenly killed before the Child finishes executing. (Hint: Look up 'Orphan processes')."],
+            quiz: {
+                question: "What is the Process ID (PID) of the very first process started by the Linux Kernel during boot?",
+                options: ["PID 0", "PID 1", "PID 100", "PID 9999"],
+                answer: 1
+            }
+        },
+        {
+            title: "Static Monitoring (ps)",
+            content: `
+                <h1>Taking a Snapshot with ps</h1>
+                <p>The <code>ps</code> (Process Status) command provides a static snapshot of the current processes running on your system.</p>
+                <h2>Common ps Flags</h2>
+                <ul>
+                    <li><code>ps</code> : Extremely basic. Only shows processes belonging to your current user terminal.</li>
+                    <li><code>ps aux</code> : The industry standard. Shows <strong>A</strong>ll processes, belonging to all <strong>U</strong>sers, even those not attached to a terminal (<strong>X</strong>).</li>
+                    <li><code>ps -ef</code> : The System V (UNIX) equivalent to <code>aux</code>. Forms a slightly cleaner tree-like format.</li>
                 </ul>
                 <div class="code-block">
-                    <pre>$ ps aux           # Standard command to see EVERY process on the system
-$ ps -u root       # See processes owned by the root user
-$ top              # Interactive monitor. Press 'q' to quit.</pre>
+                    <pre>$ ps aux | less                  # Pipe into less so you can scroll through hundreds of processes
+$ ps aux | grep "nginx"          # Quickly find the PID of the Nginx web server</pre>
                 </div>
-                <h2>Modern Alternative: htop</h2>
-                <p><code>htop</code> is highly recommended over <code>top</code>. It provides a visual, color-coded interface where you can scroll vertically to view process lists and horizontally to view the full command lines. You can even click on processes to kill them.</p>
             `,
-            exercises: ["Run <code>top</code>. While it is running, press <code>Shift+P</code> to sort by CPU usage, and <code>Shift+M</code> to sort by Memory usage. Press <code>q</code> to exit."],
+            exercises: ["Run <code>ps aux</code> on your terminal. Try to find the process corresponding to the Bash shell you are currently typing in."],
             quiz: {
-                question: "Which command provides a static snapshot of currently running processes?",
-                options: ["htop", "top", "ps", "kill"],
+                question: "Which of these ps commands is the most common industry standard for viewing absolutely every running process on the system?",
+                options: ["ps -all", "ps -u", "ps aux", "ps show"],
                 answer: 2
             }
         },
         {
-            title: "Signals and Termination",
+            title: "Dynamic Monitoring (top & htop)",
             content: `
-                <h1>Killing Processes</h1>
-                <p>Sometimes processes get stuck, freeze, or consume too many resources. We send <strong>Signals</strong> to tell the Linux kernel to handle them.</p>
-                <h2>Common Signals</h2>
+                <h1>Real-Time Process Monitoring</h1>
+                <p>While <code>ps</code> is a static photo, <code>top</code> and <code>htop</code> are live security cameras.</p>
+                <h2>top</h2>
+                <p><code>top</code> is installed on every UNIX machine in the world. It provides a live, updating view of the most resource-intensive processes.</p>
+                <ul><li>Inside <code>top</code>, press <strong>M</strong> to sort by memory, or <strong>P</strong> to sort by CPU. Press <strong>q</strong> to quit.</li></ul>
+                <h2>htop</h2>
+                <p><code>htop</code> is a modern, much friendlier alternative to <code>top</code>. It provides color-coded CPU usage bars and allows you to scroll vertically and horizontally.</p>
+                <div class="code-block">
+                    <pre>$ top              # Launch the classic live monitor
+$ htop             # Launch the modern interactive monitor (often needs to be installed via apt/yum)</pre>
+                </div>
+            `,
+            exercises: ["Launch <code>top</code>. Observe the 'load average' numbers in the top right corner. Press <code>q</code> to exit when done."],
+            quiz: {
+                question: "What keyboard key do you press to cleanly exit the 'top' interactive monitor interface?",
+                options: ["Esc", "Ctrl+C", "q", "x"],
+                answer: 2
+            }
+        },
+        {
+            title: "Process States & Controlling Terminals",
+            content: `
+                <h1>Understanding the State</h1>
+                <p>Look at the 'STAT' or 'S' column when running <code>ps aux</code> or <code>top</code>. A process isn't just "running"—it has a specific state.</p>
+                <h2>Common Process States</h2>
                 <ul>
-                    <li><strong>SIGTERM (15 - Terminate):</strong> The default signal sent by the <code>kill</code> command. A polite request to stop, allowing the program to safely save data and clean up temporary files.</li>
-                    <li><strong>SIGKILL (9 - Kill):</strong> Forced, immediate termination. The kernel drops the process immediately. No cleanup is performed, which can corrupt open files.</li>
+                    <li><strong>R (Running):</strong> Actively executing on the CPU, or waiting in the runnable queue.</li>
+                    <li><strong>S (Interruptible Sleep):</strong> Sleeping while waiting for an event (like user input or a timer). Most inactive processes sit in 'S'.</li>
+                    <li><strong>D (Uninterruptible Sleep):</strong> Frozen, waiting for an I/O operation (like a slow hard drive) to finish. You generally cannot kill processes in 'D' state!</li>
+                    <li><strong>Z (Zombie):</strong> A dead process whose Parent hasn't yet acknowledged its death. It consumes no resources except a PID slot.</li>
+                </ul>
+            `,
+            exercises: ["Run <code>ps aux</code> and scan the STAT column. Notice how almost every process is in the 'S' (Sleep) state, waiting to be needed."],
+            quiz: {
+                question: "What does a 'Z' in the STAT column of the ps command indicate?",
+                options: ["Zooming (High Priority)", "Zero (No RAM usage)", "Zombie (Dead process waiting for parent)", "Zipped (Compressed process)"],
+                answer: 2
+            }
+        },
+        {
+            title: "The /proc Virtual Filesystem",
+            content: `
+                <h1>The Matrix of the Kernel: /proc</h1>
+                <p>In Linux, "Everything is a file". This applies to running processes too! The <code>/proc</code> directory isn't a real folder on your hard drive; it is a <strong>virtual filesystem</strong> generated in RAM on-the-fly by the Linux Kernel.</p>
+                <h2>Inspecting Processes via /proc</h2>
+                <p>If you have a process running with PID 1234, there will be a folder named <code>/proc/1234/</code> containing every detail about it.</p>
+                <div class="code-block">
+                    <pre>$ cat /proc/cpuinfo     # Read raw hardware data straight from the kernel about your processor
+$ cat /proc/meminfo     # View extreme detail regarding system memory layout
+
+$ ls -l /proc/1         # View the internal secrets of the systemd process (PID 1)
+$ cat /proc/1/status    # View human-readable status information about PID 1</pre>
+                </div>
+            `,
+            exercises: ["Run <code>cat /proc/uptime</code> to ask the kernel exactly how many seconds the system has been running since boot."],
+            quiz: {
+                question: "Where does the /proc directory physically reside?",
+                options: ["On the primary hard drive partition", "In the /etc directory", "It is an illusion; it exists entirely within system RAM/Kernel", "On the boot USB"],
+                answer: 2
+            }
+        },
+        {
+            title: "Process Priority (nice and renice)",
+            content: `
+                <h1>Playing Nice with the CPU</h1>
+                <p>Linux is a multi-tasking OS. The Kernel's "Scheduler" decides which process gets CPU time. You can influence this by altering a process's <strong>Niceness</strong>.</p>
+                <h2>The Niceness Scale (-20 to 19)</h2>
+                <ul>
+                    <li><strong>19:</strong> Extremely Nice. "Please serve everyone else before me." (Lowest priority).</li>
+                    <li><strong>0:</strong> Default Niceness. Standard priority.</li>
+                    <li><strong>-20:</strong> Extremely selfish. "I demand maximum CPU time now." (Highest priority). Only Root can set negative nice values!</li>
                 </ul>
                 <div class="code-block">
-                    <pre>$ kill 1234        # Send SIGTERM (15) to PID 1234
-$ kill -9 1234     # Send SIGKILL (9) to PID 1234
-$ pkill firefox    # Kill all processes named 'firefox' (very useful!)</pre>
+                    <pre>$ nice -n 10 tar -czf backup.tar.gz /var/log/    # Start a CPU-heavy task as 'Nice' so it doesn't freeze the system
+$ renice -n -5 -p 1234                           # Change an ALREADY RUNNING process (PID 1234) to a negative (high) priority. Requires sudo.</pre>
                 </div>
-                <div class="note">Always try a standard <code>kill</code> first. Only use <code>kill -9</code> if the process is completely frozen and unresponsive to SIGTERM.</div>
             `,
-            exercises: ["Open a new terminal and run <code>sleep 1000</code>. Open another terminal, find its PID using <code>pgrep sleep</code>, and terminate it using <code>kill [PID]</code>."],
+            exercises: ["Start a heavy command with a very low priority by passing it through <code>nice -n 19</code>."],
             quiz: {
-                question: "Which command kills a process by its name rather than its numerical PID?",
-                options: ["kill", "xkill", "pkill", "killall -n"],
+                question: "Which 'nice' value represents the absolute highest priority on the system (the most 'selfish' process)?",
+                options: ["100", "0", "19", "-20"],
+                answer: 3
+            }
+        },
+        {
+            title: "Sending Signals",
+            content: `
+                <h1>Communicating via Signals</h1>
+                <p>Administrators manage processes using <strong>Signals</strong>—asynchronous notifications sent to a process. The <code>kill</code> command is primarily used to send signals, not just to murder processes.</p>
+                <h2>The Big Three Signals</h2>
+                <ol>
+                    <li><strong>SIGINT (2 - Interrupt):</strong> Sent when you press <code>Ctrl+C</code> in the terminal. Asks the foreground process to interrupt what it is doing and exit.</li>
+                    <li><strong>SIGTERM (15 - Terminate):</strong> The default signal sent by the <code>kill</code> command. A polite request to shut down, allowing the program to safely save data and close files.</li>
+                    <li><strong>SIGKILL (9 - Kill):</strong> Forced, immediate termination by the kernel. The process doesn't even get a chance to clean up. This is a last resort.</li>
+                </ol>
+                <div class="code-block">
+                    <pre>$ kill -l          # List all 64 unique signals available in your Linux kernel!</pre>
+                </div>
+            `,
+            exercises: ["Run a command like <code>ping 8.8.8.8</code>. Notice it runs forever. Press <code>Ctrl+C</code> to send a SIGINT signal and politely interrupt it."],
+            quiz: {
+                question: "When you press Ctrl+C to stop a running command in the terminal, which numbered signal is silently sent beneath the hood?",
+                options: ["2 (SIGINT)", "9 (SIGKILL)", "15 (SIGTERM)", "1 (SIGHUP)"],
+                answer: 0
+            }
+        },
+        {
+            title: "Terminating Processes",
+            content: `
+                <h1>The Kill Commands</h1>
+                <p>When an application freezes or consumes out-of-control memory, you must act as the executioner.</p>
+                <h2>Targeting by PID (kill)</h2>
+                <p>The standard <code>kill</code> command requires you to find the exact numerical PID first (using <code>ps</code> or <code>pgrep</code>).</p>
+                <div class="code-block">
+                    <pre>$ kill 5678              # Polite Terminate (Sends SIGTERM 15) to PID 5678
+$ kill -9 5678           # Force Murder (Sends SIGKILL 9) to PID 5678</pre>
+                </div>
+                <h2>Targeting by Name (pkill & killall)</h2>
+                <p>If you have 10 frozen instances of a web browser, typing 10 PIDs is tedious.</p>
+                <div class="code-block">
+                    <pre>$ pkill firefox          # Politlely kills ANY process whose name contains 'firefox'
+$ killall -9 nginx       # Force kills any process exactly named 'nginx'</pre>
+                </div>
+                <div class="note">Danger: <code>killall</code> kills everything that matches. Use <code>pgrep [name]</code> first to verify what you are about to massacre.</div>
+            `,
+            exercises: ["Use <code>sleep 1234 &</code> to create a dummy process. Find it using <code>pgrep sleep</code>, and then assassinate it using <code>kill -9 [PID]</code>."],
+            quiz: {
+                question: "You want to gracefully shut down a runaway Ruby script, but you only know its exact numerical PID is 8192. Which command is safest?",
+                options: ["kill -9 8192", "pkill 8192", "kill 8192", "killall 8192"],
                 answer: 2
             }
         },
         {
             title: "Background Jobs",
             content: `
-                <h1>Job Control (&, bg, fg)</h1>
-                <p>You can run commands in the "background" so they don't block your terminal, allowing you to continue typing other commands while the process does its work silently.</p>
-                <h2>Starting Jobs in the Background</h2>
-                <p>To start a command in the background, simply append an ampersand (<code>&</code>) to the end of it.</p>
+                <h1>The Ampersand (&) and Jobs</h1>
+                <p>If you run a script that takes 5 hours to complete, it will "block" your terminal window until finished. By utilizing <strong>Job Control</strong>, you can send it to the background and keep typing!</p>
+                <h2>Starting a Job in the Background</h2>
+                <p>Simply append an ampersand (<code>&</code>) to the end of any command.</p>
                 <div class="code-block">
-                    <pre>$ sleep 300 &      # Starts sleep in the background
-[1] 4567           # Output: [Job Number] PID</pre>
+                    <pre>$ ./massive_backup_script.sh &
+[1] 14522                # Bash tells you this is Job 1, mapped to PID 14522.</pre>
                 </div>
-                <h2>Managing Running Jobs</h2>
+                <h2>Listing Jobs</h2>
                 <div class="code-block">
-                    <pre>$ jobs             # List all background jobs in the current terminal session
-$ fg %1            # Bring Job 1 to the foreground (blocks terminal again)
-$ bg %1            # Resume a paused Job 1 in the background</pre>
+                    <pre>$ jobs                   # View all background jobs managed by your current terminal session</pre>
                 </div>
-                <h2>Suspending Foreground Jobs</h2>
-                <p>If you have a foreground process running (like downloading a large file or editing in Vim) and want to do something else quickly, press <strong>Ctrl+Z</strong> to <em>pause</em> it. It is now suspended. Type <code>bg</code> to resume it in the background, or <code>fg</code> to come back to it.</p>
             `,
-            exercises: ["Run <code>sleep 100</code> without an ampersand. Suspend it with Ctrl+Z. Run <code>jobs</code> to see it paused. Run <code>bg</code> to resume it in the background."],
+            exercises: ["Launch the sleep command into the background by typing <code>sleep 300 &</code>. Validate it is running silently by typing <code>jobs</code>."],
             quiz: {
-                question: "What keyboard shortcut suspends (pauses) the currently running foreground command?",
-                options: ["Ctrl+C", "Ctrl+D", "Ctrl+Z", "Ctrl+X"],
+                question: "What symbol must be appended to the absolute end of a bash command to launch it quietly in the background?",
+                options: ["*", "$", "&", "%"],
                 answer: 2
+            }
+        },
+        {
+            title: "Foregrounding and Suspending",
+            content: `
+                <h1>Controlling Job Flow</h1>
+                <p>What if you forgot the ampersand and accidentally blocked your terminal with a huge download?</p>
+                <h2>Suspending (Ctrl+Z)</h2>
+                <p>Pressing <code>Ctrl+Z</code> will immediately <strong>Suspend</strong> (pause) the foreground task and give you your terminal prompt back. The process enters 'T' state (Stopped).</p>
+                <h2>Resuming (bg and fg)</h2>
+                <p>Once a process is suspended, you can either resume it invisibly in the background (<code>bg</code>), or drag it back up into the foreground blocking view (<code>fg</code>).</p>
+                <div class="code-block">
+                    <pre>$ wget largefile.iso     # Oh no, it's blocking the terminal!
+Ctrl+Z                   # Paused! Prompt returned.
+$ bg                     # Command continues downloading in the background.
+
+$ jobs                   # Check status of jobs
+$ fg %1                  # Bring Job [1] back to the foreground to watch it finish.</pre>
+                </div>
+            `,
+            exercises: ["Run <code>sleep 500</code>. Pause it using Ctrl+Z. Run <code>jobs</code> to see it 'Stopped'. Formally resume it using the <code>bg</code> command."],
+            quiz: {
+                question: "If a command is currently blocking your terminal, what keyboard shortcut will instantly pause it and return your interactive prompt?",
+                options: ["Ctrl+C", "Ctrl+D", "Ctrl+B", "Ctrl+Z"],
+                answer: 3
             }
         }
     ],

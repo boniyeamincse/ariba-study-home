@@ -497,33 +497,78 @@ $ chmod 644 document.txt       # Standard file: User gets 6 (rw-), Group/Others 
 
 ## Processes & Jobs
 
-### Monitoring Processes
+### Static Monitoring (ps)
 
 ```bash
-$ ps aux           # Standard command to see EVERY process on the system
-$ ps -u root       # See processes owned by the root user
-$ top              # Interactive monitor. Press 'q' to quit.
+$ ps aux | less                  # Pipe into less so you can scroll through hundreds of processes
+$ ps aux | grep "nginx"          # Quickly find the PID of the Nginx web server
 
 ```
 
-### Signals and Termination
+### Dynamic Monitoring (top & htop)
 
 ```bash
-$ kill 1234        # Send SIGTERM (15) to PID 1234
-$ kill -9 1234     # Send SIGKILL (9) to PID 1234
-$ pkill firefox    # Kill all processes named 'firefox' (very useful!)
+$ top              # Launch the classic live monitor
+$ htop             # Launch the modern interactive monitor (often needs to be installed via apt/yum)
+
+```
+
+### The /proc Virtual Filesystem
+
+```bash
+$ cat /proc/cpuinfo     # Read raw hardware data straight from the kernel about your processor
+$ cat /proc/meminfo     # View extreme detail regarding system memory layout
+
+$ ls -l /proc/1         # View the internal secrets of the systemd process (PID 1)
+$ cat /proc/1/status    # View human-readable status information about PID 1
+
+```
+
+### Process Priority (nice and renice)
+
+```bash
+$ nice -n 10 tar -czf backup.tar.gz /var/log/    # Start a CPU-heavy task as 'Nice' so it doesn't freeze the system
+$ renice -n -5 -p 1234                           # Change an ALREADY RUNNING process (PID 1234) to a negative (high) priority. Requires sudo.
+
+```
+
+### Sending Signals
+
+```bash
+$ kill -l          # List all 64 unique signals available in your Linux kernel!
+
+```
+
+### Terminating Processes
+
+```bash
+$ kill 5678              # Polite Terminate (Sends SIGTERM 15) to PID 5678
+$ kill -9 5678           # Force Murder (Sends SIGKILL 9) to PID 5678
+
+$ pkill firefox          # Politlely kills ANY process whose name contains 'firefox'
+$ killall -9 nginx       # Force kills any process exactly named 'nginx'
 
 ```
 
 ### Background Jobs
 
 ```bash
-$ sleep 300 &      # Starts sleep in the background
-[1] 4567           # Output: [Job Number] PID
+$ ./massive_backup_script.sh &
+[1] 14522                # Bash tells you this is Job 1, mapped to PID 14522.
 
-$ jobs             # List all background jobs in the current terminal session
-$ fg %1            # Bring Job 1 to the foreground (blocks terminal again)
-$ bg %1            # Resume a paused Job 1 in the background
+$ jobs                   # View all background jobs managed by your current terminal session
+
+```
+
+### Foregrounding and Suspending
+
+```bash
+$ wget largefile.iso     # Oh no, it's blocking the terminal!
+Ctrl+Z                   # Paused! Prompt returned.
+$ bg                     # Command continues downloading in the background.
+
+$ jobs                   # Check status of jobs
+$ fg %1                  # Bring Job [1] back to the foreground to watch it finish.
 
 ```
 
