@@ -1048,10 +1048,79 @@ $ grep -v "debug" app.log            # Invert match (exclude lines)</pre>
         }
     ],
     "Advanced Text-Fu": [
-        { title: "Regular Expressions", content: "<h1>Regex</h1><p>Mastering pattern matching.</p>" },
-        { title: "Vim Essentials", content: "<h1>Vim</h1><p>Navigation, editing, and saving.</p>" },
-        { title: "Emacs Basics", content: "<h1>Emacs</h1><p>Buffers and navigation.</p>" },
-        { title: "Sed & Awk", content: "<h1>Stream Editors</h1><p>Introduction to sed and awk.</p>" }
+        {
+            title: "Regular Expressions (RegEx)",
+            content: `
+                <h1>Regular Expressions</h1>
+                <p>RegEx is a powerful language for pattern matching in text. Many Linux tools like <code>grep</code>, <code>sed</code>, and <code>awk</code> use it.</p>
+                <h2>Basic Syntax</h2>
+                <ul>
+                    <li><code>.</code> : Matches any single character.</li>
+                    <li><code>^</code> : Matches the start of a line.</li>
+                    <li><code>$</code> : Matches the end of a line.</li>
+                    <li><code>[abc]</code> : Matches any character in the set (a, b, or c).</li>
+                    <li><code>*</code> : Matches 0 or more occurrences of the preceding element.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ grep "^root" /etc/passwd       # Starts with root
+$ grep "bash$" /etc/passwd       # Ends with bash
+$ grep "o.o" words.txt           # Matches 'oto', 'o-o', etc.</pre>
+                </div>
+            `,
+            exercises: ["Research 'Extended Regular Expressions' (ERE) and find the difference between <code>grep</code> and <code>egrep</code>."],
+            quiz: {
+                question: "Which character matches the start of a line in RegEx?",
+                options: ["$", "*", "^", "."],
+                answer: 2
+            }
+        },
+        {
+            title: "Vim Essentials",
+            content: `
+                <h1>The Vim Editor</h1>
+                <p>Vim is a "modal" editor. It is extremely powerful but has a steep learning curve.</p>
+                <h2>The Three Modes</h2>
+                <ul>
+                    <li><strong>Normal Mode (Default):</strong> For navigation and commands. Press <code>Esc</code> to return here.</li>
+                    <li><strong>Insert Mode:</strong> For typing text. Press <code>i</code> to enter.</li>
+                    <li><strong>Command Mode:</strong> For saving and exiting. Type <code>:</code>.</li>
+                </ul>
+                <div class="tip">Stuck in Vim? Press <strong>Esc</strong> then type <strong>:q!</strong> and Enter to quit without saving.</div>
+                <h2>Navigation and Saving</h2>
+                <pre>:w        # Save (write)
+:q        # Quit
+:wq       # Save and Quit
+/pattern  # Search forward</pre>
+            `,
+            exercises: ["Open a file with <code>vim test.txt</code>, type 'Hello Linux', and save it."],
+            quiz: {
+                question: "How do you enter Insert Mode in Vim?",
+                options: ["i", "a", "o", "All of the above"],
+                answer: 3
+            }
+        },
+        {
+            title: "Sed and Awk Basics",
+            content: `
+                <h1>Stream Editing (sed & awk)</h1>
+                <p>These tools allow you to modify text data without ever opening an editor.</p>
+                <h2>sed (Stream Editor)</h2>
+                <p>Primarily used for substitution (find and replace).</p>
+                <div class="code-block">
+                    <pre>$ sed 's/apple/orange/' file.txt     # Replace first apple
+$ sed 's/apple/orange/g' file.txt    # Replace ALL apples</pre>
+                </div>
+                <h2>awk (Pattern Scanning)</h2>
+                <p>Used for processing rows and columns (like a command-line spreadsheet).</p>
+                <pre>$ awk -F: '{ print $1 }' /etc/passwd # Print usernames (first column)</pre>
+            `,
+            exercises: ["Use <code>sed</code> to capitalize all occurrences of 'linux' in a file.", "Use <code>awk</code> to print the 3rd column of <code>ls -l</code> output."],
+            quiz: {
+                question: "Which tool is better suited for processing column-based data?",
+                options: ["sed", "cat", "awk", "touch"],
+                answer: 2
+            }
+        }
     ],
     "User Management": [
         { title: "Users and Groups", content: "<h1>Users</h1><p>Understanding user accounts and groups.</p>" },
