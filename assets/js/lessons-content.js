@@ -1322,86 +1322,315 @@ $ grep -C 2 "error" server.log      # Context: Print the match AND 2 lines above
     ],
     "Advanced Text-Fu": [
         {
-            title: "Regular Expressions (RegEx)",
+            title: "regex (Regular Expressions)",
             content: `
-                <h1>Regular Expressions</h1>
-                <p>RegEx is a powerful language for pattern matching in text. Many Linux tools like <code>grep</code>, <code>sed</code>, and <code>awk</code> use it.</p>
-                <h2>Basic Syntax</h2>
+                <h1>Regular Expressions (regex)</h1>
+                <p>Regular expressions are powerful search patterns used across Linux tools like <code>grep</code>, <code>sed</code>, and <code>awk</code>.</p>
+                <h2>Core Syntax</h2>
                 <ul>
                     <li><code>.</code> : Matches any single character.</li>
                     <li><code>^</code> : Matches the start of a line.</li>
                     <li><code>$</code> : Matches the end of a line.</li>
-                    <li><code>[abc]</code> : Matches any character in the set (a, b, or c).</li>
-                    <li><code>*</code> : Matches 0 or more occurrences of the preceding element.</li>
+                    <li><code>[abc]</code> : Matches character a, b, or c.</li>
+                    <li><code>*</code> : Matches zero or more of the preceding character.</li>
                 </ul>
                 <div class="code-block">
-                    <pre>$ grep "^root" /etc/passwd       # Starts with root
-$ grep "bash$" /etc/passwd       # Ends with bash
-$ grep "o.o" words.txt           # Matches 'oto', 'o-o', etc.</pre>
+                    <pre>$ grep "^root" /etc/passwd       # Find lines starting with 'root'
+$ grep "bash$" /etc/passwd       # Find lines ending with 'bash'</pre>
                 </div>
             `,
-            exercises: ["Research 'Extended Regular Expressions' (ERE) and find the difference between <code>grep</code> and <code>egrep</code>."],
+            exercises: ["Research and try matching a valid IP address using grep and regex on a log file."],
             quiz: {
-                question: "Which character matches the start of a line in RegEx?",
-                options: ["$", "*", "^", "."],
+                question: "Which regex character ties the match to the end of a line?",
+                options: ["*", "^", "$", "."],
                 answer: 2
             }
         },
         {
-            title: "Vim Essentials",
+            title: "Text Editors",
             content: `
-                <h1>The Vim Editor</h1>
-                <p>Vim is a "modal" editor. It is extremely powerful but has a steep learning curve because you don't use the mouse and your keyboard keys do different things depending on the "mode" you are in.</p>
-                <h2>The Three Primary Modes</h2>
+                <h1>Command Line Text Editors</h1>
+                <p>When connecting to servers via SSH, you won't have a graphical interface like VS Code. You must master terminal-based text editors.</p>
+                <h2>The Big Two</h2>
                 <ul>
-                    <li><strong>Normal Mode (Default):</strong> For navigation, copying, pasting, and deleting. Press <code>Esc</code> to return here from any mode.</li>
-                    <li><strong>Insert Mode:</strong> For actually typing text. Press <code>i</code> (insert before cursor) or <code>a</code> (append after cursor) to enter.</li>
-                    <li><strong>Command Mode:</strong> For saving, exiting, and finding/replacing. Type <code>:</code> from Normal mode.</li>
+                    <li><strong>Vim:</strong> Fast, ubiquitous, and modal. Built into almost every Linux system by default.</li>
+                    <li><strong>Emacs:</strong> Extremely powerful, extensible, macro-driven editor that some joke is an entire operating system.</li>
                 </ul>
-                <div class="tip">Stuck in Vim? Don't panic! Press <strong>Esc</strong> multiple times, then type <strong>:q!</strong> and hit <strong>Enter</strong> to force quit without saving.</div>
-                <h2>Crucial Normal Mode Shortcuts</h2>
-                <div class="code-block">
-                    <pre>dd        # Delete (cut) the entire current line
-yy        # Yank (copy) the entire current line
-p         # Paste the cut/copied line below the cursor
-u         # Undo the last action
-Ctrl+R    # Redo
-gg        # Jump to the top of the file
-G         # Jump to the bottom of the file</pre>
-                </div>
-                <h2>Command Mode (Saving & Exiting)</h2>
-                <pre>:w        # Save (write) changes
-:q        # Quit (will fail if you have unsaved changes)
-:wq       # Save and Quit (or type ZZ in normal mode)
-/pattern  # Search forward for a word (e.g., /error)
-n / N     # In a search, jump to next (n) or previous (N) match</pre>
+                <p>We also have <code>nano</code> for quick, simple edits without a learning curve.</p>
             `,
-            exercises: ["Open a file with <code>vim test.txt</code>, type 'Hello Linux' in insert mode, go back to normal mode, copy the line using <code>yy</code>, paste it 5 times using <code>p</code>, and save it."],
+            exercises: ["Run <code>nano test.txt</code>, type some text, and follow the bottom menu (Ctrl+O to save, Ctrl+X to exit)."],
             quiz: {
-                question: "In Vim Normal Mode, which key command copies (yanks) the entire current line?",
-                options: ["c", "y", "yy", "Ctrl+C"],
+                question: "Which of the following describes Vim?",
+                options: ["A simple, non-modal editor", "A graphical-only editor", "A fast, ubiquitous, modal terminal editor", "A spreadsheet application"],
                 answer: 2
             }
         },
         {
-            title: "Sed and Awk Basics",
+            title: "Vim (Vi Improved)",
             content: `
-                <h1>Stream Editing (sed & awk)</h1>
-                <p>These tools allow you to modify text data without ever opening an editor.</p>
-                <h2>sed (Stream Editor)</h2>
-                <p>Primarily used for substitution (find and replace).</p>
-                <div class="code-block">
-                    <pre>$ sed 's/apple/orange/' file.txt     # Replace first apple
-$ sed 's/apple/orange/g' file.txt    # Replace ALL apples</pre>
-                </div>
-                <h2>awk (Pattern Scanning)</h2>
-                <p>Used for processing rows and columns (like a command-line spreadsheet).</p>
-                <pre>$ awk -F: '{ print $1 }' /etc/passwd # Print usernames (first column)</pre>
+                <h1>Understanding Vim Modes</h1>
+                <p>Vim is a <strong>modal</strong> editor, meaning the keys on your keyboard do completely different things depending on which mode you are in.</p>
+                <h2>The 3 Core Modes</h2>
+                <ol>
+                    <li><strong>Normal Mode:</strong> The default mode. Used for navigation, copying, pasting, and deleting. You CANNOT type regular text here.</li>
+                    <li><strong>Insert Mode:</strong> Used for actually typing text.</li>
+                    <li><strong>Command (Visual) Mode:</strong> Accessed by typing <code>:</code> from Normal mode. Used to save, exit, or configure the editor.</li>
+                </ol>
+                <div class="tip"><strong>The Golden Rule:</strong> If you are ever confused in Vim, mash the <strong>Esc</strong> key several times to return safely to Normal Mode.</div>
             `,
-            exercises: ["Use <code>sed</code> to capitalize all occurrences of 'linux' in a file.", "Use <code>awk</code> to print the 3rd column of <code>ls -l</code> output."],
+            exercises: ["Open Vim by typing <code>vim</code>. Press <code>i</code> to enter Insert Mode. Press <code>Esc</code> to return to Normal Mode."],
             quiz: {
-                question: "Which tool is better suited for processing column-based data?",
-                options: ["sed", "cat", "awk", "touch"],
+                question: "What is the default mode Vim starts in, where keys act as commands rather than typing text?",
+                options: ["Insert Mode", "Command Mode", "Visual Mode", "Normal Mode"],
+                answer: 3
+            }
+        },
+        {
+            title: "Vim Search Patterns",
+            content: `
+                <h1>Searching Inside Vim</h1>
+                <p>Searching in Vim is blazing fast. You perform searches from <strong>Normal Mode</strong>.</p>
+                <h2>Search Commands</h2>
+                <ul>
+                    <li><code>/pattern</code> : Search FORWARD through the document for 'pattern'.</li>
+                    <li><code>?pattern</code> : Search BACKWARD through the document.</li>
+                    <li><code>n</code> : Jump to the NEXT match in the same direction.</li>
+                    <li><code>N</code> : Jump to the PREVIOUS match (reverse direction).</li>
+                </ul>
+                <div class="code-block">
+                    <pre>/error        # Type this in normal mode and press Enter to find the word 'error'
+n             # Press 'n' to go to the second 'error' occurrence</pre>
+                </div>
+            `,
+            exercises: ["Open a large text file in Vim, type <code>/the</code>, press Enter, and cycle through matches using <code>n</code> and <code>N</code>."],
+            quiz: {
+                question: "While in Normal mode, which key initiates a forward search?",
+                options: ["Ctrl+F", "/", "?", "s"],
+                answer: 1
+            }
+        },
+        {
+            title: "Vim Navigation",
+            content: `
+                <h1>Moving the Cursor in Vim</h1>
+                <p>In Normal mode, true Vim masters don't use the arrow keys. They keep their hands on the home row!</p>
+                <h2>The Holy Movement Keys</h2>
+                <ul>
+                    <li><code>h</code> : Move Left</li>
+                    <li><code>j</code> : Move Down</li>
+                    <li><code>k</code> : Move Up</li>
+                    <li><code>l</code> : Move Right</li>
+                </ul>
+                <h2>Advanced Jumping</h2>
+                <ul>
+                    <li><code>w</code> : Jump forward one word.</li>
+                    <li><code>b</code> : Jump backward one word.</li>
+                    <li><code>0</code> (zero) : Jump to the start of the line.</li>
+                    <li><code>$</code> : Jump to the end of the line.</li>
+                    <li><code>gg</code> : Jump to the very top of the file.</li>
+                    <li><code>G</code> : Jump to the very bottom of the file.</li>
+                </ul>
+            `,
+            exercises: ["Open Vim and force yourself to navigate a document using only h, j, k, l, w, and b. Do not touch the arrow keys!"],
+            quiz: {
+                question: "Which key combination jumps instantly to the very bottom of the file?",
+                options: ["gg", "$", "G", "End"],
+                answer: 2
+            }
+        },
+        {
+            title: "Vim Inserting and Appending Text",
+            content: `
+                <h1>Entering Insert Mode</h1>
+                <p>To actually type words, you must transition from Normal to Insert mode. Vim gives you precise control over exactly <em>where</em> you start typing.</p>
+                <h2>Insert vs. Append</h2>
+                <ul>
+                    <li><code>i</code> (Insert): Start typing exactly <em>before</em> the cursor block.</li>
+                    <li><code>I</code> (Shift+i): Start typing at the very <em>beginning</em> of the current line.</li>
+                    <li><code>a</code> (Append): Start typing exactly <em>after</em> the cursor block.</li>
+                    <li><code>A</code> (Shift+a): Start typing at the very <em>end</em> of the current line.</li>
+                    <li><code>o</code> : Open a brand new line <em>below</em> the current line and enter Insert mode.</li>
+                    <li><code>O</code> (Shift+o): Open a brand new line <em>above</em> the current line.</li>
+                </ul>
+                <p>When you are done typing, always press <strong>Esc</strong> to return to Normal mode.</p>
+            `,
+            exercises: ["In Normal mode, move the cursor to the middle of a line. Press <code>A</code> to instantly jump to the end of the line and begin typing."],
+            quiz: {
+                question: "Which key instantly creates a new empty line BELOW your cursor and enters Insert mode?",
+                options: ["i", "a", "o", "O"],
+                answer: 2
+            }
+        },
+        {
+            title: "Vim Editing",
+            content: `
+                <h1>Deleting, Yanking, and Pasting</h1>
+                <p>Vim treats editing like a language. You combine verbs (like delete) with nouns (like word or line).</p>
+                <h2>Core Editing Verbs (Normal Mode)</h2>
+                <ul>
+                    <li><code>x</code> : Delete the single character under the cursor.</li>
+                    <li><code>dw</code> : Delete Word (deletes from cursor to the end of the word).</li>
+                    <li><code>dd</code> : Delete (Cut) the entire current line.</li>
+                    <li><code>yy</code> : Yank (Copy) the entire current line.</li>
+                    <li><code>p</code> : Paste the cut/copied text below the cursor.</li>
+                    <li><code>u</code> : Undo your last change.</li>
+                    <li><code>Ctrl + r</code> : Redo the undone change.</li>
+                </ul>
+                <div class="tip"><strong>Multipliers:</strong> You can put numbers in front of verbs! Typing <code>5dd</code> instantly deletes 5 lines!</div>
+            `,
+            exercises: ["Delete 3 lines at once by typing <code>3dd</code> in Normal mode, then press <code>u</code> to undo it."],
+            quiz: {
+                question: "What is the Normal mode command to copy (yank) 4 complete lines of text at once?",
+                options: ["copy 4", "4yy", "y4y", "Ctrl+C 4"],
+                answer: 1
+            }
+        },
+        {
+            title: "Vim Saving and Exiting",
+            content: `
+                <h1>The Most Important Commands</h1>
+                <p>The number one question asked by new Linux users is "How do I exit Vim?" You must be in Normal mode (press Esc!), then type a colon <code>:</code> to enter Command mode at the bottom of the screen.</p>
+                <h2>The Exit Commands</h2>
+                <ul>
+                    <li><code>:w</code> : Write (Save) the file, but stay inside Vim.</li>
+                    <li><code>:q</code> : Quit Vim. (This will throw an error if you have unsaved changes).</li>
+                    <li><code>:wq</code> : Write (Save) the file and Quit simultaneously.</li>
+                    <li><code>:q!</code> : Quit FORCEFULLY. Discard any unsaved changes without asking!</li>
+                </ul>
+                <div class="code-block">
+                    <pre>Esc         # 1. Ensure you are in Normal mode
+:wq         # 2. Type colon, w, q
+Enter       # 3. Press Enter to execute</pre>
+                </div>
+            `,
+            exercises: ["Open a file, type some garbage text, and then exit by forcing it to quit without saving using <code>:q!</code>."],
+            quiz: {
+                question: "You made a horrible mistake editing a file and want to exit Vim immediately without saving any of your messy changes. What do you type?",
+                options: [":w", ":wq", ":exit", ":q!"],
+                answer: 3
+            }
+        },
+        {
+            title: "Emacs",
+            content: `
+                <h1>Introduction to GNU Emacs</h1>
+                <p>Emacs is the other titan of terminal text editors. Unlike Vim's modal editing, Emacs uses a heavily <strong>chorded</strong> system, relying on modifier keys (Ctrl and Alt/Meta) pressed simultaneously with letters.</p>
+                <h2>The Modifier Keys</h2>
+                <ul>
+                    <li><strong>C-</strong> refers to the <code>Ctrl</code> (Control) key.</li>
+                    <li><strong>M-</strong> refers to the <code>Meta</code> key (which is the <code>Alt</code> key on modern PC keyboards, or <code>Option</code> on Mac).</li>
+                </ul>
+                <p>So, a command written as <code>C-x</code> means "Press and hold Control, then tap x".</p>
+                <div class="tip">If a command says <code>C-x C-s</code>, you hold down Control, tap x, then tap s, then release Control.</div>
+            `,
+            exercises: ["Open your terminal and type <code>emacs -nw</code> to start Emacs in the console without opening a new GUI window."],
+            quiz: {
+                question: "In Emacs documentation, what keyboard key does the prefix `M-` typically represent on a modern PC?",
+                options: ["Shift", "Ctrl", "Alt", "Windows Key"],
+                answer: 2
+            }
+        },
+        {
+            title: "Emacs Manipulate Files",
+            content: `
+                <h1>Opening and Saving Files</h1>
+                <p>In Emacs, opening a file is known as "finding" a file, and saving is "saving" the buffer.</p>
+                <h2>File Commands</h2>
+                <ul>
+                    <li><code>C-x C-f</code> (Find File): Prompts you at the bottom to type the path of the file you want to open or create.</li>
+                    <li><code>C-x C-s</code> (Save): Saves the current file/buffer.</li>
+                    <li><code>C-x C-w</code> (Write File): "Save As" - saves the current buffer under a new filename.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>1. Press Ctrl+x, then Ctrl+f
+2. Look at the bottom prompt
+3. Type /tmp/notes.txt and press Enter
+4. Type your notes
+5. Press Ctrl+x, then Ctrl+s to save.</pre>
+                </div>
+            `,
+            exercises: ["Open Emacs, use <code>C-x C-f</code> to create a file called <code>hello.txt</code>, type your name, and save it using <code>C-x C-s</code>."],
+            quiz: {
+                question: "Which chording sequence is used to 'Find' (open) a file in Emacs?",
+                options: ["C-o", "C-x C-f", "M-f", "C-f"],
+                answer: 1
+            }
+        },
+        {
+            title: "Emacs Buffer Navigation",
+            content: `
+                <h1>Moving the Point (Cursor)</h1>
+                <p>In Emacs, the cursor is formally called the "Point". You navigate using Ctrl and Meta chords.</p>
+                <h2>Basic Movement</h2>
+                <ul>
+                    <li><code>C-f</code> (Forward): Move forward one character.</li>
+                    <li><code>C-b</code> (Backward): Move backward one character.</li>
+                    <li><code>C-n</code> (Next): Move down to the next line.</li>
+                    <li><code>C-p</code> (Previous): Move up to the previous line.</li>
+                </ul>
+                <h2>Jumping</h2>
+                <ul>
+                    <li><code>M-f</code> (Meta-Forward): Jump forward one full word.</li>
+                    <li><code>M-b</code> (Meta-Backward): Jump backward one full word.</li>
+                    <li><code>C-a</code> : Jump exactly to the beginning of the line.</li>
+                    <li><code>C-e</code> : Jump exactly to the end of the line.</li>
+                </ul>
+            `,
+            exercises: ["Type a long sentence in Emacs and practice jumping word-by-word using <code>Alt+f</code> and <code>Alt+b</code>."],
+            quiz: {
+                question: "Which Emacs shortcut jumps the cursor to the very end of the current line?",
+                options: ["C-n", "M-f", "C-e", "C-a"],
+                answer: 2
+            }
+        },
+        {
+            title: "Emacs Editing",
+            content: `
+                <h1>Cutting, Copying, and Pasting</h1>
+                <p>Emacs has its own unique terminology for the clipboard. The clipboard is called the "Kill Ring".</p>
+                <h2>The Terminology</h2>
+                <ul>
+                    <li><strong>Killing:</strong> Deleting/Cutting text (moves it into the Kill Ring).</li>
+                    <li><strong>Yanking:</strong> Pasting text (pulls it out of the Kill Ring).</li>
+                </ul>
+                <h2>The Commands</h2>
+                <ul>
+                    <li><code>C-k</code> (Kill Line): Cuts text from the cursor to the end of the line.</li>
+                    <li><code>C-w</code> (Kill Region): Cuts a highlighted selection of text.</li>
+                    <li><code>M-w</code> (Copy Region): Copies a highlighted selection without deleting it.</li>
+                    <li><code>C-y</code> (Yank): Pastes the previously killed or copied text.</li>
+                    <li><code>C-/</code> or <code>C-_</code> : Undo your last change.</li>
+                </ul>
+            `,
+            exercises: ["Move your cursor to the middle of a line, press <code>C-k</code> to kill the rest of the line, move down, and press <code>C-y</code> to yank it back."],
+            quiz: {
+                question: "In Emacs terminology, what does 'Yanking' do?",
+                options: ["Deletes a line", "Copies a selection", "Pastes text from the kill ring", "Undoes the last action"],
+                answer: 2
+            }
+        },
+        {
+            title: "Emacs Exiting and Help",
+            content: `
+                <h1>Getting Help and Safely Quitting</h1>
+                <p>Emacs has a massive built-in documentation system.</p>
+                <h2>Help Commands</h2>
+                <ul>
+                    <li><code>C-h ?</code> : Pull up the general Help menu.</li>
+                    <li><code>C-h t</code> : Launch the interactive built-in Emacs Tutorial (highly recommended!).</li>
+                    <li><code>C-h k</code> : Describe what a specific keyboard shortcut does.</li>
+                    <li><code>C-g</code> : <strong>The Cancel Button.</strong> If you accidentally start a chord and get stuck, mash <code>C-g</code> repeatedly to abort the current command and return to normal editing.</li>
+                </ul>
+                <h2>Quitting Emacs</h2>
+                <div class="code-block">
+                    <pre>C-x C-c    # The absolute sequence to quit Emacs completely.
+# (If you have unsaved files, it will ask you if you want to save them first).</pre>
+                </div>
+            `,
+            exercises: ["Open Emacs and immediately press <code>C-h t</code> to load the famous built-in Emacs tutorial buffer!"],
+            quiz: {
+                question: "What is the crucial 'Cancel / Abort' sequence you should press if you get stuck in half of an Emacs command?",
+                options: ["Esc Esc Esc", "C-c", "C-g", "C-d"],
                 answer: 2
             }
         }

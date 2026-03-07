@@ -401,41 +401,47 @@ $ grep -C 2 "error" server.log      # Context: Print the match AND 2 lines above
 
 ## Advanced Text-Fu
 
-### Regular Expressions (RegEx)
+### regex (Regular Expressions)
 
 ```bash
-$ grep "^root" /etc/passwd       # Starts with root
-$ grep "bash$" /etc/passwd       # Ends with bash
-$ grep "o.o" words.txt           # Matches 'oto', 'o-o', etc.
+$ grep "^root" /etc/passwd       # Find lines starting with 'root'
+$ grep "bash$" /etc/passwd       # Find lines ending with 'bash'
 
 ```
 
-### Vim Essentials
+### Vim Search Patterns
 
 ```bash
-dd        # Delete (cut) the entire current line
-yy        # Yank (copy) the entire current line
-p         # Paste the cut/copied line below the cursor
-u         # Undo the last action
-Ctrl+R    # Redo
-gg        # Jump to the top of the file
-G         # Jump to the bottom of the file
-
-:w        # Save (write) changes
-:q        # Quit (will fail if you have unsaved changes)
-:wq       # Save and Quit (or type ZZ in normal mode)
-/pattern  # Search forward for a word (e.g., /error)
-n / N     # In a search, jump to next (n) or previous (N) match
+/error        # Type this in normal mode and press Enter to find the word 'error'
+n             # Press 'n' to go to the second 'error' occurrence
 
 ```
 
-### Sed and Awk Basics
+### Vim Saving and Exiting
 
 ```bash
-$ sed 's/apple/orange/' file.txt     # Replace first apple
-$ sed 's/apple/orange/g' file.txt    # Replace ALL apples
+Esc         # 1. Ensure you are in Normal mode
+:wq         # 2. Type colon, w, q
+Enter       # 3. Press Enter to execute
 
-$ awk -F: '{ print $1 }' /etc/passwd # Print usernames (first column)
+```
+
+### Emacs Manipulate Files
+
+```bash
+1. Press Ctrl+x, then Ctrl+f
+2. Look at the bottom prompt
+3. Type /tmp/notes.txt and press Enter
+4. Type your notes
+5. Press Ctrl+x, then Ctrl+s to save.
+
+```
+
+### Emacs Exiting and Help
+
+```bash
+C-x C-c    # The absolute sequence to quit Emacs completely.
+# (If you have unsaved files, it will ask you if you want to save them first).
 
 ```
 
