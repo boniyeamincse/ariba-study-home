@@ -574,31 +574,97 @@ $ fg %1                  # Bring Job [1] back to the foreground to watch it fini
 
 ## Software Management
 
-### Package Managers (apt, dnf, pacman)
+### dpkg (Debian Package Manager)
 
 ```bash
-$ sudo apt update               # Step 1: Fetch list of latest updates from repos
-$ sudo apt upgrade              # Step 2: Actually install the available updates
-$ apt search "web server"       # Search for a package containing keywords
-$ sudo apt install nginx        # Install a package
-$ sudo apt remove nginx         # Remove a package (keeps config files)
-$ sudo apt purge nginx          # Completely erase package AND its configs
-$ sudo apt autoremove           # Clean up unused dependencies (Very important!)
+$ sudo dpkg -i google-chrome-stable_current_amd64.deb
 
-$ sudo dnf search apache
-$ sudo dnf install httpd
-$ sudo dnf history              # View transaction history to undo installations!
+$ dpkg -l                    # List ALL installed packages on the system
+$ dpkg -L nginx              # List all files installed by a specific package
 
 ```
 
-### Archives and Source Code
+### apt (Advanced Package Tool)
 
 ```bash
-$ tar -xzvf source-code.tar.gz   # Extract an archive
+$ sudo apt update                 # 1. Fetch the latest catalog of software from your repos
+$ apt search "web server"         # 2. Search the catalog for keywords
+$ sudo apt install nginx          # 3. Install the package AND all its dependencies
+$ sudo apt upgrade                # Upgrade ALL installed software to the latest versions
 
-$ ./configure    # Checks system for required libraries
-$ make           # Compiles the source code into binaries
-$ sudo make install # Copies binaries to system folders (like /usr/local/bin)
+$ sudo apt remove nginx           # Uninstall, but KEEP configuration files just in case
+$ sudo apt purge nginx            # NUKE the program and erase ALL configuration files
+$ sudo apt autoremove             # Clean up 'orphaned' dependencies you no longer need
+
+```
+
+### rpm (Red Hat Package Manager)
+
+```bash
+$ sudo rpm -ivh package.rpm       # Install, Verbose, display Hash marks (progress bar)
+$ rpm -qa                         # Query All installed packages
+$ rpm -qi bash                    # Query Information about a specific package
+$ sudo rpm -e package_name        # Erase (uninstall) a package
+
+```
+
+### yum and dnf (Fedora/RHEL)
+
+```bash
+$ sudo dnf check-update           # See what needs updating
+$ sudo dnf install httpd          # Install the Apache Web Server
+$ sudo dnf remove httpd           # Remove a package
+
+$ sudo dnf history                # See a numbered list of everything installed/removed
+$ sudo dnf history undo 14        # Instantly rollback Transaction #14!
+
+```
+
+### pacman (Arch Linux)
+
+```bash
+$ sudo pacman -Syu                # Sync, y(refresh), upgrade. (The command to update the whole system)
+$ sudo pacman -S neofetch         # Sync (Install) a specific package
+$ sudo pacman -Rs neofetch        # Remove the package and its unused dependencies (s)
+
+```
+
+### Universal Packages (Snap & Flatpak)
+
+```bash
+$ snap install spotify            # Works exactly the same on Ubuntu, Fedora, or Arch
+$ flatpak install flathub gimp    # Universal install of the GIMP image editor
+
+```
+
+### tar (Tape Archive)
+
+```bash
+$ tar -cvf backup.tar /var/log/   # Bundles the entire log directory into one file
+
+$ tar -xvf backup.tar             # eXtracts the archive into the current directory
+
+```
+
+### Compression (gzip and bzip2)
+
+```bash
+$ tar -czvf web_backup.tar.gz /var/www/html/    # Create, Zip, Verbose, File
+$ tar -xzvf web_backup.tar.gz                   # eXtract, Zip(decompress), Verbose, File
+
+```
+
+### Compiling from Source
+
+```bash
+# 1. Inspects your system to ensure you have necessary background libraries
+$ ./configure
+
+# 2. Reades the "Makefile" and actually compiles the code into binary
+$ make
+
+# 3. Copies the finished binary payload into system folders like /usr/local/bin
+$ sudo make install
 
 ```
 

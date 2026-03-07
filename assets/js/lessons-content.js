@@ -1985,76 +1985,233 @@ $ fg %1                  # Bring Job [1] back to the foreground to watch it fini
     ],
     "Software Management": [
         {
-            title: "Software Repositories",
+            title: "Software Distribution & Repositories",
             content: `
                 <h1>Understanding Repositories</h1>
-                <p>Unlike Windows or macOS where you often download installers from websites, Linux software is primarily distributed via <strong>repositories</strong> (repos).</p>
+                <p>Unlike Windows or macOS where you hunt for installers on random websites, Linux traditionally provisions software through trusted, centralized <strong>repositories</strong> (repos).</p>
+                <h2>How It Works</h2>
                 <ul>
-                    <li>A repository is a server containing thousands of pre-compiled software packages.</li>
-                    <li>They ensure the software is tested, cryptographically signed, and compatible with your system.</li>
-                    <li><code>/etc/apt/sources.list</code> (on Debian/Ubuntu) lists the repositories your system checks.</li>
+                    <li>A repository is a highly secure web server containing thousands of pre-compiled software packages.</li>
+                    <li>Software is cryptographically signed to ensure it hasn't been tampered with.</li>
+                    <li>Using repos guarantees you install software that is 100% compatible with your specific Linux version.</li>
                 </ul>
+                <div class="tip">The list of URLs your system trusts is stored in specific files. On Ubuntu/Debian, it's <code>/etc/apt/sources.list</code>.</div>
             `,
-            exercises: ["Open <code>/etc/apt/sources.list</code> or <code>/etc/yum.repos.d/</code> to see where your system gets its software."],
+            exercises: ["Research what a 'PPA' (Personal Package Archive) is in the Ubuntu ecosystem and why you should be careful adding them."],
             quiz: {
-                question: "What is the primary benefit of using official Linux repositories?",
-                options: ["Faster download speeds", "Cryptographic signing and tested compatibility", "Access to proprietary software", "Saves disk space"],
+                question: "What is the primary security benefit of downloading software via an official Linux repository rather than a random website?",
+                options: ["It downloads faster", "The software is cryptographically signed and tested for compatibility", "It saves hard drive space", "It avoids needing an internet connection"],
                 answer: 1
             }
         },
         {
-            title: "Package Managers (apt, dnf, pacman)",
+            title: "dpkg (Debian Package Manager)",
             content: `
-                <h1>Managing Packages</h1>
-                <p>A package manager automates the process of installing, upgrading, configuring, and removing programs, automatically resolving dependencies for you.</p>
-                <h2>Debian/Ubuntu (APT)</h2>
+                <h1>The Core Debian Tool: dpkg</h1>
+                <p><code>dpkg</code> is the foundational, low-level package manager for Debian-based systems (like Ubuntu and Mint). It installs individual <code>.deb</code> (Debian) package files.</p>
+                <h2>Directly Installing .deb Files</h2>
                 <div class="code-block">
-                    <pre>$ sudo apt update               # Step 1: Fetch list of latest updates from repos
-$ sudo apt upgrade              # Step 2: Actually install the available updates
-$ apt search "web server"       # Search for a package containing keywords
-$ sudo apt install nginx        # Install a package
-$ sudo apt remove nginx         # Remove a package (keeps config files)
-$ sudo apt purge nginx          # Completely erase package AND its configs
-$ sudo apt autoremove           # Clean up unused dependencies (Very important!)</pre>
+                    <pre>$ sudo dpkg -i google-chrome-stable_current_amd64.deb</pre>
                 </div>
-                <h2>Red Hat/Fedora (DNF/YUM)</h2>
+                <h2>The Catch: Dependency Hell</h2>
+                <p><code>dpkg</code> is "dumb". If Google Chrome requires 50 other hidden mini-packages (dependencies) to work, <code>dpkg</code> will simply fail and tell you they are missing. It will <strong>not</strong> go online to download them for you.</p>
                 <div class="code-block">
-                    <pre>$ sudo dnf search apache
-$ sudo dnf install httpd
-$ sudo dnf history              # View transaction history to undo installations!</pre>
+                    <pre>$ dpkg -l                    # List ALL installed packages on the system
+$ dpkg -L nginx              # List all files installed by a specific package</pre>
                 </div>
             `,
-            exercises: ["Run <code>apt search vim</code> to see how many packages mention vim.", "Run <code>sudo apt autoremove</code> to clean up your system."],
+            exercises: ["Run <code>dpkg -l | less</code> to scroll through the massive list of every single package currently installed on your Debian/Ubuntu machine."],
             quiz: {
-                question: "Which APT command completely removes a package ALONG with all of its configuration files?",
+                question: "What is the primary drawback of using the low-level `dpkg -i` command to install software?",
+                options: ["It is too slow", "It only works on Red Hat", "It does not automatically resolve and download dependencies", "It requires a GUI"],
+                answer: 2
+            }
+        },
+        {
+            title: "apt (Advanced Package Tool)",
+            content: `
+                <h1>The Smart Manager: apt</h1>
+                <p>Because <code>dpkg</code> doesn't handle dependencies, Debian created <code>apt</code> (Advanced Package Tool). <code>apt</code> is a "high-level" manager. It talks to repositories, downloads required dependencies, and <em>then</em> feeds them to <code>dpkg</code> underneath!</p>
+                <h2>The APT Workflow</h2>
+                <div class="code-block">
+                    <pre>$ sudo apt update                 # 1. Fetch the latest catalog of software from your repos
+$ apt search "web server"         # 2. Search the catalog for keywords
+$ sudo apt install nginx          # 3. Install the package AND all its dependencies
+$ sudo apt upgrade                # Upgrade ALL installed software to the latest versions</pre>
+                </div>
+                <h2>Removing Software</h2>
+                <div class="code-block">
+                    <pre>$ sudo apt remove nginx           # Uninstall, but KEEP configuration files just in case
+$ sudo apt purge nginx            # NUKE the program and erase ALL configuration files
+$ sudo apt autoremove             # Clean up 'orphaned' dependencies you no longer need</pre>
+                </div>
+            `,
+            exercises: ["Run <code>apt search vim</code>. How many packages on the repository mention the word 'vim'?"],
+            quiz: {
+                question: "Which APT command entirely removes a software package ALONG with all of its customized configuration files?",
                 options: ["apt remove", "apt delete", "apt purge", "apt clear"],
                 answer: 2
             }
         },
         {
-            title: "Archives and Source Code",
+            title: "rpm (Red Hat Package Manager)",
             content: `
-                <h1>Tarballs and Compiling</h1>
-                <p>Not everything is in a repository. Often, software is distributed as compressed archives (tarballs) or raw source code.</p>
-                <h2>Working with Tar</h2>
-                <ul>
-                    <li><strong>tar -czvf:</strong> <u>C</u>reate, <u>Z</u>ip (gzip), <u>V</u>erbose, <u>F</u>ile.</li>
-                    <li><strong>tar -xzvf:</strong> e<u>X</u>tract.</li>
-                </ul>
-                <pre>$ tar -xzvf source-code.tar.gz   # Extract an archive</pre>
-                <h2>Compiling from Source</h2>
-                <p>The standard "holy trinity" of compiling Linux software:</p>
+                <h1>The Core Red Hat Tool: rpm</h1>
+                <p>Just as Debian has <code>.deb</code> files and <code>dpkg</code>, the Red Hat family (RHEL, Fedora, CentOS, Rocky) uses <code>.rpm</code> files and the <code>rpm</code> command.</p>
+                <h2>Using RPM</h2>
+                <p>Like <code>dpkg</code>, <code>rpm</code> is the low-level tool. It installs local files but will <strong>fail</strong> if dependencies are missing.</p>
                 <div class="code-block">
-                    <pre>$ ./configure    # Checks system for required libraries
-$ make           # Compiles the source code into binaries
-$ sudo make install # Copies binaries to system folders (like /usr/local/bin)</pre>
+                    <pre>$ sudo rpm -ivh package.rpm       # Install, Verbose, display Hash marks (progress bar)
+$ rpm -qa                         # Query All installed packages
+$ rpm -qi bash                    # Query Information about a specific package
+$ sudo rpm -e package_name        # Erase (uninstall) a package</pre>
                 </div>
             `,
-            exercises: ["Create a tar.gz archive of your 'Documents' folder."],
+            exercises: ["If you have access to a Red Hat-based system, run <code>rpm -qa | grep ssh</code> to see SSH-related packages installed."],
             quiz: {
-                question: "Which tar flag is used to 'extract' an archive?",
-                options: ["-c", "-v", "-x", "-f"],
+                question: "Which low-level package file format is native to the Red Hat Enterprise Linux family?",
+                options: [".exe", ".deb", ".rpm", ".tar"],
                 answer: 2
+            }
+        },
+        {
+            title: "yum and dnf (Fedora/RHEL)",
+            content: `
+                <h1>The Smart Managers: YUM and DNF</h1>
+                <p>To solve RPM's dependency problem, Yellowdog Updater Modified (<code>yum</code>) was created. Recently, it has been replaced by Dandified YUM (<code>dnf</code>) which is much faster and uses less memory.</p>
+                <h2>Using DNF (The modern standard)</h2>
+                <p>The syntax for DNF is remarkably similar to APT.</p>
+                <div class="code-block">
+                    <pre>$ sudo dnf check-update           # See what needs updating
+$ sudo dnf install httpd          # Install the Apache Web Server
+$ sudo dnf remove httpd           # Remove a package</pre>
+                </div>
+                <h2>The Magic of DNF History</h2>
+                <p>DNF has a feature APT lacks: highly robust transaction tracking.</p>
+                <div class="code-block">
+                    <pre>$ sudo dnf history                # See a numbered list of everything installed/removed
+$ sudo dnf history undo 14        # Instantly rollback Transaction #14!</pre>
+                </div>
+            `,
+            exercises: ["Compare the command to install Apache on Ubuntu (<code>apt install apache2</code>) vs Red Hat (<code>dnf install httpd</code>)."],
+            quiz: {
+                question: "Which unique feature of DNF allows administrators to easily 'undo' an entire software installation transaction?",
+                options: ["dnf rollback", "dnf history undo", "dnf reverse", "apt revert"],
+                answer: 1
+            }
+        },
+        {
+            title: "pacman (Arch Linux)",
+            content: `
+                <h1>Pacman: The Arch Package Manager</h1>
+                <p>Arch Linux (and derivatives like Manjaro) uses <code>pacman</code>. It connects to the Arch User Repository (AUR) and main repos, renowned for always having the absolute latest "bleeding edge" software.</p>
+                <h2>Pacman Syntax</h2>
+                <p>Pacman uses flags rather than words (like 'install' or 'remove').</p>
+                <div class="code-block">
+                    <pre>$ sudo pacman -Syu                # Sync, y(refresh), upgrade. (The command to update the whole system)
+$ sudo pacman -S neofetch         # Sync (Install) a specific package
+$ sudo pacman -Rs neofetch        # Remove the package and its unused dependencies (s)</pre>
+                </div>
+                <div class="note">Arch Linux is a "Rolling Release" distribution. Instead of upgrading from "Ubuntu 22 to Ubuntu 24", <code>pacman -Syu</code> continuously rolls your system forward forever.</div>
+            `,
+            exercises: ["Research the Arch User Repository (AUR) and learn why it makes Arch Linux uniquely powerful for developers."],
+            quiz: {
+                question: "In Arch Linux, which command is famously used to update all repositories and upgrade the entire system simultaneously?",
+                options: ["pacman -update", "pacman -Syu", "apt upgrade", "dnf update"],
+                answer: 1
+            }
+        },
+        {
+            title: "Universal Packages (Snap & Flatpak)",
+            content: `
+                <h1>Solving the Dependency Nightmare</h1>
+                <p>Linux has fragmentation. A <code>.deb</code> package for Ubuntu won't work on Fedora, and vice versa. Worse, different apps need different versions of the same background libraries.</p>
+                <h2>The Solution: Universal Containers</h2>
+                <p><strong>Snaps</strong> (by Canonical/Ubuntu) and <strong>Flatpaks</strong> bundle all required dependencies <em>inside</em> the package itself! They run in a sandbox, separate from your core OS.</p>
+                <div class="code-block">
+                    <pre>$ snap install spotify            # Works exactly the same on Ubuntu, Fedora, or Arch
+$ flatpak install flathub gimp    # Universal install of the GIMP image editor</pre>
+                </div>
+                <div class="tip">The tradeoff? Universal packages take up much more hard drive space and memory because they duplicate dependencies.</div>
+            `,
+            exercises: ["Run <code>snap list</code> or <code>flatpak list</code> on your desktop to see what containerized apps you are running."],
+            quiz: {
+                question: "What is the primary drawback of using universal packaging formats like Snap or Flatpak?",
+                options: ["They are insecure", "They only work on Ubuntu", "They consume significantly more disk space and memory", "They require compiling from source"],
+                answer: 2
+            }
+        },
+        {
+            title: "tar (Tape Archive)",
+            content: `
+                <h1>Beyond Repositories: Tarballs</h1>
+                <p>Not everything is in a repository. System administrators move masses of files around using <code>tar</code> (Tape ARchive). It bundles multiple files into a single large file (a tarball), but it does <strong>not</strong> compress them by default.</p>
+                <h2>Creating an Archive</h2>
+                <ul>
+                    <li><code>-c</code> : Create</li>
+                    <li><code>-v</code> : Verbose (show what it's packing)</li>
+                    <li><code>-f</code> : File (must be the last flag before the filename!)</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ tar -cvf backup.tar /var/log/   # Bundles the entire log directory into one file</pre>
+                </div>
+                <h2>Extracting an Archive</h2>
+                <div class="code-block">
+                    <pre>$ tar -xvf backup.tar             # eXtracts the archive into the current directory</pre>
+                </div>
+            `,
+            exercises: ["Create a directory with a few text files, and bundle them into a single <code>archive.tar</code> using <code>tar -cvf</code>."],
+            quiz: {
+                question: "What does the 'f' flag in the tar command specify?",
+                options: ["Force the creation", "Fast mode", "File name follows immediately", "Format to ZIP"],
+                answer: 2
+            }
+        },
+        {
+            title: "Compression (gzip and bzip2)",
+            content: `
+                <h1>Squeezing Files</h1>
+                <p><code>tar</code> bundles, but <code>gzip</code> compresses. Linux combines them into the famous <code>.tar.gz</code> extension.</p>
+                <h2>Compressing Tarballs on the Fly</h2>
+                <p>You can tell <code>tar</code> to instantly compress everything using the <code>-z</code> flag (for gzip).</p>
+                <div class="code-block">
+                    <pre>$ tar -czvf web_backup.tar.gz /var/www/html/    # Create, Zip, Verbose, File
+$ tar -xzvf web_backup.tar.gz                   # eXtract, Zip(decompress), Verbose, File</pre>
+                </div>
+                <h2>Alternative: bzip2</h2>
+                <p>Use the <code>-j</code> flag instead of <code>-z</code> to use bzip2 compression. It compresses much smaller than gzip, but takes longer CPU time to do it. The extension becomes <code>.tar.bz2</code>.</p>
+            `,
+            exercises: ["Find the largest file in your Documents and compress it using standard <code>gzip [filename]</code>. Check how much smaller it got using <code>ls -lh</code>!"],
+            quiz: {
+                question: "Which flag is added to the tar command to tell it to compress the archive using gzip, resulting in a .tar.gz file?",
+                options: ["-z", "-g", "-c", "-p"],
+                answer: 0
+            }
+        },
+        {
+            title: "Compiling from Source",
+            content: `
+                <h1>The Old Ways: make and gcc</h1>
+                <p>Sometimes, developers release bare source code. To run it, you must use a compiler (like <code>gcc</code>) to translate the <code>.c</code> text files into a binary executable.</p>
+                <h2>The Holy Trinity of Compiling</h2>
+                <p>Almost all source code follows this three-step ritual:</p>
+                <div class="code-block">
+                    <pre># 1. Inspects your system to ensure you have necessary background libraries
+$ ./configure
+
+# 2. Reades the "Makefile" and actually compiles the code into binary
+$ make
+
+# 3. Copies the finished binary payload into system folders like /usr/local/bin
+$ sudo make install</pre>
+                </div>
+                <div class="tip">Compiling a massive program like the Linux Kernel or a web browser from source can take several hours depending on your CPU!</div>
+            `,
+            exercises: ["Research why the <code>build-essential</code> package on Ubuntu is absolutely necessary before you attempt to compile anything."],
+            quiz: {
+                question: "In the standard Linux compilation workflow, what does the './configure' script do?",
+                options: ["Translates code to binary", "Installs the executable", "Deletes old files", "Inspects the system to ensure dependencies exist before compiling"],
+                answer: 3
             }
         }
     ],
