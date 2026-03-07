@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses | Ariba Study</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="page-content">
+        <section class="page-hero">
+            <div class="container">
+                <h1 data-i18n="courses_title">Our Courses</h1>
+                <p data-i18n="courses_subtitle">Explore our comprehensive collection of interactive courses designed to help you master essential tech skills.</p>
+            </div>
+        </section>
+
+        <section class="courses-section">
+            <div class="container">
+                <div class="hub-grid">
+                    <div id="enterLinux" class="hub-card unlocked">
+                        <div class="hub-card-content">
+                            <img src="../assets/images/hub_linux.png" alt="Linux" class="hub-icon">
+                            <h2 class="hub-title">Linux</h2>
+                            <p class="hub-desc">Master the command line and system administration</p>
+                            <div class="course-meta">
+                                <span>📚 16 Modules</span>
+                                <span>⏱️ 40+ Hours</span>
+                            </div>
+                            <div class="status-badge unlocked">Start Learning</div>
+                        </div>
+                    </div>
+
+                    <div class="hub-card locked">
+                        <div class="hub-card-content">
+                            <img src="../assets/images/hub_github.png" alt="Github" class="hub-icon">
+                            <h2 class="hub-title" data-i18n="github">Github</h2>
+                            <p class="hub-desc" data-i18n="github_desc">Master version control and collaboration</p>
+                            <div class="course-meta">
+                                <span>📚 12 Modules</span>
+                                <span>⏱️ 25+ Hours</span>
+                            </div>
+                            <div class="status-badge locked" data-i18n="coming_soon">Coming Soon</div>
+                        </div>
+                    </div>
+
+                    <div class="hub-card locked">
+                        <div class="hub-card-content">
+                            <img src="../assets/images/hub_ai.png" alt="AI" class="hub-icon">
+                            <h2 class="hub-title" data-i18n="ai">AI</h2>
+                            <p class="hub-desc" data-i18n="ai_desc">Explore the frontiers of intelligence</p>
+                            <div class="course-meta">
+                                <span>📚 20 Modules</span>
+                                <span>⏱️ 60+ Hours</span>
+                            </div>
+                            <div class="status-badge locked" data-i18n="coming_soon">Coming Soon</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="../assets/js/i18n/en.js"></script>
+    <script src="../assets/js/i18n/bn.js"></script>
+    <script src="../assets/js/i18n/ar.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script>
+        document.getElementById('enterLinux')?.addEventListener('click', () => {
+            window.location.href = '../index.html';
+        });
+    </script>
+</body>
+</html>

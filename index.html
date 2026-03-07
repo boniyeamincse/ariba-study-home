@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ariba Study | Your Learning Hub</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/components.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -14,22 +15,60 @@
 </head>
 
 <body class="hub-page">
+    <div id="header-placeholder"></div>
 
     <!-- Hub View -->
     <div id="hubView" class="view">
         <header class="header">
             <div class="container text-center">
-                <div class="lang-switcher">
-                    <select id="langSelect" class="lang-select">
-                        <option value="en">English</option>
-                        <option value="bn">বাংলা</option>
-                        <option value="ar">العربية</option>
-                    </select>
-                </div>
                 <h1 class="glitch-text" data-i18n="hub_title">Ariba Study Home</h1>
                 <p class="subtitle" data-i18n="hub_subtitle">Select a training module to begin your journey.</p>
             </div>
         </header>
+
+        <!-- Hero Banner -->
+        <section class="hero-banner">
+            <div class="container">
+                <div class="banner-content">
+                    <div class="banner-text">
+                        <h2 class="banner-title" data-i18n="banner_title">Start Your Learning Journey Today</h2>
+                        <p class="banner-description" data-i18n="banner_desc">Master essential skills with interactive lessons, hands-on exercises, and real-world projects. Join thousands of learners advancing their careers.</p>
+                        <div class="banner-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">50+</span>
+                                <span class="stat-label" data-i18n="lessons">Lessons</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">100+</span>
+                                <span class="stat-label" data-i18n="exercises">Exercises</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">24/7</span>
+                                <span class="stat-label" data-i18n="access">Access</span>
+                            </div>
+                        </div>
+                        <div class="banner-cta">
+                            <button class="btn-primary" onclick="document.getElementById('enterLinux').click()" data-i18n="get_started">Get Started</button>
+                            <button class="btn-secondary" onclick="window.scrollTo({top: document.querySelector('.hub-grid').offsetTop - 100, behavior: 'smooth'})" data-i18n="explore_modules">Explore Modules</button>
+                        </div>
+                    </div>
+                    <div class="banner-visual">
+                        <div class="floating-card card-1">
+                            <span class="card-icon">💻</span>
+                            <span class="card-text">Linux Mastery</span>
+                        </div>
+                        <div class="floating-card card-2">
+                            <span class="card-icon">🚀</span>
+                            <span class="card-text">Fast Learning</span>
+                        </div>
+                        <div class="floating-card card-3">
+                            <span class="card-icon">🎯</span>
+                            <span class="card-text">Practical Skills</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <main class="container">
             <div class="hub-grid">
@@ -103,10 +142,6 @@
         </div>
     </div>
 
-    <footer class="container text-center">
-        <p>&copy; 2026 Ariba Study. All rights reserved.</p>
-    </footer>
-
     <!-- Lesson View -->
     <div id="lessonView" class="view" style="display: none;">
         <div class="lesson-layout">
@@ -158,10 +193,13 @@
         </div>
     </div>
 
+    <div id="footer-placeholder"></div>
+
     <script src="assets/js/i18n/en.js"></script>
     <script src="assets/js/i18n/bn.js"></script>
     <script src="assets/js/i18n/ar.js"></script>
     <script src="assets/js/lessons-content.js"></script>
+    <script src="assets/js/components.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 
