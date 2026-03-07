@@ -1124,72 +1124,121 @@ $ sed 's/apple/orange/g' file.txt    # Replace ALL apples</pre>
     ],
     "User Management": [
         {
-            title: "Users and Groups",
+            title: "Users & Groups Architecture",
             content: `
                 <h1>Users and Groups</h1>
-                <p>Linux is a multi-user system. Every process and file is owned by a specific user and belongs to a group.</p>
+                <p>Linux is inherently a multi-user system. Every process running and every file stored is owned by a specific user and belongs to a primary group.</p>
                 <h2>Core Concepts</h2>
                 <ul>
-                    <li><strong>UID (User ID):</strong> A unique number for each user. Root is always 0.</li>
-                    <li><strong>GID (Group ID):</strong> A unique number for each group.</li>
-                    <li><strong>Groups:</strong> Used to manage permissions for collections of users.</li>
+                    <li><strong>UID (User ID):</strong> A unique number assigned to each user. <code>root</code> is always 0. Regular users usually start at 1000.</li>
+                    <li><strong>GID (Group ID):</strong> A unique number for each group. A user can belong to multiple groups (e.g., <code>sudo</code>, <code>docker</code>, <code>audio</code>).</li>
                 </ul>
-                <h2>Critical Files</h2>
-                <ul>
-                    <li><code>/etc/passwd</code>: User account information.</li>
-                    <li><code>/etc/shadow</code>: Secure user password information (encrypted).</li>
-                    <li><code>/etc/group</code>: Group information.</li>
-                </ul>
-                <div class="tip">Type <code>id</code> to see your current UID, GID, and groups.</div>
+                <h2>Critical Configuration Files</h2>
+                <p>These plain text files store all user and group definitions:</p>
+                <div class="code-block">
+                    <pre>$ cat /etc/passwd   # Shows username:x:UID:GID:Comment:HomeDir:Shell
+$ cat /etc/shadow   # Stores the actual encrypted passwords (requires root)
+$ cat /etc/group    # Lists groups and their members</pre>
+                </div>
+                <div class="tip">Type the command <code>id</code> right now in a terminal. It will output your current username, UID, primary GID, and all the secondary groups you belong to.</div>
             `,
-            exercises: ["View the first few lines of <code>/etc/passwd</code> to see how users are defined."],
+            exercises: ["View the last 5 lines of <code>/etc/passwd</code> using <code>tail -n 5 /etc/passwd</code> to see recently created users."],
             quiz: {
-                question: "Which file stores encrypted user passwords?",
-                options: ["/etc/passwd", "/etc/group", "/etc/shadow", "/etc/config"],
+                question: "Which critical system file stores the encrypted passwords for user accounts?",
+                options: ["/etc/passwd", "/etc/group", "/etc/shadow", "/etc/sudoers"],
                 answer: 2
             }
         },
         {
-            title: "Root and Sudo",
+            title: "Managing User Accounts",
             content: `
-                <h1>The Power of Root</h1>
-                <p>The <strong>root</strong> user is the system administrator with absolute power. To prevent accidental damage, we use <strong>sudo</strong>.</p>
-                <ul>
-                    <li><strong>root:</strong> The superuser (UID 0).</li>
-                    <li><strong>sudo:</strong> "SuperUser DO" - allows a regular user to run commands as root.</li>
-                </ul>
+                <h1>Adding, Modifying, and Deleting Users</h1>
+                <p>As a system administrator, you will frequently need to manage user access.</p>
+                <h2>Creating and Deleting Users</h2>
+                <p>You can use <code>useradd</code> to create users, but <code>adduser</code> is an interactive, friendlier script available on many distributions.</p>
                 <div class="code-block">
-                    <pre>$ sudo apt update     # Run as root
-$ sudo -i             # Switch to a root shell (be careful!)</pre>
+                    <pre>$ sudo useradd -m -s /bin/bash alice  # Creates pure user 'alice' with a home dir and bash shell
+$ sudo passwd alice                   # Set alice's password
+$ sudo userdel -r alice               # Deletes 'alice' and completely removes her home directory</pre>
+                </div>
+                <h2>Modifying Users (usermod)</h2>
+                <p>The <code>usermod</code> command is very powerful. A common use case is adding a user to a supplementary group.</p>
+                <div class="code-block">
+                    <pre>$ sudo groupadd developers            # Create a new group called 'developers'
+$ sudo usermod -aG developers bob     # Append (-a) bob to the supplementary group (-G) 'developers'</pre>
+                </div>
+                <div class="note"><strong>Warning:</strong> Always use <code>-aG</code> with usermod. If you omit the <code>-a</code> (append), the user will be removed from all other groups!</div>
+            `,
+            exercises: ["Check which groups your current user belongs to by typing <code>groups</code>."],
+            quiz: {
+                question: "In the command `usermod -aG developers bob`, what does the `-a` flag do?",
+                options: ["It assigns 'developers' as the primary group.", "It creates the group 'developers'.", "It Appends the user to the group without removing them from their existing groups.", "It Activates the user account."],
+                answer: 2
+            }
+        },
+        {
+            title: "The Power of Root & Sudo",
+            content: `
+                <h1>Superuser Privileges</h1>
+                <p>The <strong>root</strong> user is the god-mode administrator. Root can delete the entire operating system with a single command.</p>
+                <h2>Why use Sudo?</h2>
+                <p>Logging in directly as root is dangerous. Instead, administrators use their personal accounts and prefix dangerous commands with <code>sudo</code> ("SuperUser DO").</p>
+                <ul>
+                    <li>It provides an audit log (every sudo command is logged in <code>/var/log/auth.log</code>).</li>
+                    <li>It asks for <em>your</em> password, not the root password.</li>
+                    <li>If you leave your desk, a malicious co-worker can't ruin the system because sudo sessions timeout.</li>
+                </ul>
+                <h2>Sudo Commands</h2>
+                <div class="code-block">
+                    <pre>$ sudo apt update     # Run a single command with root privileges
+$ sudo -i             # Switch to an interactive root shell (your prompt will change to #)
+$ su - bob            # Switch user to 'bob' (requires bob's password)</pre>
                 </div>
             `,
-            exercises: ["Check if you are in the <code>sudo</code> or <code>wheel</code> group using <code>groups</code>."],
+            exercises: ["Run <code>sudo -i</code> to become root, look at your prompt, and then type <code>exit</code> to return to your normal user."],
             quiz: {
-                question: "What is the UID of the root user?",
-                options: ["1000", "1", "0", "100"],
-                answer: 2
+                question: "Which of the following is NOT a benefit of using 'sudo' instead of logging in directly as root?",
+                options: ["Sudo tracks commands in an audit log.", "Sudo requires the administrator to share the universal root password.", "Sudo privileges can be restricted to specific commands.", "Sudo sessions time out automatically for safety."],
+                answer: 1
             }
         },
         {
-            title: "Permissions and Ownership",
+            title: "File Permissions (chmod & chown)",
             content: `
-                <h1>File Permissions</h1>
-                <p>Every file has a 10-character permission string (e.g., <code>-rwxr-xr--</code>).</p>
-                <h2>The String Breakdown</h2>
+                <h1>Ownership and Permissions</h1>
+                <p>Every file and directory in Linux has an owner user, an owner group, and a strict set of permissions.</p>
+                <h2>Understanding the Permission String</h2>
+                <p>When you run <code>ls -l</code>, you see strings like <code>-rwxr-xr--</code>. Let's break it down:</p>
                 <ul>
-                    <li><code>-</code> (1st char): File type (d = directory, l = link).</li>
-                    <li><code>rwx</code> (next 3): Owner permissions.</li>
-                    <li><code>r-x</code> (next 3): Group permissions.</li>
-                    <li><code>r--</code> (final 3): Others permissions.</li>
+                    <li><code>-</code> (Char 1): The file type (<code>-</code> for file, <code>d</code> for directory, <code>l</code> for symlink).</li>
+                    <li><code>rwx</code> (Chars 2-4): <strong>User (Owner)</strong> can Read, Write, and eXecute.</li>
+                    <li><code>r-x</code> (Chars 5-7): <strong>Group</strong> can Read and eXecute, but cannot write.</li>
+                    <li><code>r--</code> (Chars 8-10): <strong>Others (World)</strong> can only Read.</li>
                 </ul>
-                <pre>$ chmod 755 file.sh    # Change permissions (rwxr-xr-x)
-$ chown user:group file.txt # Change ownership</pre>
+                <h2>Changing Ownership (chown)</h2>
+                <div class="code-block">
+                    <pre>$ sudo chown alice:developers project.txt   # Changes owner to 'alice' and group to 'developers'
+$ sudo chown -R bob:bob /var/www            # Recursively changes ownership of the entire folder</pre>
+                </div>
+                <h2>Changing Permissions (chmod)</h2>
+                <p>You can use symbolic mode (easier to read) or octal/numeric mode (faster to type).</p>
+                <div class="code-block">
+                    <pre># Symbolic Mode (u=user, g=group, o=others, a=all)
+$ chmod u+x script.sh          # Add eXecute permission for the User (Owner)
+$ chmod g-w secret.txt         # Remove Write permission for the Group
+$ chmod a=r file.txt           # Set exact permissions: All users can only Read
+
+# Octal Mode (4=Read, 2=Write, 1=eXecute. Add them up!)
+# 7 = 4+2+1 (rwx), 5 = 4+1 (r-x), 0 = ---
+$ chmod 755 server.py          # User gets 7 (rwx), Group gets 5 (r-x), Others get 5 (r-x)
+$ chmod 644 document.txt       # Standard file: User gets 6 (rw-), Group/Others get 4 (r--)</pre>
+                </div>
             `,
-            exercises: ["Create a script, try to run it, then use <code>chmod +x</code> to make it executable."],
+            exercises: ["Create an empty file <code>touch mydata.txt</code>. Then strip all permissions from it <code>chmod 000 mydata.txt</code>. Try to <code>cat</code> it. Finally, restore it with <code>chmod 644 mydata.txt</code>."],
             quiz: {
-                question: "What does the 'x' permission mean for a file?",
-                options: ["Exit", "Execute", "Exclude", "Extra"],
-                answer: 1
+                question: "In octal mode, what number represents read AND write permissions, but NOT execute? (4=Read, 2=Write, 1=Execute)",
+                options: ["7", "5", "6", "3"],
+                answer: 2
             }
         }
     ],
