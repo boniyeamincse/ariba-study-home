@@ -1354,26 +1354,29 @@ $ bg %1            # Resume a paused Job 1 in the background</pre>
             title: "Package Managers (apt, dnf, pacman)",
             content: `
                 <h1>Managing Packages</h1>
-                <p>A package manager automates the process of installing, upgrading, configuring, and removing computer programs.</p>
+                <p>A package manager automates the process of installing, upgrading, configuring, and removing programs, automatically resolving dependencies for you.</p>
                 <h2>Debian/Ubuntu (APT)</h2>
                 <div class="code-block">
-                    <pre>$ sudo apt update         # Fetch list of available updates
-$ sudo apt upgrade        # Install the updates
-$ sudo apt install htop   # Install a new package
-$ sudo apt remove htop    # Remove a package</pre>
+                    <pre>$ sudo apt update               # Step 1: Fetch list of latest updates from repos
+$ sudo apt upgrade              # Step 2: Actually install the available updates
+$ apt search "web server"       # Search for a package containing keywords
+$ sudo apt install nginx        # Install a package
+$ sudo apt remove nginx         # Remove a package (keeps config files)
+$ sudo apt purge nginx          # Completely erase package AND its configs
+$ sudo apt autoremove           # Clean up unused dependencies (Very important!)</pre>
                 </div>
                 <h2>Red Hat/Fedora (DNF/YUM)</h2>
-                <pre>$ sudo dnf check-update
-$ sudo dnf install nginx</pre>
-                <h2>Arch Linux (Pacman)</h2>
-                <pre>$ sudo pacman -Syu        # Update entire system
-$ sudo pacman -S vim      # Install vim</pre>
+                <div class="code-block">
+                    <pre>$ sudo dnf search apache
+$ sudo dnf install httpd
+$ sudo dnf history              # View transaction history to undo installations!</pre>
+                </div>
             `,
-            exercises: ["Update your package repository cache (e.g., <code>sudo apt update</code>).", "Install a new tool, like <code>tree</code> or <code>neofetch</code>."],
+            exercises: ["Run <code>apt search vim</code> to see how many packages mention vim.", "Run <code>sudo apt autoremove</code> to clean up your system."],
             quiz: {
-                question: "Which command installs a package in Ubuntu or Debian?",
-                options: ["apt-get add", "apt install", "yum install", "pacman -S"],
-                answer: 1
+                question: "Which APT command completely removes a package ALONG with all of its configuration files?",
+                options: ["apt remove", "apt delete", "apt purge", "apt clear"],
+                answer: 2
             }
         },
         {
@@ -1408,20 +1411,23 @@ $ sudo make install # Copies binaries to system folders (like /usr/local/bin)</p
             title: "Everything is a File (/dev)",
             content: `
                 <h1>The /dev Directory</h1>
-                <p>In Linux, devices (hard drives, mice, terminals) are represented as files in the <code>/dev</code> directory.</p>
+                <p>In Linux, physical hardware (hard drives, mice, terminals) is represented as special files in the <code>/dev</code> directory. To interact with the hardware, you simply read from or write to these files!</p>
+                <h2>Common Device Files</h2>
                 <ul>
-                    <li><strong>/dev/sda, /dev/sdb:</strong> Your hard drives (SCSI/SATA).</li>
-                    <li><strong>/dev/nvme0n1:</strong> NVMe solid-state drives.</li>
-                    <li><strong>/dev/tty1:</strong> Virtual terminals.</li>
-                    <li><strong>/dev/null:</strong> The "black hole". Anything sent here disappears.</li>
+                    <li><strong>/dev/sda, /dev/sdb:</strong> Your traditional hard drives or SSDs (SATA/SCSI).</li>
+                    <li><strong>/dev/nvme0n1:</strong> Modern, high-speed NVMe solid-state drives.</li>
+                    <li><strong>/dev/tty1:</strong> Your keyboard/screen terminal.</li>
+                    <li><strong>/dev/zero:</strong> An infinite stream of zero-bytes (used for wiping drives).</li>
+                    <li><strong>/dev/null:</strong> The "black hole". Anything sent here is permanently discarded.</li>
                 </ul>
-                <pre>$ ls -l /dev/sda
-brw-rw---- 1 root disk 8, 0 Mar  7 09:00 /dev/sda</pre>
-                <div class="note">The 'b' at the start of the permissions string means this is a "Block" device.</div>
+                <div class="code-block">
+                    <pre>$ ls -l /dev/sda
+brw-rw---- 1 root disk 8, 0 Mar  7 /dev/sda  # 'b' means Block device!</pre>
+                </div>
             `,
             exercises: ["Run <code>ls -l /dev/null</code> and check its permissions. Note the 'c' indicating a Character device."],
             quiz: {
-                question: "What does sending data to /dev/null do?",
+                question: "What does sending command output to /dev/null do?",
                 options: ["Saves it to a hidden file", "Uploads it to the cloud", "Discards it permanently", "Prints it to the screen"],
                 answer: 2
             }
@@ -1429,19 +1435,24 @@ brw-rw---- 1 root disk 8, 0 Mar  7 09:00 /dev/sda</pre>
         {
             title: "Hardware Discovery Tools",
             content: `
-                <h1>Finding Your Hardware</h1>
-                <p>How do you know what hardware is currently attached to your system?</p>
-                <ul>
-                    <li><strong>lspci:</strong> Lists all PCI buses and devices connected to them (GPUs, Network cards).</li>
-                    <li><strong>lsusb:</strong> Lists USB devices (Webcams, Keyboards).</li>
-                    <li><strong>lscpu:</strong> Displays detailed CPU architecture information.</li>
-                    <li><strong>lsblk:</strong> Lists all block devices (disks and partitions).</li>
-                </ul>
-                <pre>$ lspci | grep -i vga     # Find your graphics card</pre>
+                <h1>Auditing Your Hardware</h1>
+                <p>When you start managing a new server, you need to know exactly what physical hardware is inside it.</p>
+                <div class="code-block">
+                    <pre>$ lshw -short                  # List ALL hardware in a compact table (requires root)
+$ lspci | grep -i vga          # Find your graphics card model
+$ lsusb                        # List attached USB devices (webcams, adapters)
+$ lscpu                        # Get the exact CPU model, cores, and threads
+$ lsblk                        # Visualize your hard drives and their partitions</pre>
+                </div>
+                <h2>Monitoring Temperatures</h2>
+                <div class="code-block">
+                    <pre>$ sudo apt install lm-sensors  # Install the sensors package
+$ sensors                      # Check CPU and motherboard temperatures</pre>
+                </div>
             `,
-            exercises: ["Run <code>lsblk</code> to see the structure of your hard drives.", "Run <code>lsusb</code> to list your current USB peripherals."],
+            exercises: ["Run <code>lsblk</code> to see the tree structure of your hard drives and how they are partitioned.", "Run <code>lscpu</code> to see how many CPU cores your machine has."],
             quiz: {
-                question: "Which command lists all block devices like hard drives?",
+                question: "Which command lists all block devices (like hard drives and USB flash drives) in a tree-like format?",
                 options: ["lspci", "lsusb", "lsblk", "lshw"],
                 answer: 2
             }
@@ -1451,16 +1462,16 @@ brw-rw---- 1 root disk 8, 0 Mar  7 09:00 /dev/sda</pre>
         {
             title: "Filesystem Hierarchy Standard",
             content: `
-                <h1>The Linux Directory Structure</h1>
-                <p>Linux organizes files according to the FHS. Understanding this is crucial.</p>
+                <h1>The Linux Directory Tree</h1>
+                <p>Linux doesn't have "C:" or "D:" drives. Everything starts at the root (<code>/</code>) and branches out according to the Filesystem Hierarchy Standard.</p>
                 <ul>
-                    <li><code>/</code> : The Root directory. Everything starts here.</li>
-                    <li><code>/bin</code> & <code>/sbin</code> : Essential system binaries (commands).</li>
-                    <li><code>/etc</code> : System-wide configuration files.</li>
-                    <li><code>/home</code> : User personal directories.</li>
-                    <li><code>/var</code> : Variable data (Logs, databases, web servers).</li>
-                    <li><code>/usr</code> : User programs and data (installed software).</li>
-                    <li><code>/tmp</code> : Temporary files (cleared on reboot).</li>
+                    <li><code>/</code> : The Root directory. The absolute top of the tree.</li>
+                    <li><code>/etc</code> : System-wide configuration files (e.g., <code>/etc/ssh/sshd_config</code>).</li>
+                    <li><code>/var</code> : Variable data that grows over time (Logs, databases, web server files).</li>
+                    <li><code>/home</code> : Personal user data and configuration (e.g., <code>/home/alice</code>).</li>
+                    <li><code>/bin</code> & <code>/sbin</code> : Essential system binary executables (your command-line tools).</li>
+                    <li><code>/usr</code> : User programs and data installed by your package manager.</li>
+                    <li><code>/tmp</code> : Temporary files. (Usually automatically wiped clean upon reboot).</li>
                 </ul>
             `,
             exercises: ["Navigate to <code>/var/log</code> and list the files. This is where your system records events."],
@@ -1473,16 +1484,20 @@ brw-rw---- 1 root disk 8, 0 Mar  7 09:00 /dev/sda</pre>
         {
             title: "Disk Partitioning and Formatting",
             content: `
-                <h1>Preparing Disks</h1>
-                <p>Before using a new hard drive, it must be partitioned and formatted.</p>
-                <h2>Partitioning (fdisk / parted)</h2>
-                <p>Dividing a physical drive into logical sections.</p>
-                <pre>$ sudo fdisk /dev/sdb    # Opens the interactive partition tool</pre>
-                <h2>Formatting (mkfs)</h2>
-                <p>Creating a filesystem (like ext4, xfs, or btrfs) on a partition.</p>
-                <pre>$ sudo mkfs.ext4 /dev/sdb1 # Formats the first partition of sdb as ext4</pre>
+                <h1>Preparing New Hard Drives</h1>
+                <p>When you plug a raw hard drive into a Linux server, you must partition it, then format it with a filesystem.</p>
+                <h2>1. Partitioning (fdisk)</h2>
+                <p>Dividing a physical drive into logical boundaries.</p>
+                <div class="code-block">
+                    <pre>$ sudo fdisk /dev/sdb    # Opens the interactive partition tool for a 2nd drive</pre>
+                </div>
+                <h2>2. Formatting (mkfs)</h2>
+                <p>Creating the actual filesystem (the index structure that holds files) on the new partition. The standard Linux filesystem is <strong>ext4</strong>, while servers often use <strong>xfs</strong> or <strong>btrfs</strong>.</p>
+                <div class="code-block">
+                    <pre>$ sudo mkfs.ext4 /dev/sdb1 # Creates an ext4 filesystem on partition 1 of sdb</pre>
+                </div>
             `,
-            exercises: ["Run <code>df -h</code> to see how much free space you have on your current filesystems."],
+            exercises: ["Run <code>df -Th</code> to see the filesystem types (ext4, tmpfs, vfat) currently running on your machine."],
             quiz: {
                 question: "Which command is used to format a partition with a filesystem?",
                 options: ["fdisk", "mkfs", "parted", "mount"],
@@ -1493,20 +1508,25 @@ brw-rw---- 1 root disk 8, 0 Mar  7 09:00 /dev/sda</pre>
             title: "Mounting and /etc/fstab",
             content: `
                 <h1>Making Storage Accessible</h1>
-                <p>Linux doesn't use drive letters (like C: or D:). Instead, you <strong>mount</strong> filesystems directly into the Existing directory tree.</p>
+                <p>Because Linux has a single unified directory tree starting at <code>/</code>, new drives must be <strong>mounted</strong> into an empty folder to be accessible.</p>
                 <h2>The mount command</h2>
-                <pre>$ sudo mount /dev/sdb1 /mnt/usb    # Attach the drive to /mnt/usb
-$ sudo umount /mnt/usb             # Detach it (unmount)</pre>
-                <h2>Persistent Mounts (/etc/fstab)</h2>
-                <p>To make a mount permanent across reboots, you add it to the <strong>File System Table</strong>.</p>
                 <div class="code-block">
-                    <pre># /etc/fstab example
-/dev/sdb1   /data    ext4    defaults    0   2</pre>
+                    <pre>$ sudo mkdir -p /mnt/backup          # First, create an empty mount point folder
+$ sudo mount /dev/sdb1 /mnt/backup   # Hook the drive into the folder
+$ sudo umount /mnt/backup            # Safely unhook the drive (unmount)</pre>
                 </div>
+                <h2>Persistent Mounts (/etc/fstab)</h2>
+                <p>A manual <code>mount</code> disappears if you reboot! To make a mount permanent, you must declare it in the <strong>File System Table</strong>.</p>
+                <div class="code-block">
+                    <pre># Inside /etc/fstab
+# Device        Mount_Point    Filesystem    Options     Dump  Pass
+/dev/sdb1       /mnt/backup    ext4          defaults    0     2</pre>
+                </div>
+                <div class="note"><strong>Pro Tip:</strong> After editing <code>/etc/fstab</code>, always run <code>sudo mount -a</code> to test it. If there's a typo, Linux will crash on the next reboot!</div>
             `,
             exercises: ["Review the contents of your <code>/etc/fstab</code> using <code>cat /etc/fstab</code>."],
             quiz: {
-                question: "Which file is used to make mounts persistent across reboots?",
+                question: "Which file is read by the system during boot to automatically mount hard drives?",
                 options: ["/etc/mounts", "/etc/fstab", "/etc/partitions", "/etc/drives"],
                 answer: 1
             }
@@ -1517,17 +1537,17 @@ $ sudo umount /mnt/usb             # Detach it (unmount)</pre>
             title: "The Boot Process",
             content: `
                 <h1>How Linux Boots</h1>
-                <p>Understanding the boot sequence helps greatly in troubleshooting system failures.</p>
+                <p>Understanding the boot sequence is the first step to recovering a broken server.</p>
                 <ol>
-                    <li><strong>BIOS / UEFI:</strong> Hardware initialization and finding the boot device.</li>
-                    <li><strong>Bootloader (GRUB):</strong> Presents a menu to choose the OS/Kernel to load.</li>
-                    <li><strong>Kernel:</strong> The core OS is loaded into memory. It initializes hardware devices.</li>
-                    <li><strong>Init System (systemd):</strong> The first user-space program (PID 1) that starts all other services.</li>
+                    <li><strong>BIOS / UEFI:</strong> The motherboard powers on, performs hardware checks, and finds the boot drive.</li>
+                    <li><strong>Bootloader (GRUB):</strong> Loads from the boot sector. It presents a menu allowing you to choose which OS or Kernel version to load.</li>
+                    <li><strong>The Kernel:</strong> The core Linux engine is loaded into RAM. It unpacks the initramfs, mounts the root filesystem, and initializes drivers.</li>
+                    <li><strong>Init System (systemd):</strong> The kernel hands control to <code>systemd</code> (Process ID 1). Systemd reads its configuration and starts mounting drives, configuring networks, and starting background services like SSH or Nginx.</li>
                 </ol>
             `,
-            exercises: ["Read your system's boot log using the command <code>dmesg | less</code>."],
+            exercises: ["Read your system's boot log using the command <code>dmesg | less</code>. You will see the kernel detecting your hardware."],
             quiz: {
-                question: "What is the very first user-space program that Linux runs (PID 1)?",
+                question: "What is the very first user-space program that Linux runs (always assigned PID 1)?",
                 options: ["GRUB", "The Kernel", "systemd (or init)", "bash"],
                 answer: 2
             }
@@ -1535,23 +1555,27 @@ $ sudo umount /mnt/usb             # Detach it (unmount)</pre>
         {
             title: "Managing Services (systemd)",
             content: `
-                <h1>Systemd and systemctl</h1>
-                <p>Modern Linux uses <code>systemd</code> to manage services (daemons) running in the background.</p>
+                <h1>systemd and systemctl</h1>
+                <p>Modern Linux uses <code>systemd</code> to manage services (background daemons). The primary tool for interacting with systemd is <code>systemctl</code>.</p>
+                <h2>Essential Service Commands</h2>
                 <div class="code-block">
-                    <pre>$ sudo systemctl start ssh        # Start a service
-$ sudo systemctl stop ssh         # Stop a service
-$ sudo systemctl restart ssh      # Restart it
-$ sudo systemctl enable ssh       # Start automatically on boot
-$ sudo systemctl status ssh       # Check if it's running</pre>
+                    <pre>$ sudo systemctl status nginx     # Check if a service is running and see its recent logs
+$ sudo systemctl start nginx      # Start it right now
+$ sudo systemctl stop nginx       # Stop it right now
+$ sudo systemctl restart nginx    # Stop and start it (causes brief downtime)</pre>
                 </div>
-                <h2>Journalctl</h2>
-                <p>Systemd also manages logs via <code>journald</code>.</p>
-                <pre>$ journalctl -u ssh               # View logs for the ssh service
-$ journalctl -f                   # Follow all system logs in real-time</pre>
+                <h2>Boot Persistence</h2>
+                <p>Starting a service doesn't mean it will survive a reboot!</p>
+                <div class="code-block">
+                    <pre>$ sudo systemctl enable nginx     # Start automatically when the server boots
+$ sudo systemctl disable nginx    # Do NOT start on boot
+$ sudo systemctl is-enabled nginx # Check if it will start on boot</pre>
+                </div>
+                <div class="tip">If you edit a service file (e.g., in <code>/etc/systemd/system/</code>), you MUST run <code>sudo systemctl daemon-reload</code> to tell systemd to see your changes!</div>
             `,
-            exercises: ["Check the status of your graphical interface manager (usually <code>gdm3</code>, <code>lightdm</code>, or <code>sddm</code>)."],
+            exercises: ["Run <code>systemctl status sshd</code> (or ssh) to see the detailed health and recent logs of your SSH server."],
             quiz: {
-                question: "Which command makes a service start automatically when the computer boots?",
+                question: "Which command ensures that a background service automatically starts up every time the server boots?",
                 options: ["systemctl start", "systemctl enable", "systemctl autostart", "systemctl boot"],
                 answer: 1
             }
@@ -1560,17 +1584,18 @@ $ journalctl -f                   # Follow all system logs in real-time</pre>
             title: "Kernel Modules",
             content: `
                 <h1>Kernel Modules (Drivers)</h1>
-                <p>The Linux kernel is modular. You can load and unload hardware drivers (modules) without rebooting.</p>
-                <ul>
-                    <li><strong>lsmod:</strong> List currently loaded modules.</li>
-                    <li><strong>modinfo:</strong> Get information about a specific module.</li>
-                    <li><strong>modprobe:</strong> Safely load (or unload) a module and its dependencies.</li>
-                </ul>
-                <pre>$ lsmod | grep video            # See loaded video drivers</pre>
+                <p>A monolithic kernel would be huge and slow. Therefore, the Linux kernel is modular. You can dynamically load and unload hardware drivers (modules) into the running kernel without rebooting!</p>
+                <h2>Managing Modules</h2>
+                <div class="code-block">
+                    <pre>$ lsmod                           # List all currently loaded modules
+$ modinfo bluetooth               # View detailed info about a specific module (e.g., who wrote it)
+$ sudo modprobe -r bluetooth      # Safely unload a module and its dependencies
+$ sudo modprobe bluetooth         # Safely load the module back into the kernel</pre>
+                </div>
             `,
-            exercises: ["Run <code>lsmod</code> to see all the drivers currently powering your system."],
+            exercises: ["Run <code>lsmod</code> to see all the drivers currently powering your system. Try piping it into <code>wc -l</code> to count them!"],
             quiz: {
-                question: "Which command safely loads a kernel module along with any dependencies?",
+                question: "Which command safely loads a kernel module along with any dependencies it requires?",
                 options: ["lsmod", "insmod", "modprobe", "loadmod"],
                 answer: 2
             }
@@ -1580,49 +1605,69 @@ $ journalctl -f                   # Follow all system logs in real-time</pre>
         {
             title: "Automated Tasks (Cron)",
             content: `
-                <h1>Scheduling Jobs with Cron</h1>
-                <p><code>cron</code> allows you to run scripts or commands automatically at specified intervals.</p>
-                <h2>Editing the Crontab</h2>
-                <pre>$ crontab -e      # Edit your user's cron jobs
-$ crontab -l      # List your cron jobs</pre>
-                <h2>Crontab Syntax</h2>
-                <p>The format consists of 5 time fields followed by the command:</p>
+                <h1>Scheduling with Cron</h1>
+                <p>The <code>cron</code> daemon is the standard Linux task scheduler. It runs quietly in the background, executing scripts at precise intervals.</p>
+                <h2>Managing Your Crontab</h2>
+                <div class="code-block">
+                    <pre>$ crontab -e      # Edit your personal cron jobs
+$ crontab -l      # List your scheduled jobs
+$ sudo crontab -e # Edit the root user's cron jobs (for system tasks)</pre>
+                </div>
+                <h2>Crontab Syntax Decoding</h2>
+                <p>A crontab line combines 5 time layout fields followed by the absolute path to the command.</p>
                 <pre>* * * * * /path/to/command
 | | | | |
-| | | | +---- Day of week (0-7, Sunday=0 or 7)
+| | | | +---- Day of week (0-7, Sunday is 0 or 7)
 | | | +------ Month (1-12)
 | | +-------- Day of month (1-31)
 | +---------- Hour (0-23)
 +------------ Minute (0-59)</pre>
-                <div class="tip">Example: <code>0 2 * * * backup.sh</code> runs every day at 2:00 AM.</div>
+                <h2>Real-World Examples</h2>
+                <div class="code-block">
+                    <pre># Run a backup script every day at 2:30 AM
+30 2 * * * /usr/local/bin/backup-db.sh
+
+# Clear a temp folder every Monday at midnight
+0 0 * * 1 rm -rf /tmp/scratch/*
+
+# Run a health check script every 15 minutes
+*/15 * * * * /opt/scripts/healthcheck.sh >> /var/log/health.log</pre>
+                </div>
             `,
-            exercises: ["Open <code>crontab -e</code> and add a job that echoes 'hello' into a file every minute: <code>* * * * * echo 'hello' >> ~/hello.txt</code>. Don't forget to remove it later!"],
+            exercises: ["Use a tool like <i>crontab.guru</i> online to decipher this cron expression: <code>0 18 * * 1-5</code>. When does it run?"],
             quiz: {
-                question: "What does the first asterisk in a crontab entry represent?",
-                options: ["Hour", "Minute", "Day of Month", "Month"],
-                answer: 1
+                question: "In the cron expression `*/15 * * * *`, what does the `*/15` in the minute field indicate?",
+                options: ["Run at 15 minutes past the hour.", "Run exactly 15 times a day.", "Run every 15 minutes.", "Run for 15 minutes and stop."],
+                answer: 2
             }
         },
         {
             title: "System Logging",
             content: `
-                <h1>Where Linux Keeps Secrets</h1>
-                <p>When things go wrong, the logs are the first place to check.</p>
+                <h1>Log Analysis</h1>
+                <p>When services crash or servers get hacked, the logs are where you find the forensic evidence.</p>
                 <h2>Traditional Syslog (/var/log)</h2>
                 <ul>
-                    <li><code>/var/log/syslog</code> or <code>/var/log/messages</code>: General system activity.</li>
-                    <li><code>/var/log/auth.log</code> or <code>/var/log/secure</code>: Authentication attempts (sudo, SSH logins).</li>
-                    <li><code>/var/log/apt/</code> or <code>/var/log/dnf.log</code>: Package manager history.</li>
+                    <li><code>/var/log/syslog</code> or <code>messages</code>: Master log of general system activity.</li>
+                    <li><code>/var/log/auth.log</code> or <code>secure</code>: All authentication (failed SSH logins, sudo attempts).</li>
                 </ul>
-                <h2>Viewing Logs Efficiently</h2>
-                <pre>$ tail -f /var/log/syslog     # Watch logs live as they happen
-$ grep "Failed" /var/log/auth.log # Find failed login attempts</pre>
+                <div class="code-block">
+                    <pre>$ tail -f /var/log/syslog              # 'Follow' the log: watch entries appear in real-time
+$ grep "Failed password" /var/log/auth.log # Hunt for unauthorized SSH brute-force attempts</pre>
+                </div>
+                <h2>Modern Systemd Journal (journalctl)</h2>
+                <p>Modern Linux systems centralize logs into a binary format managed by <code>systemd</code>. You query it using <code>journalctl</code>.</p>
+                <div class="code-block">
+                    <pre>$ journalctl -xe                       # Show recent errors with extended explanations
+$ journalctl -u nginx                  # Show logs ONLY for the Nginx web server service
+$ journalctl --since "1 hour ago"      # Filter logs strictly by time</pre>
+                </div>
             `,
-            exercises: ["Use <code>tail -f</code> to watch your auth log, then open another terminal and try to <code>sudo</code> with the wrong password."],
+            exercises: ["Run <code>journalctl -xe</code> to view recent system errors, if any.", "Use <code>grep</code> to search your auth.log to see the history of your own <code>sudo</code> commands."],
             quiz: {
-                question: "Which file usually contains records of users attempting to use 'sudo'?",
-                options: ["/var/log/syslog", "/var/log/kern.log", "/var/log/auth.log", "/var/log/boot.log"],
-                answer: 2
+                question: "Which command filters the systemd journal to ONLY show logs generated by the 'ssh' service?",
+                options: ["journalctl -p ssh", "journalctl -u ssh", "journalctl | grep ssh", "tail /var/log/ssh"],
+                answer: 1
             }
         }
     ],
@@ -1734,46 +1779,50 @@ $ sudo chage -E 2024-12-31 john # Set account expiration date</pre>
             title: "Firewalls (UFW & iptables)",
             content: `
                 <h1>Network Firewalls</h1>
-                <p>Firewalls block unauthorized network traffic while allowing legitimate communication.</p>
+                <p>Firewalls block unauthorized network traffic. If your server is on the internet, a firewall is mandatory.</p>
                 <h2>UFW (Uncomplicated Firewall)</h2>
-                <p>The default firewall configuration tool for Ubuntu is UFW.</p>
+                <p>UFW makes managing the complex <code>iptables</code> backend incredibly easy for beginners.</p>
                 <div class="code-block">
-                    <pre>$ sudo ufw status              # Check if it's active
-$ sudo ufw enable              # Turn it on
-$ sudo ufw allow ssh           # Allow SSH connections (port 22)
-$ sudo ufw allow 80/tcp        # Allow plain HTTP traffic
-$ sudo ufw deny 23/tcp         # Block Telnet</pre>
+                    <pre>$ sudo ufw status verbose      # See active rules
+$ sudo ufw default deny incoming # Golden rule: Block everything by default!
+$ sudo ufw allow ssh           # Punch a hole for SSH (Port 22)
+$ sudo ufw allow 80/tcp        # Allow HTTP web traffic
+$ sudo ufw allow 443/tcp       # Allow HTTPS secure web traffic
+$ sudo ufw enable              # Turn the firewall on</pre>
                 </div>
-                <h2>iptables / nftables</h2>
-                <p>UFW is a frontend for <code>iptables</code> (or <code>nftables</code>), the core Linux packet filtering framework. It uses chains (INPUT, OUTPUT, FORWARD) to process packets.</p>
+                <h2>Intrusion Prevention (Fail2Ban)</h2>
+                <p>UFW blocks ports, but what if a hacker finds an open port (like SSH) and tries to guess passwords 10,000 times? <strong>Fail2Ban</strong> monitors your log files and dynamically adds UFW rules to ban IPs that repeatedly fail to login!</p>
             `,
-            exercises: ["Check your UFW status using <code>sudo ufw status</code>. (Be careful not to lock yourself out if you are on a remote server!)"],
+            exercises: ["Check your UFW status using <code>sudo ufw status</code>. (Warning: If you are on a remote server, execute <code>sudo ufw allow ssh</code> BEFORE enabling UFW, or you will lock yourself out!)"],
             quiz: {
-                question: "What does UFW stand for?",
-                options: ["Universal Firewall", "Uncomplicated Firewall", "Unix Firewall", "User FireWall"],
-                answer: 1
+                question: "What is universally considered the 'Golden Rule' of configuring a new server firewall?",
+                options: ["Allow all incoming traffic", "Deny all outgoing traffic", "Deny all incoming traffic by default, then selectively permit required ports.", "Disable UFW until the server is fully built."],
+                answer: 2
             }
         },
         {
             title: "System Hardening (SELinux / AppArmor)",
             content: `
                 <h1>Mandatory Access Control (MAC)</h1>
-                <p>Standard Linux permissions (rwx) are Discretionary Access Control (DAC). MAC systems provide a much stricter security layer.</p>
+                <p>Standard Linux permissions (rwx) are Discretionary. If a hacker exploits a weakness in your web server (running as the 'www-data' user), they can read or write any file owned by 'www-data'. MAC prevents this.</p>
                 <h2>SELinux (Security-Enhanced Linux)</h2>
-                <p>Created by the NSA, heavily used in Red Hat/CentOS.</p>
+                <p>Created by the NSA, heavily used in Red Hat Enterprise Linux.</p>
                 <ul>
-                    <li>Every process and file has a security "context".</li>
-                    <li>Policies dictate exactly what a process can do. E.g., a web server compromised by a hacker still cannot read <code>/etc/shadow</code> because SELinux policies forbid it.</li>
+                    <li>Every process and file has a strict security "context".</li>
+                    <li>Even if the 'www-data' user gets hacked, SELinux physically prevents the web server process from reading files in <code>/home/</code> because policies dictate web servers cannot look there.</li>
                 </ul>
-                <pre>$ getenforce                   # Check SELinux status</pre>
+                <div class="code-block">
+                    <pre>$ sestatus                     # Get detailed SELinux status
+$ sudo setenforce 0                 # Temporarily put SELinux into Permissive (logging only) mode</pre>
+                </div>
                 <h2>AppArmor</h2>
-                <p>The default MAC in Ubuntu/Debian. It isolates applications using profiles.</p>
-                <pre>$ sudo aa-status               # Check AppArmor status</pre>
+                <p>The default MAC in Ubuntu/Debian. It isolates applications using profile files loaded into the kernel.</p>
+                <pre>$ sudo aa-status               # Check which applications are confined</pre>
             `,
-            exercises: ["Run <code>getenforce</code> (RedHat) or <code>aa-status</code> (Ubuntu) to check your MAC status."],
+            exercises: ["Run <code>sestatus</code> (RedHat/Fedora) or <code>aa-status</code> (Ubuntu/Debian) to check your system's Mandatory Access Control status."],
             quiz: {
-                question: "Which type of access control does SELinux provide?",
-                options: ["Discretionary Access Control (DAC)", "Mandatory Access Control (MAC)", "Role-Based Access Control (RBAC)", "Network Access Control (NAC)"],
+                question: "If a web server is fully compromised, how does Mandatory Access Control (like SELinux) limit the damage?",
+                options: ["It shuts down the server automatically.", "It isolates the process based on strict policies, preventing it from accessing files outside its intended scope.", "It changes the root password.", "It unplugs the network cable."],
                 answer: 1
             }
         }
@@ -1783,51 +1832,67 @@ $ sudo ufw deny 23/tcp         # Block Telnet</pre>
             title: "Bash Scripting Basics",
             content: `
                 <h1>Writing Your First Script</h1>
-                <p>A shell script is simply a text file containing a sequence of commands.</p>
+                <p>A shell script is simply a text file containing a sequence of commands. By automating repetitive tasks, you amplify your productivity.</p>
                 <h2>The Shebang (#!)</h2>
-                <p>The first line tells the system which interpreter to use.</p>
+                <p>The first line tells the kernel exactly which interpreter should run the script.</p>
                 <div class="code-block">
                     <pre>#!/bin/bash
-# This is a comment
-echo "Hello, Linux World!"</pre>
+# A simple system info script
+echo "=== System Information ==="
+echo "Date: $(date)"
+echo "Uptime: $(uptime -p)"
+echo "Free Memory: $(free -h | grep Mem | awk '{print $4}')"</pre>
                 </div>
-                <h2>Making it Executable</h2>
-                <pre>$ chmod +x myscript.sh
-$ ./myscript.sh                # Run it!</pre>
+                <h2>Execution Permissions</h2>
+                <p>By default, text files cannot be executed. You must grant the execute permission using <code>chmod</code>.</p>
+                <div class="code-block">
+                    <pre>$ chmod +x sysinfo.sh          # Make it executable
+$ ./sysinfo.sh                 # Run it! (Current directory requires the ./ prefix)</pre>
+                </div>
             `,
-            exercises: ["Create a script named <code>backup.sh</code> that uses <code>tar</code> to backup your Documents folder."],
+            exercises: ["Create <code>sysinfo.sh</code>, copy the code above into it, make it executable, and run it!"],
             quiz: {
-                question: "What is the very first line of a bash script usually called?",
-                options: ["The Header", "The Shebang", "The Init Line", "The Comment"],
-                answer: 1
+                question: "Why do we typically type `./` before a script name to run it when we are in the same folder?",
+                options: ["Because the current directory is intentionally not in the $PATH variable for security reasons.", "Because it stands for 'run'.", "To indicate it is a Bash script.", "To run it as an administrator."],
+                answer: 0
             }
         },
         {
             title: "Variables, Loops, and Logic",
             content: `
                 <h1>Adding Programming Logic</h1>
-                <h2>Variables</h2>
-                <pre>NAME="Alice"
-echo "Hello, $NAME"</pre>
+                <h2>Variables & Input</h2>
+                <div class="code-block">
+                    <pre>#!/bin/bash
+BACKUP_DIR="/backup/$(date +%Y-%m-%d)"  # Command substitution
+read -p "Enter username: " USERNAME       # Prompt for user input
+echo "Creating backup for $USERNAME in $BACKUP_DIR"</pre>
+                </div>
                 <h2>If/Else Statements</h2>
                 <div class="code-block">
-                    <pre>if [ -f "/etc/passwd" ]; then
-    echo "The file exists."
+                    <pre>#!/bin/bash
+if [ -d "/var/www/html" ]; then
+    echo "Web server directory exists!"
+elif [ -f "/etc/nginx/nginx.conf" ]; then
+    echo "Nginx config found, but no web dir."
 else
-    echo "File not found."
+    echo "No web server detected."
 fi</pre>
                 </div>
-                <h2>For Loops</h2>
+                <h2>For Loops (Batch Processing)</h2>
                 <div class="code-block">
-                    <pre>for file in *.txt; do
-    echo "Processing $file"
+                    <pre>#!/bin/bash
+# Backup all .txt files by appending .bak
+for file in *.txt; do
+    cp "$file" "${file}.bak"
+    echo "Backed up $file"
 done</pre>
                 </div>
             `,
-            exercises: ["Write a loop that prints the numbers 1 through 5."],
+            exercises: ["Write a script that uses a <code>for</code> loop to ping 3 different websites (e.g., google.com, github.com) to check if they are online."],
             quiz: {
-                question: "In a bash if-statement, what keyword is used to close the block?",
-                options: ["end", "don", "fi", "endif"],
+                question: "In heavily used bash conditional tests like `[ -d \"/var/www/\" ]`, what does the `-d` flag check for?",
+                options: ["If a file is deleted.", "If a variable is defined.", "If the path exists and is a Directory.", "If the disk has space."],
                 answer: 2
             }
         }
@@ -1837,40 +1902,47 @@ done</pre>
             title: "Virtual Machines (KVM/QEMU)",
             content: `
                 <h1>Hardware Virtualization</h1>
-                <p>Virtual Machines (VMs) emulate an entire hardware system, allowing you to run a full Guest OS on top of your Host OS.</p>
+                <p>Virtual Machines (VMs) emulate an entire set of physical hardware, allowing you to run a full Guest OS completely disjointed from the Host OS.</p>
+                <h2>The Linux Hypervisor Stack</h2>
                 <ul>
-                    <li><strong>KVM (Kernel-based Virtual Machine):</strong> Linux kernel module that turns the kernel into a hypervisor.</li>
-                    <li><strong>QEMU:</strong> Does the actual hardware emulation (CPU, disk, network).</li>
-                    <li><strong>libvirt / virsh:</strong> Management tools for interacting with KVM/QEMU.</li>
+                    <li><strong>KVM (Kernel-based Virtual Machine):</strong> A module built directly into the Linux kernel that allows it to function as a Type-1 hypervisor (direct hardware access).</li>
+                    <li><strong>QEMU:</strong> Software that actually emulates the fake motherboards, CPUs, and disk controllers.</li>
+                    <li><strong>libvirt:</strong> The management API that ties it all together.</li>
                 </ul>
-                <p>VMs provide total isolation but consume significant resources (RAM/CPU).</p>
+                <div class="code-block">
+                    <pre>$ virsh list --all             # Command-line interface to list all VMs on the host
+$ virsh start web_server_vm    # Start a specific VM
+$ virt-manager                 # The popular graphical GUI to click-and-create VMs</pre>
+                </div>
             `,
-            exercises: ["Research the command <code>virsh list --all</code>."],
+            exercises: ["Research <code>virt-manager</code>. It is the open-source equivalent to VMware Workstation or VirtualBox, but it runs natively via KVM with near bare-metal performance."],
             quiz: {
-                question: "Which Linux kernel module provides hardware virtualization support?",
-                options: ["hyperv", "vbox", "vmware", "kvm"],
+                question: "Which component of the Linux Virtualization stack is actually built directly into the core Linux kernel?",
+                options: ["QEMU", "virt-manager", "libvirt", "KVM"],
                 answer: 3
             }
         },
         {
             title: "Containers (Docker / Podman)",
             content: `
-                <h1>OS-Level Virutalization</h1>
-                <p>Containers are lightweight because they share the Host OS's kernel, unlike VMs which boot their own kernel.</p>
+                <h1>OS-Level Virtualization</h1>
+                <p>VMs are heavy; they require booting a second operating system. Containers are incredibly lightweight because they <strong>share the Host OS's kernel</strong> while pretending to be independent machines.</p>
+                <h2>How do they work?</h2>
+                <p>Linux features called <strong>Namespaces</strong> isolate the container (giving it a fake process tree, fake network), while <strong>cgroups</strong> throttle its resource usage (preventing it from using 100% CPU).</p>
                 <h2>Docker Basics</h2>
                 <div class="code-block">
-                    <pre>$ docker pull ubuntu:latest      # Download the Ubuntu image
-$ docker run -it ubuntu bash     # Start a container and open a shell
-$ docker ps                      # List running containers
-$ docker images                  # List downloaded images</pre>
+                    <pre>$ docker pull nginx:latest       # Download the official Nginx web server image
+$ docker run -d -p 8080:80 nginx # Run it detached (-d), mapping host port 8080 to container port 80
+$ docker ps                      # See that it is running! (Navigate to HTTP://localhost:8080)
+$ docker logs [container_id]     # View the internal output of the container
+$ docker exec -it [id] /bin/bash # "SSH" directly into the running container</pre>
                 </div>
-                <p><strong>Namespaces</strong> isolate the container's processes/network, while <strong>cgroups</strong> limit its resource usage (CPU/RAM).</p>
             `,
-            exercises: ["If you have Docker installed, try running <code>docker run hello-world</code>."],
+            exercises: ["If you have Docker installed, run <code>docker run -it ubuntu /bin/bash</code> to instantly pop a shell inside a pristine Ubuntu sandbox. Type <code>exit</code> to destroy it."],
             quiz: {
-                question: "Containers are typically 'lighter' than VMs because they share what with the host?",
-                options: ["Hard Drive", "Network Card", "Operating System Kernel", "RAM"],
-                answer: 2
+                question: "Why do Docker containers start up in milliseconds, whereas Virtual Machines take minutes to boot?",
+                options: ["Containers do not require hard drives.", "Containers share the running host kernel and skip the entire OS boot sequence.", "Containers execute in RAM only.", "Docker uses a highly compressed image format."],
+                answer: 1
             }
         }
     ],
@@ -1878,41 +1950,58 @@ $ docker images                  # List downloaded images</pre>
         {
             title: "System Diagnostics",
             content: `
-                <h1>Analyzing Health and Performance</h1>
-                <p>When the system is slow, use these tools to find the bottleneck.</p>
-                <ul>
-                    <li><strong>free -h:</strong> Check RAM usage (look at the 'available' column, not 'free').</li>
-                    <li><strong>df -h:</strong> Check disk space across all mounted filesystems.</li>
-                    <li><strong>du -sh *:</strong> Find out which folders are using the most space in the current directory.</li>
-                    <li><strong>iostat:</strong> Monitor CPU and disk I/O statistics.</li>
-                    <li><strong>vmstat:</strong> Report virtual memory statistics.</li>
-                </ul>
+                <h1>Analyzing Resource Bottlenecks</h1>
+                <p>When a Linux server grinds to a halt, you need to quickly identify the constraint: Memory, Disk space, or I/O?</p>
+                <h2>Memory Analysis</h2>
+                <div class="code-block">
+                    <pre>$ free -h          # Show RAM utilization in Human-readable format</pre>
+                </div>
+                <div class="note"><strong>Crucial Tip:</strong> Linux caches file data in unused RAM to dramatically speed up read times. Do not panic if the "free" column is near 0. Always look at the <strong>"available"</strong> column to see how much RAM you have left to start new applications!</div>
+                <h2>Disk Space Analysis</h2>
+                <div class="code-block">
+                    <pre>$ df -Th           # Disk Free: View total space and filesystem Types on all drives
+$ du -sh /var/log/ # Disk Usage: Calculate the total size of a specific directory
+$ ncdu /           # (Optional Install) Incredible interactive tool to hunt down large files</pre>
+                </div>
+                <h2>I/O Performance</h2>
+                <div class="code-block">
+                    <pre>$ iostat -xz 1     # Monitor hard drive read/write speeds in real-time
+$ vmstat 1         # Watch virtual memory swapping (if swap is high, you need more RAM)</pre>
+                </div>
             `,
-            exercises: ["Run <code>free -m</code> to see your memory in Megabytes."],
+            exercises: ["Run <code>df -Th</code>. Identify which filesystem holds your <code>/</code> (root) directory and see what percentage is used."],
             quiz: {
-                question: "Which command shows the disk space usage of a specific directory and its contents?",
-                options: ["df", "du", "iostat", "free"],
-                answer: 1
+                question: "When running the `free -h` command, which column indicates the true amount of RAM you have left to start new applications?",
+                options: ["total", "used", "free", "available"],
+                answer: 3
             }
         },
         {
             title: "Network Diagnostics",
             content: `
-                <h1>Troubleshooting Network Issues</h1>
-                <p>If you lose internet, follow the chain:</p>
+                <h1>The Troubleshooting Chain</h1>
+                <p>If a Linux server loses network connectivity, guessing is inefficient. Systematically diagnose the OSI model layers from the bottom up.</p>
+                <h2>The 5-Step Connectivity Test</h2>
                 <ol>
-                    <li><code>ip link</code> : Is the physical interface UP?</li>
-                    <li><code>ip addr</code> : Do I have an IP address?</li>
-                    <li><code>ip route</code> : Do I have a default route (gateway)?</li>
-                    <li><code>ping 8.8.8.8</code> : Can I reach the internet (Google's DNS) by IP?</li>
-                    <li><code>ping google.com</code> : Can I resolve DNS names?</li>
+                    <li>Are the physical cables/virtual adapters connected?
+                        <pre>$ ip link show         # Look for state UP</pre></li>
+                    <li>Did the DHCP server give me an IP address?
+                        <pre>$ ip addr show</pre></li>
+                    <li>Can I reach other machines on my local LAN? (Find gateway first)
+                        <pre>$ ip route             # Find the 'default via' IP
+$ ping [gateway_ip]</pre></li>
+                    <li>Can packets route out to the global internet?
+                        <pre>$ ping -c 4 8.8.8.8    # Ping Google's public DNS</pre></li>
+                    <li>Is DNS successfully converting domain names to IP addresses?
+                        <pre>$ ping -c 4 google.com
+$ dig +short github.com # Directly test DNS resolution</pre></li>
                 </ol>
-                <p>If step 4 works but 5 fails, check your DNS settings in <code>/etc/resolv.conf</code>.</p>
+                <div class="tip">If step 4 (ping 8.8.8.8) succeeds, but step 5 (ping google.com) fails with "Temporary failure in name resolution", your internet works but your DNS is broken. Edit <code>/etc/resolv.conf</code> to fix it.</div>
             `,
-            exercises: ["Ping your default gateway (router) to ensure local connectivity."],
+            exercises: ["Follow the 5-step test above on your own machine. Find your default gateway using <code>ip route</code> and ping it."],
             quiz: {
-                question: "If you can ping an IP address (8.8.8.8) but cannot ping a domain name (google.com), what is likely the issue?",
-                options: ["Your ethernet cable is unplugged", "Your router is off", "Your DNS server is not configured or unreachable", "Your firewall is blocking all traffic"],
+                question: "If you can successfully ping an external IP address (like 8.8.8.8) but cannot reach a domain name (like google.com), what is the most likely culprit?",
+                options: ["Your ethernet cable is unplugged", "Your router is powered off", "Your DNS server is misconfigured or unreachable", "Your ISP blocked your IP address"],
                 answer: 2
             }
         }
