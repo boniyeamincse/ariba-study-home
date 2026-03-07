@@ -1078,25 +1078,36 @@ $ grep "o.o" words.txt           # Matches 'oto', 'o-o', etc.</pre>
             title: "Vim Essentials",
             content: `
                 <h1>The Vim Editor</h1>
-                <p>Vim is a "modal" editor. It is extremely powerful but has a steep learning curve.</p>
-                <h2>The Three Modes</h2>
+                <p>Vim is a "modal" editor. It is extremely powerful but has a steep learning curve because you don't use the mouse and your keyboard keys do different things depending on the "mode" you are in.</p>
+                <h2>The Three Primary Modes</h2>
                 <ul>
-                    <li><strong>Normal Mode (Default):</strong> For navigation and commands. Press <code>Esc</code> to return here.</li>
-                    <li><strong>Insert Mode:</strong> For typing text. Press <code>i</code> to enter.</li>
-                    <li><strong>Command Mode:</strong> For saving and exiting. Type <code>:</code>.</li>
+                    <li><strong>Normal Mode (Default):</strong> For navigation, copying, pasting, and deleting. Press <code>Esc</code> to return here from any mode.</li>
+                    <li><strong>Insert Mode:</strong> For actually typing text. Press <code>i</code> (insert before cursor) or <code>a</code> (append after cursor) to enter.</li>
+                    <li><strong>Command Mode:</strong> For saving, exiting, and finding/replacing. Type <code>:</code> from Normal mode.</li>
                 </ul>
-                <div class="tip">Stuck in Vim? Press <strong>Esc</strong> then type <strong>:q!</strong> and Enter to quit without saving.</div>
-                <h2>Navigation and Saving</h2>
-                <pre>:w        # Save (write)
-:q        # Quit
-:wq       # Save and Quit
-/pattern  # Search forward</pre>
+                <div class="tip">Stuck in Vim? Don't panic! Press <strong>Esc</strong> multiple times, then type <strong>:q!</strong> and hit <strong>Enter</strong> to force quit without saving.</div>
+                <h2>Crucial Normal Mode Shortcuts</h2>
+                <div class="code-block">
+                    <pre>dd        # Delete (cut) the entire current line
+yy        # Yank (copy) the entire current line
+p         # Paste the cut/copied line below the cursor
+u         # Undo the last action
+Ctrl+R    # Redo
+gg        # Jump to the top of the file
+G         # Jump to the bottom of the file</pre>
+                </div>
+                <h2>Command Mode (Saving & Exiting)</h2>
+                <pre>:w        # Save (write) changes
+:q        # Quit (will fail if you have unsaved changes)
+:wq       # Save and Quit (or type ZZ in normal mode)
+/pattern  # Search forward for a word (e.g., /error)
+n / N     # In a search, jump to next (n) or previous (N) match</pre>
             `,
-            exercises: ["Open a file with <code>vim test.txt</code>, type 'Hello Linux', and save it."],
+            exercises: ["Open a file with <code>vim test.txt</code>, type 'Hello Linux' in insert mode, go back to normal mode, copy the line using <code>yy</code>, paste it 5 times using <code>p</code>, and save it."],
             quiz: {
-                question: "How do you enter Insert Mode in Vim?",
-                options: ["i", "a", "o", "All of the above"],
-                answer: 3
+                question: "In Vim Normal Mode, which key command copies (yanks) the entire current line?",
+                options: ["c", "y", "yy", "Ctrl+C"],
+                answer: 2
             }
         },
         {
@@ -1248,41 +1259,74 @@ $ chmod 644 document.txt       # Standard file: User gets 6 (rw-), Group/Others 
             content: `
                 <h1>Managing Processes</h1>
                 <p>A process is an instance of a running program. Tracking them is essential for system health.</p>
+                <h2>The Basics (ps and top)</h2>
                 <ul>
-                    <li><strong>ps:</strong> Snapshot of current processes.</li>
-                    <li><strong>top:</strong> Real-time dynamic view of processes.</li>
-                    <li><strong>htop:</strong> An interactive, colorful version of top (highly recommended).</li>
+                    <li><strong>ps (Process Status):</strong> Takes a static snapshot of current processes.</li>
+                    <li><strong>top:</strong> A real-time, dynamic view of processes, CPU usage, and memory.</li>
                 </ul>
                 <div class="code-block">
-                    <pre>$ ps aux           # List every process on the system
-$ ps -u [username] # Processes for a specific user</pre>
+                    <pre>$ ps aux           # Standard command to see EVERY process on the system
+$ ps -u root       # See processes owned by the root user
+$ top              # Interactive monitor. Press 'q' to quit.</pre>
                 </div>
+                <h2>Modern Alternative: htop</h2>
+                <p><code>htop</code> is highly recommended over <code>top</code>. It provides a visual, color-coded interface where you can scroll vertically to view process lists and horizontally to view the full command lines. You can even click on processes to kill them.</p>
             `,
-            exercises: ["Run <code>top</code> and identify which process is using the most CPU."],
+            exercises: ["Run <code>top</code>. While it is running, press <code>Shift+P</code> to sort by CPU usage, and <code>Shift+M</code> to sort by Memory usage. Press <code>q</code> to exit."],
             quiz: {
-                question: "Which command provides a real-time, interactive view of system processes?",
-                options: ["ps", "top", "ls", "grep"],
-                answer: 1
+                question: "Which command provides a static snapshot of currently running processes?",
+                options: ["htop", "top", "ps", "kill"],
+                answer: 2
             }
         },
         {
             title: "Signals and Termination",
             content: `
                 <h1>Killing Processes</h1>
-                <p>Sometimes processes get stuck or need to be stopped. We send <strong>Signals</strong> to tell them what to do.</p>
+                <p>Sometimes processes get stuck, freeze, or consume too many resources. We send <strong>Signals</strong> to tell the Linux kernel to handle them.</p>
+                <h2>Common Signals</h2>
                 <ul>
-                    <li><strong>SIGTERM (15):</strong> Polite request to stop (default).</li>
-                    <li><strong>SIGKILL (9):</strong> Forced, immediate termination (dangerous, no cleanup).</li>
-                    <li><strong>SIGHUP (1):</strong> Hangup (often reloads configuration).</li>
+                    <li><strong>SIGTERM (15 - Terminate):</strong> The default signal sent by the <code>kill</code> command. A polite request to stop, allowing the program to safely save data and clean up temporary files.</li>
+                    <li><strong>SIGKILL (9 - Kill):</strong> Forced, immediate termination. The kernel drops the process immediately. No cleanup is performed, which can corrupt open files.</li>
                 </ul>
-                <pre>$ kill [PID]       # Send SIGTERM to Process ID
-$ kill -9 [PID]    # Force kill
-$ pkill [name]     # Kill by process name</pre>
+                <div class="code-block">
+                    <pre>$ kill 1234        # Send SIGTERM (15) to PID 1234
+$ kill -9 1234     # Send SIGKILL (9) to PID 1234
+$ pkill firefox    # Kill all processes named 'firefox' (very useful!)</pre>
+                </div>
+                <div class="note">Always try a standard <code>kill</code> first. Only use <code>kill -9</code> if the process is completely frozen and unresponsive to SIGTERM.</div>
             `,
-            exercises: ["Learn how to find a PID using <code>pgrep</code> and then use <code>kill</code>."],
+            exercises: ["Open a new terminal and run <code>sleep 1000</code>. Open another terminal, find its PID using <code>pgrep sleep</code>, and terminate it using <code>kill [PID]</code>."],
             quiz: {
-                question: "Which signal number is used for a forced 'SIGKILL'?",
-                options: ["1", "15", "9", "0"],
+                question: "Which command kills a process by its name rather than its numerical PID?",
+                options: ["kill", "xkill", "pkill", "killall -n"],
+                answer: 2
+            }
+        },
+        {
+            title: "Background Jobs",
+            content: `
+                <h1>Job Control (&, bg, fg)</h1>
+                <p>You can run commands in the "background" so they don't block your terminal, allowing you to continue typing other commands while the process does its work silently.</p>
+                <h2>Starting Jobs in the Background</h2>
+                <p>To start a command in the background, simply append an ampersand (<code>&</code>) to the end of it.</p>
+                <div class="code-block">
+                    <pre>$ sleep 300 &      # Starts sleep in the background
+[1] 4567           # Output: [Job Number] PID</pre>
+                </div>
+                <h2>Managing Running Jobs</h2>
+                <div class="code-block">
+                    <pre>$ jobs             # List all background jobs in the current terminal session
+$ fg %1            # Bring Job 1 to the foreground (blocks terminal again)
+$ bg %1            # Resume a paused Job 1 in the background</pre>
+                </div>
+                <h2>Suspending Foreground Jobs</h2>
+                <p>If you have a foreground process running (like downloading a large file or editing in Vim) and want to do something else quickly, press <strong>Ctrl+Z</strong> to <em>pause</em> it. It is now suspended. Type <code>bg</code> to resume it in the background, or <code>fg</code> to come back to it.</p>
+            `,
+            exercises: ["Run <code>sleep 100</code> without an ampersand. Suspend it with Ctrl+Z. Run <code>jobs</code> to see it paused. Run <code>bg</code> to resume it in the background."],
+            quiz: {
+                question: "What keyboard shortcut suspends (pauses) the currently running foreground command?",
+                options: ["Ctrl+C", "Ctrl+D", "Ctrl+Z", "Ctrl+X"],
                 answer: 2
             }
         }
@@ -1633,22 +1677,31 @@ $ ss -tulpn                      # Show all listening ports and the processes ow
             title: "SSH (Secure Shell)",
             content: `
                 <h1>Remote Management</h1>
-                <p><code>ssh</code> allows you to securely log into remote Linux servers. It encrypts all traffic, including passwords.</p>
+                <p><code>ssh</code> allows you to securely log into, and execute commands on, remote Linux servers. It uses strong encryption to protect all traffic, preventing eavesdropping.</p>
                 <h2>Basic Connection</h2>
-                <pre>$ ssh user@192.168.1.100     # Connect to an IP as 'user'</pre>
+                <div class="code-block">
+                    <pre>$ ssh user@192.168.1.100      # Connect to an IP as 'user'
+$ ssh user@example.com -p 2222 # Connect on a custom port instead of default 22</pre>
+                </div>
+                <h2>Secure File Transfer (SCP)</h2>
+                <p>You can use the SSH protocol to securely copy files between computers using <code>scp</code>.</p>
+                <div class="code-block">
+                    <pre>$ scp local_file.txt user@server:/remote/path/    # Copy from local to remote
+$ scp user@server:/remote/file.txt ./local_dir/   # Copy from remote to local</pre>
+                </div>
                 <h2>Key-Based Authentication</h2>
-                <p>Instead of passwords, you can use cryptographic keys for much higher security.</p>
+                <p>Passwords can be brute-forced. SSH Keys use cryptographic math to provide unbreakable authentication without ever typing a password.</p>
                 <ol>
-                    <li><code>ssh-keygen</code> generates a public/private key pair.</li>
-                    <li><code>ssh-copy-id user@host</code> copies your public key to the server.</li>
-                    <li>You can now log in without typing a password!</li>
+                    <li><code>ssh-keygen -t ed25519</code> generates an ultra-secure modern public/private key pair.</li>
+                    <li><code>ssh-copy-id user@host</code> securely pushes your <em>public</em> key to the server's <code>~/.ssh/authorized_keys</code> file.</li>
+                    <li>You can now log in instantly and securely! Keep your <em>private</em> key safe!</li>
                 </ol>
             `,
-            exercises: ["Run <code>ssh-keygen</code> to generate your own key pair (just press Enter for the defaults)."],
+            exercises: ["Run <code>ssh-keygen -t ed25519</code> to generate your own modern SSH key pair (just press Enter for the defaults to save it to ~/.ssh/)."],
             quiz: {
-                question: "What is the advantage of SSH over older protocols like Telnet?",
-                options: ["It is faster", "It encrypts all traffic", "It doesn't require a network", "It provides a graphical interface"],
-                answer: 1
+                question: "Which command uses the SSH protocol to securely copy files between a local computer and a remote server?",
+                options: ["rcp", "ftp", "scp", "ssh-copy"],
+                answer: 2
             }
         }
     ],
