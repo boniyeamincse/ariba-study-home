@@ -1239,33 +1239,369 @@ $ pkill [name]     # Kill by process name</pre>
         }
     ],
     "Software Management": [
-        { title: "Software Repositories", content: "<h1>Repos</h1><p>How Linux distributes software.</p>" },
-        { title: "Package Managers", content: "<h1>Tools</h1><p>Usage of apt, yum, and dnf.</p>" },
-        { title: "Archives & Source", content: "<h1>Compiling</h1><p>Tarballs and compiling from source.</p>" }
+        {
+            title: "Software Repositories",
+            content: `
+                <h1>Understanding Repositories</h1>
+                <p>Unlike Windows or macOS where you often download installers from websites, Linux software is primarily distributed via <strong>repositories</strong> (repos).</p>
+                <ul>
+                    <li>A repository is a server containing thousands of pre-compiled software packages.</li>
+                    <li>They ensure the software is tested, cryptographically signed, and compatible with your system.</li>
+                    <li><code>/etc/apt/sources.list</code> (on Debian/Ubuntu) lists the repositories your system checks.</li>
+                </ul>
+            `,
+            exercises: ["Open <code>/etc/apt/sources.list</code> or <code>/etc/yum.repos.d/</code> to see where your system gets its software."],
+            quiz: {
+                question: "What is the primary benefit of using official Linux repositories?",
+                options: ["Faster download speeds", "Cryptographic signing and tested compatibility", "Access to proprietary software", "Saves disk space"],
+                answer: 1
+            }
+        },
+        {
+            title: "Package Managers (apt, dnf, pacman)",
+            content: `
+                <h1>Managing Packages</h1>
+                <p>A package manager automates the process of installing, upgrading, configuring, and removing computer programs.</p>
+                <h2>Debian/Ubuntu (APT)</h2>
+                <div class="code-block">
+                    <pre>$ sudo apt update         # Fetch list of available updates
+$ sudo apt upgrade        # Install the updates
+$ sudo apt install htop   # Install a new package
+$ sudo apt remove htop    # Remove a package</pre>
+                </div>
+                <h2>Red Hat/Fedora (DNF/YUM)</h2>
+                <pre>$ sudo dnf check-update
+$ sudo dnf install nginx</pre>
+                <h2>Arch Linux (Pacman)</h2>
+                <pre>$ sudo pacman -Syu        # Update entire system
+$ sudo pacman -S vim      # Install vim</pre>
+            `,
+            exercises: ["Update your package repository cache (e.g., <code>sudo apt update</code>).", "Install a new tool, like <code>tree</code> or <code>neofetch</code>."],
+            quiz: {
+                question: "Which command installs a package in Ubuntu or Debian?",
+                options: ["apt-get add", "apt install", "yum install", "pacman -S"],
+                answer: 1
+            }
+        },
+        {
+            title: "Archives and Source Code",
+            content: `
+                <h1>Tarballs and Compiling</h1>
+                <p>Not everything is in a repository. Often, software is distributed as compressed archives (tarballs) or raw source code.</p>
+                <h2>Working with Tar</h2>
+                <ul>
+                    <li><strong>tar -czvf:</strong> <u>C</u>reate, <u>Z</u>ip (gzip), <u>V</u>erbose, <u>F</u>ile.</li>
+                    <li><strong>tar -xzvf:</strong> e<u>X</u>tract.</li>
+                </ul>
+                <pre>$ tar -xzvf source-code.tar.gz   # Extract an archive</pre>
+                <h2>Compiling from Source</h2>
+                <p>The standard "holy trinity" of compiling Linux software:</p>
+                <div class="code-block">
+                    <pre>$ ./configure    # Checks system for required libraries
+$ make           # Compiles the source code into binaries
+$ sudo make install # Copies binaries to system folders (like /usr/local/bin)</pre>
+                </div>
+            `,
+            exercises: ["Create a tar.gz archive of your 'Documents' folder."],
+            quiz: {
+                question: "Which tar flag is used to 'extract' an archive?",
+                options: ["-c", "-v", "-x", "-f"],
+                answer: 2
+            }
+        }
     ],
     "Devices & Hardware": [
-        { title: "Device Files", content: "<h1>/dev</h1><p>Understanding block and character devices.</p>" },
-        { title: "Hardware Discovery", content: "<h1>Discovery</h1><p>Using lsusb and lspci.</p>" },
-        { title: "Mounting Storage", content: "<h1>Mount</h1><p>Attaching external drives.</p>" }
+        {
+            title: "Everything is a File (/dev)",
+            content: `
+                <h1>The /dev Directory</h1>
+                <p>In Linux, devices (hard drives, mice, terminals) are represented as files in the <code>/dev</code> directory.</p>
+                <ul>
+                    <li><strong>/dev/sda, /dev/sdb:</strong> Your hard drives (SCSI/SATA).</li>
+                    <li><strong>/dev/nvme0n1:</strong> NVMe solid-state drives.</li>
+                    <li><strong>/dev/tty1:</strong> Virtual terminals.</li>
+                    <li><strong>/dev/null:</strong> The "black hole". Anything sent here disappears.</li>
+                </ul>
+                <pre>$ ls -l /dev/sda
+brw-rw---- 1 root disk 8, 0 Mar  7 09:00 /dev/sda</pre>
+                <div class="note">The 'b' at the start of the permissions string means this is a "Block" device.</div>
+            `,
+            exercises: ["Run <code>ls -l /dev/null</code> and check its permissions. Note the 'c' indicating a Character device."],
+            quiz: {
+                question: "What does sending data to /dev/null do?",
+                options: ["Saves it to a hidden file", "Uploads it to the cloud", "Discards it permanently", "Prints it to the screen"],
+                answer: 2
+            }
+        },
+        {
+            title: "Hardware Discovery Tools",
+            content: `
+                <h1>Finding Your Hardware</h1>
+                <p>How do you know what hardware is currently attached to your system?</p>
+                <ul>
+                    <li><strong>lspci:</strong> Lists all PCI buses and devices connected to them (GPUs, Network cards).</li>
+                    <li><strong>lsusb:</strong> Lists USB devices (Webcams, Keyboards).</li>
+                    <li><strong>lscpu:</strong> Displays detailed CPU architecture information.</li>
+                    <li><strong>lsblk:</strong> Lists all block devices (disks and partitions).</li>
+                </ul>
+                <pre>$ lspci | grep -i vga     # Find your graphics card</pre>
+            `,
+            exercises: ["Run <code>lsblk</code> to see the structure of your hard drives.", "Run <code>lsusb</code> to list your current USB peripherals."],
+            quiz: {
+                question: "Which command lists all block devices like hard drives?",
+                options: ["lspci", "lsusb", "lsblk", "lshw"],
+                answer: 2
+            }
+        }
     ],
     "Filesystem & Storage": [
-        { title: "Filesystem Hierarchy", content: "<h1>FHS</h1><p>The Linux directory structure.</p>" },
-        { title: "Disk Partitioning", content: "<h1>Partitioning</h1><p>Fdisk, parted, and filesystems.</p>" },
-        { title: "Mounting & fstab", content: "<h1>Persistence</h1><p>Configuring /etc/fstab.</p>" }
+        {
+            title: "Filesystem Hierarchy Standard",
+            content: `
+                <h1>The Linux Directory Structure</h1>
+                <p>Linux organizes files according to the FHS. Understanding this is crucial.</p>
+                <ul>
+                    <li><code>/</code> : The Root directory. Everything starts here.</li>
+                    <li><code>/bin</code> & <code>/sbin</code> : Essential system binaries (commands).</li>
+                    <li><code>/etc</code> : System-wide configuration files.</li>
+                    <li><code>/home</code> : User personal directories.</li>
+                    <li><code>/var</code> : Variable data (Logs, databases, web servers).</li>
+                    <li><code>/usr</code> : User programs and data (installed software).</li>
+                    <li><code>/tmp</code> : Temporary files (cleared on reboot).</li>
+                </ul>
+            `,
+            exercises: ["Navigate to <code>/var/log</code> and list the files. This is where your system records events."],
+            quiz: {
+                question: "Which directory holds system-wide configuration files?",
+                options: ["/bin", "/home", "/var", "/etc"],
+                answer: 3
+            }
+        },
+        {
+            title: "Disk Partitioning and Formatting",
+            content: `
+                <h1>Preparing Disks</h1>
+                <p>Before using a new hard drive, it must be partitioned and formatted.</p>
+                <h2>Partitioning (fdisk / parted)</h2>
+                <p>Dividing a physical drive into logical sections.</p>
+                <pre>$ sudo fdisk /dev/sdb    # Opens the interactive partition tool</pre>
+                <h2>Formatting (mkfs)</h2>
+                <p>Creating a filesystem (like ext4, xfs, or btrfs) on a partition.</p>
+                <pre>$ sudo mkfs.ext4 /dev/sdb1 # Formats the first partition of sdb as ext4</pre>
+            `,
+            exercises: ["Run <code>df -h</code> to see how much free space you have on your current filesystems."],
+            quiz: {
+                question: "Which command is used to format a partition with a filesystem?",
+                options: ["fdisk", "mkfs", "parted", "mount"],
+                answer: 1
+            }
+        },
+        {
+            title: "Mounting and /etc/fstab",
+            content: `
+                <h1>Making Storage Accessible</h1>
+                <p>Linux doesn't use drive letters (like C: or D:). Instead, you <strong>mount</strong> filesystems directly into the Existing directory tree.</p>
+                <h2>The mount command</h2>
+                <pre>$ sudo mount /dev/sdb1 /mnt/usb    # Attach the drive to /mnt/usb
+$ sudo umount /mnt/usb             # Detach it (unmount)</pre>
+                <h2>Persistent Mounts (/etc/fstab)</h2>
+                <p>To make a mount permanent across reboots, you add it to the <strong>File System Table</strong>.</p>
+                <div class="code-block">
+                    <pre># /etc/fstab example
+/dev/sdb1   /data    ext4    defaults    0   2</pre>
+                </div>
+            `,
+            exercises: ["Review the contents of your <code>/etc/fstab</code> using <code>cat /etc/fstab</code>."],
+            quiz: {
+                question: "Which file is used to make mounts persistent across reboots?",
+                options: ["/etc/mounts", "/etc/fstab", "/etc/partitions", "/etc/drives"],
+                answer: 1
+            }
+        }
     ],
     "Boot & Kernel": [
-        { title: "The Boot Process", content: "<h1>Boot</h1><p>From BIOS to Login prompt.</p>" },
-        { title: "Intit Systems", content: "<h1>Systemd</h1><p>Managing services and targets.</p>" },
-        { title: "Kernel Modules", content: "<h1>Modules</h1><p>Loading and unloading drivers.</p>" }
+        {
+            title: "The Boot Process",
+            content: `
+                <h1>How Linux Boots</h1>
+                <p>Understanding the boot sequence helps greatly in troubleshooting system failures.</p>
+                <ol>
+                    <li><strong>BIOS / UEFI:</strong> Hardware initialization and finding the boot device.</li>
+                    <li><strong>Bootloader (GRUB):</strong> Presents a menu to choose the OS/Kernel to load.</li>
+                    <li><strong>Kernel:</strong> The core OS is loaded into memory. It initializes hardware devices.</li>
+                    <li><strong>Init System (systemd):</strong> The first user-space program (PID 1) that starts all other services.</li>
+                </ol>
+            `,
+            exercises: ["Read your system's boot log using the command <code>dmesg | less</code>."],
+            quiz: {
+                question: "What is the very first user-space program that Linux runs (PID 1)?",
+                options: ["GRUB", "The Kernel", "systemd (or init)", "bash"],
+                answer: 2
+            }
+        },
+        {
+            title: "Managing Services (systemd)",
+            content: `
+                <h1>Systemd and systemctl</h1>
+                <p>Modern Linux uses <code>systemd</code> to manage services (daemons) running in the background.</p>
+                <div class="code-block">
+                    <pre>$ sudo systemctl start ssh        # Start a service
+$ sudo systemctl stop ssh         # Stop a service
+$ sudo systemctl restart ssh      # Restart it
+$ sudo systemctl enable ssh       # Start automatically on boot
+$ sudo systemctl status ssh       # Check if it's running</pre>
+                </div>
+                <h2>Journalctl</h2>
+                <p>Systemd also manages logs via <code>journald</code>.</p>
+                <pre>$ journalctl -u ssh               # View logs for the ssh service
+$ journalctl -f                   # Follow all system logs in real-time</pre>
+            `,
+            exercises: ["Check the status of your graphical interface manager (usually <code>gdm3</code>, <code>lightdm</code>, or <code>sddm</code>)."],
+            quiz: {
+                question: "Which command makes a service start automatically when the computer boots?",
+                options: ["systemctl start", "systemctl enable", "systemctl autostart", "systemctl boot"],
+                answer: 1
+            }
+        },
+        {
+            title: "Kernel Modules",
+            content: `
+                <h1>Kernel Modules (Drivers)</h1>
+                <p>The Linux kernel is modular. You can load and unload hardware drivers (modules) without rebooting.</p>
+                <ul>
+                    <li><strong>lsmod:</strong> List currently loaded modules.</li>
+                    <li><strong>modinfo:</strong> Get information about a specific module.</li>
+                    <li><strong>modprobe:</strong> Safely load (or unload) a module and its dependencies.</li>
+                </ul>
+                <pre>$ lsmod | grep video            # See loaded video drivers</pre>
+            `,
+            exercises: ["Run <code>lsmod</code> to see all the drivers currently powering your system."],
+            quiz: {
+                question: "Which command safely loads a kernel module along with any dependencies?",
+                options: ["lsmod", "insmod", "modprobe", "loadmod"],
+                answer: 2
+            }
+        }
     ],
     "System Administration": [
-        { title: "Automated Tasks", content: "<h1>Cron</h1><p>Scheduling jobs with cron and anacron.</p>" },
-        { title: "System Logging", content: "<h1>Logs</h1><p>Managing /var/log and journald.</p>" }
+        {
+            title: "Automated Tasks (Cron)",
+            content: `
+                <h1>Scheduling Jobs with Cron</h1>
+                <p><code>cron</code> allows you to run scripts or commands automatically at specified intervals.</p>
+                <h2>Editing the Crontab</h2>
+                <pre>$ crontab -e      # Edit your user's cron jobs
+$ crontab -l      # List your cron jobs</pre>
+                <h2>Crontab Syntax</h2>
+                <p>The format consists of 5 time fields followed by the command:</p>
+                <pre>* * * * * /path/to/command
+| | | | |
+| | | | +---- Day of week (0-7, Sunday=0 or 7)
+| | | +------ Month (1-12)
+| | +-------- Day of month (1-31)
+| +---------- Hour (0-23)
++------------ Minute (0-59)</pre>
+                <div class="tip">Example: <code>0 2 * * * backup.sh</code> runs every day at 2:00 AM.</div>
+            `,
+            exercises: ["Open <code>crontab -e</code> and add a job that echoes 'hello' into a file every minute: <code>* * * * * echo 'hello' >> ~/hello.txt</code>. Don't forget to remove it later!"],
+            quiz: {
+                question: "What does the first asterisk in a crontab entry represent?",
+                options: ["Hour", "Minute", "Day of Month", "Month"],
+                answer: 1
+            }
+        },
+        {
+            title: "System Logging",
+            content: `
+                <h1>Where Linux Keeps Secrets</h1>
+                <p>When things go wrong, the logs are the first place to check.</p>
+                <h2>Traditional Syslog (/var/log)</h2>
+                <ul>
+                    <li><code>/var/log/syslog</code> or <code>/var/log/messages</code>: General system activity.</li>
+                    <li><code>/var/log/auth.log</code> or <code>/var/log/secure</code>: Authentication attempts (sudo, SSH logins).</li>
+                    <li><code>/var/log/apt/</code> or <code>/var/log/dnf.log</code>: Package manager history.</li>
+                </ul>
+                <h2>Viewing Logs Efficiently</h2>
+                <pre>$ tail -f /var/log/syslog     # Watch logs live as they happen
+$ grep "Failed" /var/log/auth.log # Find failed login attempts</pre>
+            `,
+            exercises: ["Use <code>tail -f</code> to watch your auth log, then open another terminal and try to <code>sudo</code> with the wrong password."],
+            quiz: {
+                question: "Which file usually contains records of users attempting to use 'sudo'?",
+                options: ["/var/log/syslog", "/var/log/kern.log", "/var/log/auth.log", "/var/log/boot.log"],
+                answer: 2
+            }
+        }
     ],
     "Networking": [
-        { title: "Networking Basics", content: "<h1>TCP/IP</h1><p>IP addresses and subnetting.</p>" },
-        { title: "Network Tools", content: "<h1>Tools</h1><p>Ping, traceroute, and netstat.</p>" },
-        { title: "SSH & Remote Access", content: "<h1>SSH</h1><p>Secure remote management.</p>" }
+        {
+            title: "Networking Basics (IP & Interfaces)",
+            content: `
+                <h1>Network Interfaces</h1>
+                <p>How your Linux machine talks to the world.</p>
+                <h2>Finding Your IP Address</h2>
+                <p>The modern tool is <code>ip</code> (replacing the deprecated <code>ifconfig</code>).</p>
+                <pre>$ ip addr show       # Show IP addresses and network interfaces (e.g., eth0, wlan0)
+$ ip route           # Show the routing table (default gateway)</pre>
+                <h2>Common Interface Names</h2>
+                <ul>
+                    <li><code>lo</code>: Loopback (127.0.0.1, pointing to yourself).</li>
+                    <li><code>eth0</code>, <code>enp3s0</code>: Wired Ethernet.</li>
+                    <li><code>wlan0</code>, <code>wlp2s0</code>: Wireless interfaces.</li>
+                </ul>
+            `,
+            exercises: ["Run <code>ip addr</code> and find the IP address assigned to your primary network card."],
+            quiz: {
+                question: "What is the modern command used to view IP addresses in Linux?",
+                options: ["ifconfig", "ip addr", "netstat", "ping"],
+                answer: 1
+            }
+        },
+        {
+            title: "Network Troubleshooting Tools",
+            content: `
+                <h1>Diagnosing Connections</h1>
+                <ul>
+                    <li><strong>ping:</strong> Checks if a host is reachable via ICMP.</li>
+                    <li><strong>traceroute (or tracepath):</strong> Shows the path packets take to reach a destination.</li>
+                    <li><strong>ss (Sockets Stat):</strong> Shows active network connections (replaces netstat).</li>
+                    <li><strong>dig / host:</strong> Query DNS servers to resolve domains to IPs.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ ping -c 4 google.com         # Send exactly 4 pings
+$ dig example.com                # Get DNS info
+$ ss -tulpn                      # Show all listening ports and the processes owning them</pre>
+                </div>
+            `,
+            exercises: ["Use <code>ss -tulpn</code> (requires sudo) to see which programs have ports open on your machine."],
+            quiz: {
+                question: "Which command shows the path network packets take to reach a destination?",
+                options: ["ping", "ss", "dig", "traceroute"],
+                answer: 3
+            }
+        },
+        {
+            title: "SSH (Secure Shell)",
+            content: `
+                <h1>Remote Management</h1>
+                <p><code>ssh</code> allows you to securely log into remote Linux servers. It encrypts all traffic, including passwords.</p>
+                <h2>Basic Connection</h2>
+                <pre>$ ssh user@192.168.1.100     # Connect to an IP as 'user'</pre>
+                <h2>Key-Based Authentication</h2>
+                <p>Instead of passwords, you can use cryptographic keys for much higher security.</p>
+                <ol>
+                    <li><code>ssh-keygen</code> generates a public/private key pair.</li>
+                    <li><code>ssh-copy-id user@host</code> copies your public key to the server.</li>
+                    <li>You can now log in without typing a password!</li>
+                </ol>
+            `,
+            exercises: ["Run <code>ssh-keygen</code> to generate your own key pair (just press Enter for the defaults)."],
+            quiz: {
+                question: "What is the advantage of SSH over older protocols like Telnet?",
+                options: ["It is faster", "It encrypts all traffic", "It doesn't require a network", "It provides a graphical interface"],
+                answer: 1
+            }
+        }
     ],
     "Security": [
         { title: "User Security", content: "<h1>Auth</h1><p>Password policies and authentication.</p>" },
