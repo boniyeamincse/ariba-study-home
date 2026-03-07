@@ -36,6 +36,7 @@ const translations = {
             ariba_study: "Ariba Study",
             linux_study: "Linux Study",
             nav_home: "Home",
+            nav_learning: "Learning",
             nav_courses: "Courses",
             nav_about: "About",
             nav_contact: "Contact",

@@ -32,6 +32,7 @@ translations.bn = {
         access: "অ্যাক্সেস",
         get_started: "শুরু করুন",
         explore_modules: "মডিউল অন্বেষণ করুন",
+        nav_learning: "লার্নিং",
         ariba_study: "আরিবা স্টাডি",
         linux_study: "লিনাক্স স্টাডি"
     },

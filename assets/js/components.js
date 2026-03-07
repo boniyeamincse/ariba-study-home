@@ -12,11 +12,14 @@ async function loadComponent(elementId, componentPath) {
     }
 }
 
+// Detect base path (handles both root and sub-pages)
+const basePath = window.location.pathname.includes('/pages/') ? '../' : '';
+
 // Load header and footer
 document.addEventListener('DOMContentLoaded', async () => {
-    await loadComponent('header-placeholder', 'components/header.html');
-    await loadComponent('footer-placeholder', 'components/footer.html');
-    
+    await loadComponent('header-placeholder', basePath + 'components/header.html');
+    await loadComponent('footer-placeholder', basePath + 'components/footer.html');
+
     // Initialize mobile menu after header is loaded
     setTimeout(() => {
         initMobileMenu();
@@ -28,13 +31,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initMobileMenu() {
     const toggle = document.querySelector('.mobile-menu-toggle');
     const menu = document.querySelector('.nav-menu');
-    
+
     if (toggle && menu) {
         toggle.addEventListener('click', () => {
             menu.classList.toggle('active');
             toggle.classList.toggle('active');
         });
-        
+
         // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!toggle.contains(e.target) && !menu.contains(e.target)) {
@@ -49,17 +52,17 @@ function initMobileMenu() {
 function syncLanguageSelectors() {
     const headerLangSelect = document.getElementById('headerLangSelect');
     const mainLangSelect = document.getElementById('langSelect');
-    
+
     if (headerLangSelect && mainLangSelect) {
         // Sync header selector with main selector
         headerLangSelect.value = mainLangSelect.value;
-        
+
         // Listen for changes on header selector
         headerLangSelect.addEventListener('change', (e) => {
             mainLangSelect.value = e.target.value;
             mainLangSelect.dispatchEvent(new Event('change'));
         });
-        
+
         // Listen for changes on main selector
         mainLangSelect.addEventListener('change', (e) => {
             headerLangSelect.value = e.target.value;
@@ -68,7 +71,7 @@ function syncLanguageSelectors() {
         // If only header selector exists (on other pages)
         const savedLang = localStorage.getItem('selectedLanguage') || 'en';
         headerLangSelect.value = savedLang;
-        
+
         headerLangSelect.addEventListener('change', (e) => {
             localStorage.setItem('selectedLanguage', e.target.value);
             if (typeof changeLanguage === 'function') {
@@ -88,7 +91,7 @@ function changeLanguage(lang) {
                 element.textContent = translations[lang].ui[key];
             }
         });
-        
+
         // Handle placeholders
         document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
             const key = element.getAttribute('data-i18n-placeholder');
@@ -96,10 +99,10 @@ function changeLanguage(lang) {
                 element.placeholder = translations[lang].ui[key];
             }
         });
-        
+
         // Update HTML lang attribute
         document.documentElement.lang = lang;
-        
+
         // Save preference
         localStorage.setItem('selectedLanguage', lang);
     }
@@ -109,7 +112,7 @@ function changeLanguage(lang) {
 window.addEventListener('load', () => {
     const savedLang = localStorage.getItem('selectedLanguage') || 'en';
     const headerLangSelect = document.getElementById('headerLangSelect');
-    
+
     if (headerLangSelect) {
         headerLangSelect.value = savedLang;
         changeLanguage(savedLang);

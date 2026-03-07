@@ -32,6 +32,7 @@ translations.ar = {
         access: "الوصول",
         get_started: "ابدأ الآن",
         explore_modules: "استكشف الوحدات",
+        nav_learning: "التعلم",
         ariba_study: "أريبا ستدي",
         linux_study: "دراسة لينكس"
     },
