@@ -65,58 +65,7 @@ const modules = [
     }
 ];
 
-// Lesson Content Data
-const lessonsContent = {
-    "Getting Started": [
-        {
-            title: "Linux History",
-            content: `
-                <h1>1. Linux History</h1>
-                <p>Welcome to your <strong>Linux Journey</strong>! If you're ready to dive into the powerful world of Linux, you've come to the right place. My name is Penguin Pete, and I'll be your guide. To get started, let's explore a brief history of Linux.</p>
-                <h2>The Predecessors of Linux</h2>
-                <p>To understand how Linux was created, we must go back to 1969 when Ken Thompson and Dennis Ritchie of Bell Laboratories developed the UNIX operating system. It was later rewritten in the C programming language, which made it portable and led to its widespread adoption.</p>
-                <div class="timeline-img">
-                    <img src="assets/images/linux_timeline.png" alt="Linux History Timeline">
-                </div>
-                <p>Over a decade later, Richard Stallman initiated the GNU (a recursive acronym for "GNU's Not UNIX") project. The goal was to create a completely free and open-source UNIX-like operating system. While the GNU project produced many essential components, including the GNU General Public License (GPL), its own kernel, named Hurd, was not completed in time.</p>
-                <h2>The Role of the Kernel</h2>
-                <p>The kernel is the core component of an operating system. It acts as a bridge, allowing the hardware to communicate with the software. The kernel manages system resources, such as the CPU, memory, and peripheral devices. Essentially, the kernel controls everything that happens on your system. While other UNIX-like systems such as BSD and MINIX were being developed, they all lacked a freely available and unified kernel.</p>
-            `,
-            exercises: [
-                "Getting Started with Linux - Begin your Linux journey by learning essential terminal commands like echo, date, and basic calculations.",
-                "Your First Linux Lab - This introductory lab guides you through the classic 'Hello, World!' program in Linux."
-            ],
-            quiz: {
-                question: "Who developed the Linux kernel?",
-                options: ["Richard Stallman", "Linus Torvalds", "Ken Thompson", "Dennis Ritchie"],
-                answer: 1
-            }
-        },
-        {
-            title: "Choosing a Distribution",
-            content: `
-                <h1>2. Choosing a Linux Distribution</h1>
-                <p>A Linux distribution (often shortened to "distro") is an operating system made as a collection of software, including the Linux kernel and, often, a package management system.</p>
-                <p>With hundreds of distributions available, choosing your first one can be overwhelming. Here are the most popular families:</p>
-                <ul>
-                    <li><strong>Debian Family:</strong> Known for stability. Includes Ubuntu, Linux Mint, and Kali Linux.</li>
-                    <li><strong>Red Hat Family:</strong> Enterprise-focused. Includes Fedora and CentOS.</li>
-                    <li><strong>Arch Family:</strong> For advanced users who want total control.</li>
-                </ul>
-                <p>For beginners, we highly recommend <strong>Ubuntu</strong> or <strong>Linux Mint</strong> due to their ease of use and massive community support.</p>
-            `,
-            exercises: [
-                "Install your first distro - Try Ubuntu in a virtual machine or as a live USB.",
-                "Explore the desktop environment - Learn about GNOME, KDE, and XFCE."
-            ],
-            quiz: {
-                question: "Which distribution is highly recommended for beginners?",
-                options: ["Arch Linux", "Ubuntu", "Gentoo", "Slackware"],
-                answer: 1
-            }
-        }
-    ]
-};
+// Lesson Content Data - loaded from external file
 
 // State
 let unlockedIndex = parseInt(localStorage.getItem('linuxStudy_unlockedIndex')) || 0;

@@ -11,6 +11,14 @@ A modern, high-fidelity Single-Page Application (SPA) designed for interactive l
 - **Premium UI/UX**: Built with a clean light theme, custom circular icons, and smooth animations.
 - **Gamified Learning**: Sequential module unlocking and integrated topic quizzes.
 - **Progress Tracking**: Automatic tracking of completed modules.
+- **Multi-Language Support**: Available in English, Bengali (বাংলা), and Arabic (العربية) with full RTL layout support.
+
+## 📚 Documentation
+
+- **[Feature Documentation](docs/Feature.md)** - Comprehensive feature overview and capabilities
+- **[Arabic Language Support](docs/ARABIC_FEATURE.md)** - Details about RTL layout and Arabic translation
+- **[Implementation Summary](docs/IMPLEMENTATION_SUMMARY.md)** - Technical implementation details and recent updates
+- **[Docs README](docs/README.md)** - Documentation index and guidelines
 
 ## 📁 Project Structure
 
