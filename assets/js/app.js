@@ -84,7 +84,7 @@ const modules = [
 // Lesson Content Data - loaded from external file
 
 // State
-let unlockedIndex = parseInt(localStorage.getItem('linuxStudy_unlockedIndex')) || 0;
+let unlockedIndex = modules.length; // UNLOCKED FOR DEVELOPMENT (was: parseInt(localStorage.getItem('linuxStudy_unlockedIndex')) || 0;)
 let currentModule = null;
 let currentLessonIndex = 0;
 
