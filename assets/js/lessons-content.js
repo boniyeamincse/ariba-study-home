@@ -928,12 +928,124 @@ $ export HISTFILESIZE=20000</pre>
         }
     ],
     "Basic Text-Fu": [
-        { title: "Standard I/O Redirection", content: "<h1>Standard I/O</h1><p>Learn about stdout, stdin, and stderr.</p>" },
-        { title: "Pipes and Tee", content: "<h1>Pipes</h1><p>Connect commands using | and tee.</p>" },
-        { title: "Text Processing 1", content: "<h1>Utilities</h1><p>Usage of env, cut, paste, head, and tail.</p>" },
-        { title: "Text Processing 2", content: "<h1>Transform</h1><p>Usage of expand, unexpand, join, and split.</p>" },
-        { title: "Sorting and Unique", content: "<h1>Organize</h1><p>Usage of sort, tr, uniq, wc, and nl.</p>" },
-        { title: "Searching with Grep", content: "<h1>Search</h1><p>Usage of grep, egrep, and fgrep.</p>" }
+        {
+            title: "Standard I/O Redirection",
+            content: `
+                <h1>Standard I/O Redirection</h1>
+                <p>Everything in Linux is a file, including your keyboard and your screen. Programs use three standard data streams:</p>
+                <ul>
+                    <li><strong>Standard Input (stdin / 0):</strong> Usually your keyboard.</li>
+                    <li><strong>Standard Output (stdout / 1):</strong> Usually your screen.</li>
+                    <li><strong>Standard Error (stderr / 2):</strong> Error messages, usually also on your screen.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ command > file   # Redirect stdout (overwrite)
+$ command >> file  # Redirect stdout (append)
+$ command 2> file  # Redirect stderr
+$ command &> file  # Redirect both stdout and stderr
+$ command < file   # Take input from file</pre>
+                </div>
+            `,
+            exercises: ["Execute <code>ls /nonexistent 2> errors.log</code> and check the file content.", "Use <code>cat < /etc/hostname</code> to see your computer's name."],
+            quiz: {
+                question: "Which file descriptor represents Standard Error (stderr)?",
+                options: ["0", "1", "2", "3"],
+                answer: 2
+            }
+        },
+        {
+            title: "Pipes and Tee",
+            content: `
+                <h1>Pipes and the 'tee' Command</h1>
+                <p>The pipe <code>|</code> is the most powerful tool in the Linux philosophy: "Do one thing and do it well, and work together."</p>
+                <h2>What is a Pipe?</h2>
+                <p>A pipe takes the <strong>stdout</strong> of the left command and sends it as <strong>stdin</strong> to the right command.</p>
+                <div class="code-block">
+                    <pre>$ ls -l /etc | less                # Page through a long list
+$ ls /bin | grep "zip"             # Find zip-related binaries</pre>
+                </div>
+                <h2>The 'tee' Command</h2>
+                <p>Named after a T-shaped pipe joint, <code>tee</code> splits the output. It saves to a file AND displays it to stdout.</p>
+                <pre>$ ls | tee manifest.txt | wc -l    # Save list AND count files</pre>
+            `,
+            exercises: ["List the content of /etc and count the lines using <code>ls /etc | wc -l</code>", "Use <code>tee</code> to save the current date to 'date.txt' and see it on screen simultaneously."],
+            quiz: {
+                question: "What does the 'tee' command do?",
+                options: ["Redirects only to files", "Redirects only to screen", "Sends output to a file and screen simultaneously", "Deletes the output after reading"],
+                answer: 2
+            }
+        },
+        {
+            title: "Text Processing (cut, head, tail, sort, uniq)",
+            content: `
+                <h1>Basic Text Utilities</h1>
+                <p>Linux offers a massive array of small tools that manipulate text data efficiently.</p>
+                <ul>
+                    <li><strong>env:</strong> List environment variables or run programs in modified env.</li>
+                    <li><strong>cut:</strong> Extract sections from each line (columns/fields).</li>
+                    <li><strong>head / tail:</strong> View the top or bottom of a file.</li>
+                    <li><strong>sort:</strong> Arrange lines of text alphabetically or numerically.</li>
+                    <li><strong>uniq:</strong> Removes duplicate lines (requires sorted input).</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ cut -d: -f1 /etc/passwd            # Get list of usernames
+$ head -n 5 /etc/passwd              # Show first 5 users
+$ sort names.txt | uniq               # Get unique sorted names</pre>
+                </div>
+            `,
+            exercises: ["Use <code>tail -f /var/log/syslog</code> (or any log) to see it update in real-time.", "Sort <code>/etc/group</code> alphabetically."],
+            quiz: {
+                question: "Which command would you use to see the last 10 lines of a file?",
+                options: ["head", "cut", "tail", "nl"],
+                answer: 2
+            }
+        },
+        {
+            title: "Advanced Utilities (expand, join, split, wc, nl)",
+            content: `
+                <h1>Expanding your Toolbelt</h1>
+                <p>More specialized tools for structured data management.</p>
+                <ul>
+                    <li><strong>expand / unexpand:</strong> Convert tabs to spaces (and vice versa).</li>
+                    <li><strong>join:</strong> Combine two files based on a common field (like a SQL JOIN).</li>
+                    <li><strong>split:</strong> Break a large file into smaller pieces.</li>
+                    <li><strong>wc:</strong> Word count (lines, words, characters).</li>
+                    <li><strong>nl:</strong> Number the lines of a file.</li>
+                </ul>
+                <pre>$ wc -l file.txt                    # Count lines in a file
+$ nl script.sh                       # Display script with line numbers</pre>
+            `,
+            exercises: ["Count how many unique users are on your system using a pipe.", "Split a large text file into 10-line chunks."],
+            quiz: {
+                question: "Which command counts the number of lines, words, and characters in a file?",
+                options: ["nl", "wc", "count", "stat"],
+                answer: 1
+            }
+        },
+        {
+            title: "Searching with Grep (grep, egrep, fgrep)",
+            content: `
+                <h1>Mastering Grep</h1>
+                <p><code>grep</code> (Global Regular Expression Print) is the gold standard for searching text.</p>
+                <ul>
+                    <li><strong>grep:</strong> Basic searching.</li>
+                    <li><strong>egrep:</strong> Extended grep (supports more complex regex).</li>
+                    <li><strong>fgrep:</strong> Fixed grep (ignores special regex characters, very fast).</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ grep "root" /etc/passwd            # Find root user
+$ grep -i "linux" readme.txt         # Case-insensitive search
+$ grep -r "TODO" ./src               # Recursive search in folder
+$ grep -v "debug" app.log            # Invert match (exclude lines)</pre>
+                </div>
+            `,
+            exercises: ["Search for your username in <code>/etc/passwd</code>", "List all lines in a log file that DO NOT contain 'error' using <code>-v</code>."],
+            quiz: {
+                question: "Which flag makes grep case-insensitive?",
+                options: ["-v", "-r", "-i", "-c"],
+                answer: 2
+            }
+        }
     ],
     "Advanced Text-Fu": [
         { title: "Regular Expressions", content: "<h1>Regex</h1><p>Mastering pattern matching.</p>" },
