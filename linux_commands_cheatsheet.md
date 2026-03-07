@@ -678,17 +678,95 @@ brw-rw---- 1 root disk 8, 0 Mar  7 /dev/sda  # 'b' means Block device!
 
 ```
 
-### Hardware Discovery Tools
+### CPU & Memory Analysis
 
 ```bash
-$ lshw -short                  # List ALL hardware in a compact table (requires root)
-$ lspci | grep -i vga          # Find your graphics card model
-$ lsusb                        # List attached USB devices (webcams, adapters)
-$ lscpu                        # Get the exact CPU model, cores, and threads
-$ lsblk                        # Visualize your hard drives and their partitions
+$ lscpu                    # High-level summary of architecture, cores, and threads
+$ cat /proc/cpuinfo        # Deep, raw kernel dump of every single logical processor
 
-$ sudo apt install lm-sensors  # Install the sensors package
-$ sensors                      # Check CPU and motherboard temperatures
+$ free -h                  # View total, used, and available RAM in (h)uman-readable format
+$ cat /proc/meminfo        # Deep kernel dump of memory hardware and swapping
+
+```
+
+### General Hardware Discovery
+
+```bash
+$ sudo lshw                # Generates a massive, detailed hardware tree
+$ sudo lshw -short         # Formats the hardware tree into a much cleaner, readable table
+
+$ inxi -Fxz                # Full system spec summary (CPU, GPU, Network, Drives)
+$ hwinfo --short           # Quick summary of hardware nodes
+
+```
+
+### Storage & Block Devices
+
+```bash
+$ lsblk                    # Visualizes all hard drives and their partitions in a tree format
+
+$ sudo fdisk -l            # Lists all partition tables for all attached disks
+
+```
+
+### Storage Space & I/O
+
+```bash
+$ df -h                    # Show filesystem disk space usage (human-readable)
+
+$ du -sh *                 # Summarize (s) the human-readable (h) size of everything (*) in this directory
+
+$ iostat                   # View CPU statistics and input/output loads for devices/partitions
+
+```
+
+### USB and PCI Buses
+
+```bash
+$ lspci                    # List every device connected directly to the motherboard
+$ lspci -v                 # Verbose mode: includes the exact kernel driver handling the physical device
+
+$ lsusb                    # List attached webcams, mice, keyboards, and adapters
+$ sudo usb-devices         # Extremely detailed text dump of USB topology and power limits
+
+```
+
+### Graphics and Audio
+
+```bash
+$ lspci | grep -i vga      # Instantly identify your AMD/NVIDIA/Intel graphics renderer
+$ nvidia-smi               # If using NVIDIA, view live GPU temperature, VRAM usage, and active processes!
+
+$ cat /proc/asound/cards   # Ask the kernel what sound cards it detects
+$ aplay -l                 # List all physical audio playback devices (speakers/headphones)
+
+```
+
+### Network Interfaces
+
+```bash
+$ ip a                     # The modern standard to view network interfaces, MAC addresses, and IP blocks
+$ ifconfig                 # The legacy standard (often requires installing net-tools)
+$ ping google.com          # Send ICMP packets to test if the hardware is successfully routing to the internet
+
+```
+
+### Power and Batteries
+
+```bash
+$ acpi -V                  # Print every available detail about battery charge, adapters, and cooling states
+
+$ upower -i /org/freedesktop/UPower/devices/battery_BAT0   # Deep diagnostics for laptop Battery 0
+
+```
+
+### Kernel Messages and BIOS
+
+```bash
+$ dmesg                    # Print the entire boot hardware initialization log
+$ dmesg -w                 # Follow mode: Leave it open to watch the kernel react live as you plug/unplug hardware
+
+$ sudo dmidecode           # Print detailed motherboard serial numbers, RAM clock speeds, and BIOS versions
 
 ```
 

@@ -2220,14 +2220,12 @@ $ sudo make install</pre>
             title: "Everything is a File (/dev)",
             content: `
                 <h1>The /dev Directory</h1>
-                <p>In Linux, physical hardware (hard drives, mice, terminals) is represented as special files in the <code>/dev</code> directory. To interact with the hardware, you simply read from or write to these files!</p>
+                <p>In Linux, physical hardware is represented as special files in the <code>/dev</code> directory. To interact with the hardware, the kernel simply reads from or writes to these files.</p>
                 <h2>Common Device Files</h2>
                 <ul>
-                    <li><strong>/dev/sda, /dev/sdb:</strong> Your traditional hard drives or SSDs (SATA/SCSI).</li>
-                    <li><strong>/dev/nvme0n1:</strong> Modern, high-speed NVMe solid-state drives.</li>
-                    <li><strong>/dev/tty1:</strong> Your keyboard/screen terminal.</li>
-                    <li><strong>/dev/zero:</strong> An infinite stream of zero-bytes (used for wiping drives).</li>
-                    <li><strong>/dev/null:</strong> The "black hole". Anything sent here is permanently discarded.</li>
+                    <li><strong>/dev/sda, /dev/sdb:</strong> Traditional hard drives (SATA/SCSI).</li>
+                    <li><strong>/dev/nvme0n1:</strong> Modern NVMe solid-state drives.</li>
+                    <li><strong>/dev/tty1:</strong> Your keyboard/screen terminal workspace.</li>
                 </ul>
                 <div class="code-block">
                     <pre>$ ls -l /dev/sda
@@ -2236,34 +2234,219 @@ brw-rw---- 1 root disk 8, 0 Mar  7 /dev/sda  # 'b' means Block device!</pre>
             `,
             exercises: ["Run <code>ls -l /dev/null</code> and check its permissions. Note the 'c' indicating a Character device."],
             quiz: {
-                question: "What does sending command output to /dev/null do?",
-                options: ["Saves it to a hidden file", "Uploads it to the cloud", "Discards it permanently", "Prints it to the screen"],
+                question: "What does the 'b' stand for at the beginning of the file permissions string for /dev/sda?",
+                options: ["Binary", "Block device", "Basic file", "Background process"],
+                answer: 1
+            }
+        },
+        {
+            title: "CPU & Memory Analysis",
+            content: `
+                <h1>Inspecting the Brain and RAM</h1>
+                <p>Before deploying heavy applications, you need to know your compute capacity.</p>
+                <h2>CPU Details</h2>
+                <div class="code-block">
+                    <pre>$ lscpu                    # High-level summary of architecture, cores, and threads
+$ cat /proc/cpuinfo        # Deep, raw kernel dump of every single logical processor</pre>
+                </div>
+                <h2>Memory (RAM) Details</h2>
+                <div class="code-block">
+                    <pre>$ free -h                  # View total, used, and available RAM in (h)uman-readable format
+$ cat /proc/meminfo        # Deep kernel dump of memory hardware and swapping</pre>
+                </div>
+            `,
+            exercises: ["Run <code>free -h</code> and check your 'available' memory vs 'free' memory. Linux caches files in RAM, so 'available' is the true metric."],
+            quiz: {
+                question: "Which command provides a quick, human-readable summary of your total and available RAM?",
+                options: ["cat /proc/meminfo", "lscpu", "free -h", "htop"],
                 answer: 2
             }
         },
         {
-            title: "Hardware Discovery Tools",
+            title: "General Hardware Discovery",
             content: `
-                <h1>Auditing Your Hardware</h1>
-                <p>When you start managing a new server, you need to know exactly what physical hardware is inside it.</p>
+                <h1>The Master Auditors: lshw and inxi</h1>
+                <p>When you need a complete manifest of the entire physical machine, these tools extract everything from the motherboard to the network cards.</p>
+                <h2>lshw (Hardware Lister)</h2>
+                <p><code>lshw</code> extracts detailed information from the system DMI and kernel.</p>
                 <div class="code-block">
-                    <pre>$ lshw -short                  # List ALL hardware in a compact table (requires root)
-$ lspci | grep -i vga          # Find your graphics card model
-$ lsusb                        # List attached USB devices (webcams, adapters)
-$ lscpu                        # Get the exact CPU model, cores, and threads
-$ lsblk                        # Visualize your hard drives and their partitions</pre>
+                    <pre>$ sudo lshw                # Generates a massive, detailed hardware tree
+$ sudo lshw -short         # Formats the hardware tree into a much cleaner, readable table</pre>
                 </div>
-                <h2>Monitoring Temperatures</h2>
+                <h2>inxi & hwinfo</h2>
+                <p>Often installed on modern distros, these provide beautifully formatted summaries.</p>
                 <div class="code-block">
-                    <pre>$ sudo apt install lm-sensors  # Install the sensors package
-$ sensors                      # Check CPU and motherboard temperatures</pre>
+                    <pre>$ inxi -Fxz                # Full system spec summary (CPU, GPU, Network, Drives)
+$ hwinfo --short           # Quick summary of hardware nodes</pre>
                 </div>
             `,
-            exercises: ["Run <code>lsblk</code> to see the tree structure of your hard drives and how they are partitioned.", "Run <code>lscpu</code> to see how many CPU cores your machine has."],
+            exercises: ["Run <code>sudo lshw -short</code> to see a list of device classes like 'processor', 'memory', 'bridge', and 'network'."],
             quiz: {
-                question: "Which command lists all block devices (like hard drives and USB flash drives) in a tree-like format?",
-                options: ["lspci", "lsusb", "lsblk", "lshw"],
+                question: "Which flag is appended to lshw to output the hardware tree into a clean, easy-to-read table?",
+                options: ["-table", "-format", "-short", "-list"],
                 answer: 2
+            }
+        },
+        {
+            title: "Storage & Block Devices",
+            content: `
+                <h1>Mapping Hard Drives</h1>
+                <p>Managing disks is a core sysadmin duty. You must visualize the storage hierarchy.</p>
+                <h2>Listing Block Devices</h2>
+                <div class="code-block">
+                    <pre>$ lsblk                    # Visualizes all hard drives and their partitions in a tree format</pre>
+                </div>
+                <h2>Partition Tables</h2>
+                <p>To see exactly how a drive is mathematically sliced up (sectors and cylinders):</p>
+                <div class="code-block">
+                    <pre>$ sudo fdisk -l            # Lists all partition tables for all attached disks</pre>
+                </div>
+            `,
+            exercises: ["Run <code>lsblk</code>. Identify your primary hard drive (usually sda or nvme0n1) and see how many partitions exist beneath it."],
+            quiz: {
+                question: "Which command visualizes your hard drives and their partitions in a hierarchical tree layout?",
+                options: ["lshw", "lsblk", "fdisk", "df"],
+                answer: 1
+            }
+        },
+        {
+            title: "Storage Space & I/O",
+            content: `
+                <h1>Analyzing Disk Usage</h1>
+                <p>Knowing <em>what</em> hardware you have is step one. Knowing how full it is step two.</p>
+                <h2>Disk Free (df)</h2>
+                <p>Shows total overall space available on mounted partitions.</p>
+                <div class="code-block">
+                    <pre>$ df -h                    # Show filesystem disk space usage (human-readable)</pre>
+                </div>
+                <h2>Disk Usage (du)</h2>
+                <p>Analyzes the size of specific folders and files.</p>
+                <div class="code-block">
+                    <pre>$ du -sh *                 # Summarize (s) the human-readable (h) size of everything (*) in this directory</pre>
+                </div>
+                <h2>Input/Output Statistics</h2>
+                <div class="code-block">
+                    <pre>$ iostat                   # View CPU statistics and input/output loads for devices/partitions</pre>
+                </div>
+            `,
+            exercises: ["Navigate to <code>/var/log</code> and run <code>sudo du -sh * | sort -h</code> to find the largest log files."],
+            quiz: {
+                question: "You want to find out how much space the current directory and its contents are consuming on the hard drive. Which command isolates this data?",
+                options: ["df -h", "du -sh *", "iostat", "lsblk"],
+                answer: 1
+            }
+        },
+        {
+            title: "USB and PCI Buses",
+            content: `
+                <h1>Peripheral Communication</h1>
+                <p>Components connect to the motherboard via internal "Buses" (PCI) or external ports (USB).</p>
+                <h2>PCI Devices (Internal)</h2>
+                <div class="code-block">
+                    <pre>$ lspci                    # List every device connected directly to the motherboard
+$ lspci -v                 # Verbose mode: includes the exact kernel driver handling the physical device</pre>
+                </div>
+                <h2>USB Devices (External)</h2>
+                <div class="code-block">
+                    <pre>$ lsusb                    # List attached webcams, mice, keyboards, and adapters
+$ sudo usb-devices         # Extremely detailed text dump of USB topology and power limits</pre>
+                </div>
+            `,
+            exercises: ["Run <code>lspci | grep -i network</code> to isolate the make and model of your WiFi or Ethernet card."],
+            quiz: {
+                question: "Which command lists hardware connected to the motherboard's internal expansion slots (like Graphics Cards and Network Interfaces)?",
+                options: ["lsusb", "lspci", "lsblk", "lscpu"],
+                answer: 1
+            }
+        },
+        {
+            title: "Graphics and Audio",
+            content: `
+                <h1>Sensory Hardware</h1>
+                <p>Linux is increasingly used for gaming and multimedia. Identifying GPUs and Sound cards is critical.</p>
+                <h2>Graphics Cards (GPU)</h2>
+                <div class="code-block">
+                    <pre>$ lspci | grep -i vga      # Instantly identify your AMD/NVIDIA/Intel graphics renderer
+$ nvidia-smi               # If using NVIDIA, view live GPU temperature, VRAM usage, and active processes!</pre>
+                </div>
+                <h2>Audio Devices</h2>
+                <p>Advanced Linux Sound Architecture (ALSA) handles audio hardware.</p>
+                <div class="code-block">
+                    <pre>$ cat /proc/asound/cards   # Ask the kernel what sound cards it detects
+$ aplay -l                 # List all physical audio playback devices (speakers/headphones)</pre>
+                </div>
+            `,
+            exercises: ["Run <code>aplay -l</code> to see how your computer lists its audio outputs. If you use HDMI, your GPU might be listed as a sound card!"],
+            quiz: {
+                question: "If you have an NVIDIA graphics card installed with proprietary drivers, which command provides a live monitor of its temperature and VRAM usage?",
+                options: ["nvidia-top", "nvidia-smi", "gpu-monitor", "lspci -vga"],
+                answer: 1
+            }
+        },
+        {
+            title: "Network Interfaces",
+            content: `
+                <h1>Connectivity Hardware</h1>
+                <p>We'll dive deep into Networking later, but you first must verify the physical or virtual adapter is functioning.</p>
+                <h2>Network Adapters</h2>
+                <div class="code-block">
+                    <pre>$ ip a                     # The modern standard to view network interfaces, MAC addresses, and IP blocks
+$ ifconfig                 # The legacy standard (often requires installing net-tools)
+$ ping google.com          # Send ICMP packets to test if the hardware is successfully routing to the internet</pre>
+                </div>
+                <div class="tip">Interfaces usually start with 'e' for Ethernet (like <code>enp3s0</code>) and 'w' for Wireless (like <code>wlan0</code>).</div>
+            `,
+            exercises: ["Run <code>ip a</code>. Find the interface named <code>lo</code> (loopback) and note its IPv4 address (it should be 127.0.0.1)."],
+            quiz: {
+                question: "Which command is the modern, standard method to view all available network interfaces alongside their assigned IP addresses?",
+                options: ["netstat", "ip a", "ifconfig", "lspci"],
+                answer: 1
+            }
+        },
+        {
+            title: "Power and Batteries",
+            content: `
+                <h1>Energy Management</h1>
+                <p>If you are running Linux on a laptop or a server attached to a UPS (Uninterruptible Power Supply), querying power states is vital.</p>
+                <h2>Advanced Configuration and Power Interface (ACPI)</h2>
+                <div class="code-block">
+                    <pre>$ acpi -V                  # Print every available detail about battery charge, adapters, and cooling states</pre>
+                </div>
+                <h2>UPower (Universal Power)</h2>
+                <p>UPower communicates with the D-Bus to query modern desktop environments.</p>
+                <div class="code-block">
+                    <pre>$ upower -i /org/freedesktop/UPower/devices/battery_BAT0   # Deep diagnostics for laptop Battery 0</pre>
+                </div>
+            `,
+            exercises: ["If you are on a laptop, run <code>acpi -V</code> to check your battery percentage and thermal zone temperatures."],
+            quiz: {
+                question: "Which command generates a text summary of your laptop's battery charge and thermal cooling states?",
+                options: ["power-stat", "acpi -V", "lshw -battery", "top"],
+                answer: 1
+            }
+        },
+        {
+            title: "Kernel Messages and BIOS",
+            content: `
+                <h1>Deep Diagnostics</h1>
+                <p>When hardware breaks, you must query the Kernel and the BIOS itself.</p>
+                <h2>The Kernel Ring Buffer (dmesg)</h2>
+                <p><code>dmesg</code> prints all messages generated by the kernel. If you plug in a broken USB drive, the kernel will complain here.</p>
+                <div class="code-block">
+                    <pre>$ dmesg                    # Print the entire boot hardware initialization log
+$ dmesg -w                 # Follow mode: Leave it open to watch the kernel react live as you plug/unplug hardware</pre>
+                </div>
+                <h2>Desktop Management Interface (SMBIOS)</h2>
+                <p>Extracts data straight from the motherboard's BIOS/UEFI firmware without needing to reboot the machine!</p>
+                <div class="code-block">
+                    <pre>$ sudo dmidecode           # Print detailed motherboard serial numbers, RAM clock speeds, and BIOS versions</pre>
+                </div>
+            `,
+            exercises: ["Open a terminal and run <code>dmesg -w</code>. Physically plug a USB flash drive into your computer. Watch the text instantly scroll as the kernel detects and mounts the hardware!"],
+            quiz: {
+                question: "Which command continuously monitors the kernel's internal ring buffer, displaying live messages when new hardware is plugged in?",
+                options: ["dmesg -w", "htop", "syslog", "lshw -live"],
+                answer: 0
             }
         }
     ],
