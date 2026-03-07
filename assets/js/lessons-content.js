@@ -2157,7 +2157,7 @@ fi</pre>
                     <pre>#!/bin/bash
 # Backup all .txt files by appending .bak
 for file in *.txt; do
-    cp "$file" "${file}.bak"
+    cp "$file" "\${file}.bak"
     echo "Backed up $file"
 done</pre>
                 </div>
