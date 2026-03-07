@@ -1123,16 +1123,120 @@ $ sed 's/apple/orange/g' file.txt    # Replace ALL apples</pre>
         }
     ],
     "User Management": [
-        { title: "Users and Groups", content: "<h1>Users</h1><p>Understanding user accounts and groups.</p>" },
-        { title: "Root and Sudo", content: "<h1>Privileges</h1><p>Managing administrative access.</p>" },
-        { title: "System Auth Files", content: "<h1>Config</h1><p>/etc/passwd and /etc/shadow.</p>" },
-        { title: "Permissions", content: "<h1>Ownership</h1><p>Managing file permissions and ownership.</p>" },
-        { title: "Advanced Permissions", content: "<h1>Special Bits</h1><p>SUID, SGID, and Sticky Bit.</p>" }
+        {
+            title: "Users and Groups",
+            content: `
+                <h1>Users and Groups</h1>
+                <p>Linux is a multi-user system. Every process and file is owned by a specific user and belongs to a group.</p>
+                <h2>Core Concepts</h2>
+                <ul>
+                    <li><strong>UID (User ID):</strong> A unique number for each user. Root is always 0.</li>
+                    <li><strong>GID (Group ID):</strong> A unique number for each group.</li>
+                    <li><strong>Groups:</strong> Used to manage permissions for collections of users.</li>
+                </ul>
+                <h2>Critical Files</h2>
+                <ul>
+                    <li><code>/etc/passwd</code>: User account information.</li>
+                    <li><code>/etc/shadow</code>: Secure user password information (encrypted).</li>
+                    <li><code>/etc/group</code>: Group information.</li>
+                </ul>
+                <div class="tip">Type <code>id</code> to see your current UID, GID, and groups.</div>
+            `,
+            exercises: ["View the first few lines of <code>/etc/passwd</code> to see how users are defined."],
+            quiz: {
+                question: "Which file stores encrypted user passwords?",
+                options: ["/etc/passwd", "/etc/group", "/etc/shadow", "/etc/config"],
+                answer: 2
+            }
+        },
+        {
+            title: "Root and Sudo",
+            content: `
+                <h1>The Power of Root</h1>
+                <p>The <strong>root</strong> user is the system administrator with absolute power. To prevent accidental damage, we use <strong>sudo</strong>.</p>
+                <ul>
+                    <li><strong>root:</strong> The superuser (UID 0).</li>
+                    <li><strong>sudo:</strong> "SuperUser DO" - allows a regular user to run commands as root.</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ sudo apt update     # Run as root
+$ sudo -i             # Switch to a root shell (be careful!)</pre>
+                </div>
+            `,
+            exercises: ["Check if you are in the <code>sudo</code> or <code>wheel</code> group using <code>groups</code>."],
+            quiz: {
+                question: "What is the UID of the root user?",
+                options: ["1000", "1", "0", "100"],
+                answer: 2
+            }
+        },
+        {
+            title: "Permissions and Ownership",
+            content: `
+                <h1>File Permissions</h1>
+                <p>Every file has a 10-character permission string (e.g., <code>-rwxr-xr--</code>).</p>
+                <h2>The String Breakdown</h2>
+                <ul>
+                    <li><code>-</code> (1st char): File type (d = directory, l = link).</li>
+                    <li><code>rwx</code> (next 3): Owner permissions.</li>
+                    <li><code>r-x</code> (next 3): Group permissions.</li>
+                    <li><code>r--</code> (final 3): Others permissions.</li>
+                </ul>
+                <pre>$ chmod 755 file.sh    # Change permissions (rwxr-xr-x)
+$ chown user:group file.txt # Change ownership</pre>
+            `,
+            exercises: ["Create a script, try to run it, then use <code>chmod +x</code> to make it executable."],
+            quiz: {
+                question: "What does the 'x' permission mean for a file?",
+                options: ["Exit", "Execute", "Exclude", "Extra"],
+                answer: 1
+            }
+        }
     ],
     "Processes & Jobs": [
-        { title: "Process Monitoring", content: "<h1>Monitoring</h1><p>Using ps, top, and htop.</p>" },
-        { title: "Signals and Kill", content: "<h1>Control</h1><p>Sending termination signals.</p>" },
-        { title: "Job Control", content: "<h1>Background</h1><p>Managing background and foreground jobs.</p>" }
+        {
+            title: "Monitoring Processes",
+            content: `
+                <h1>Managing Processes</h1>
+                <p>A process is an instance of a running program. Tracking them is essential for system health.</p>
+                <ul>
+                    <li><strong>ps:</strong> Snapshot of current processes.</li>
+                    <li><strong>top:</strong> Real-time dynamic view of processes.</li>
+                    <li><strong>htop:</strong> An interactive, colorful version of top (highly recommended).</li>
+                </ul>
+                <div class="code-block">
+                    <pre>$ ps aux           # List every process on the system
+$ ps -u [username] # Processes for a specific user</pre>
+                </div>
+            `,
+            exercises: ["Run <code>top</code> and identify which process is using the most CPU."],
+            quiz: {
+                question: "Which command provides a real-time, interactive view of system processes?",
+                options: ["ps", "top", "ls", "grep"],
+                answer: 1
+            }
+        },
+        {
+            title: "Signals and Termination",
+            content: `
+                <h1>Killing Processes</h1>
+                <p>Sometimes processes get stuck or need to be stopped. We send <strong>Signals</strong> to tell them what to do.</p>
+                <ul>
+                    <li><strong>SIGTERM (15):</strong> Polite request to stop (default).</li>
+                    <li><strong>SIGKILL (9):</strong> Forced, immediate termination (dangerous, no cleanup).</li>
+                    <li><strong>SIGHUP (1):</strong> Hangup (often reloads configuration).</li>
+                </ul>
+                <pre>$ kill [PID]       # Send SIGTERM to Process ID
+$ kill -9 [PID]    # Force kill
+$ pkill [name]     # Kill by process name</pre>
+            `,
+            exercises: ["Learn how to find a PID using <code>pgrep</code> and then use <code>kill</code>."],
+            quiz: {
+                question: "Which signal number is used for a forced 'SIGKILL'?",
+                options: ["1", "15", "9", "0"],
+                answer: 2
+            }
+        }
     ],
     "Software Management": [
         { title: "Software Repositories", content: "<h1>Repos</h1><p>How Linux distributes software.</p>" },
