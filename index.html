@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ariba Study | Your Learning Hub</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="hub-page">
+
+    <!-- Hub View -->
+    <div id="hubView" class="view">
+        <header class="header">
+            <div class="container text-center">
+                <h1 class="glitch-text">Ariba Study Home</h1>
+                <p class="subtitle">Select a training module to begin your journey.</p>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="hub-grid">
+                <div class="hub-card locked">
+                    <div class="hub-card-content">
+                        <span class="hub-icon"></span>
+                        <h2 class="hub-title">Github</h2>
+                        <p class="hub-desc">Master version control and collaboration.</p>
+                        <div class="status-badge locked">Coming Soon</div>
+                    </div>
+                </div>
+
+                <div id="enterLinux" class="hub-card unlocked">
+                    <div class="hub-card-content">
+                        <span class="hub-icon"></span>
+                        <h2 class="hub-title">Linux</h2>
+                        <p class="hub-desc">Interact with the shell and command line.</p>
+                        <div class="status-badge unlocked">Enter Module</div>
+                    </div>
+                </div>
+
+                <div class="hub-card locked">
+                    <div class="hub-card-content">
+                        <span class="hub-icon"></span>
+                        <h2 class="hub-title">AI</h2>
+                        <p class="hub-desc">Explore the frontiers of intelligence.</p>
+                        <div class="status-badge locked">Coming Soon</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Linux View -->
+    <div id="linuxView" class="view" style="display: none;">
+        <header class="header">
+            <div class="container">
+                <button id="backToHub" class="btn-back"
+                    style="background: none; border: none; cursor: pointer; padding: 0;">&larr; Back to Hub</button>
+                <h1>$ cat linux_study.txt</h1>
+                <p class="subtitle">Interactive terminal-inspired guide to mastering Linux basics.</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <!-- Adding progress text back if needed elsewhere, but keeping CSS consistent -->
+            </div>
+        </header>
+
+        <main class="container">
+            <div id="modulesGrid" class="modules-grid">
+                <!-- Modules will be rendered here by JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Quiz Overlay (Global) -->
+    <div id="quizOverlay" class="quiz-overlay">
+        <div class="quiz-modal">
+            <h2 id="quizTitle">Module Quiz</h2>
+            <p id="quizQuestion" class="quiz-question"></p>
+            <div id="quizOptions" class="quiz-options"></div>
+            <div id="quizFeedback" class="quiz-feedback"></div>
+            <button id="closeQuiz" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+
+    <footer class="container text-center">
+        <p>&copy; 2026 Ariba Study. All rights reserved.</p>
+    </footer>
+
+    <!-- Lesson View -->
+    <div id="lessonView" class="view" style="display: none;">
+        <div class="lesson-layout">
+            <aside class="lesson-sidebar">
+                <div class="sidebar-header">
+                    <h4 id="lessonModuleTitle">Getting Started</h4>
+                </div>
+                <ul id="subTopicList" class="sub-topic-list">
+                    <!-- Sub-topics rendered by JS -->
+                </ul>
+            </aside>
+
+            <main class="lesson-main">
+                <nav class="lesson-breadcrumb">
+                    <span id="breadcrumbModule">Linux</span> &nbsp;/&nbsp; <span id="breadcrumbTopic">History</span>
+                </nav>
+                <div id="lessonContent" class="lesson-content">
+                    <!-- Content rendered by JS -->
+                </div>
+                <div class="lesson-footer">
+                    <button id="prevTopic" class="btn-nav">Previous Topic</button>
+                    <button id="nextTopic" class="btn-nav">Next Topic</button>
+                </div>
+            </main>
+
+            <aside class="lesson-panel">
+                <div class="panel-section">
+                    <h3>Exercises</h3>
+                    <p class="panel-desc">Try these hands-on labs to practice.</p>
+                    <ul id="exerciseList" class="exercise-list">
+                        <!-- Exercises rendered by JS -->
+                    </ul>
+                </div>
+                <div class="panel-section">
+                    <h3>Quiz</h3>
+                    <p id="lessonQuizQuestion" class="quiz-question"></p>
+                    <div id="lessonQuizOptions" class="quiz-options"></div>
+                    <div id="lessonQuizFeedback" class="quiz-feedback"></div>
+                    <button id="submitLessonQuiz" class="btn-primary"
+                        style="display: none; margin-top: 20px; width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--accent-color); color: #fff; font-weight: 600; cursor: pointer;">Submit
+                        Answer</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>
