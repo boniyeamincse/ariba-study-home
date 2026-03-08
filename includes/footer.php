@@ -1,3 +1,7 @@
+<?php
+// includes/footer.php
+if (!isset($basePath)) $basePath = '';
+?>
 <footer class="main-footer">
     <div class="container">
         <div class="footer-grid">
@@ -27,18 +31,18 @@
             <div class="footer-section">
                 <h4 class="footer-heading" data-i18n="footer_courses">Courses</h4>
                 <ul class="footer-links">
-                    <li><a href="pages/courses.html#linux" data-i18n="linux">Linux</a></li>
-                    <li><a href="pages/courses.html#github" data-i18n="github">GitHub</a></li>
-                    <li><a href="pages/courses.html#ai" data-i18n="ai">AI</a></li>
-                    <li><a href="pages/courses.html" data-i18n="view_all">View All</a></li>
+                    <li><a href="<?php echo $basePath; ?>pages/courses.php#linux" data-i18n="linux">Linux</a></li>
+                    <li><a href="<?php echo $basePath; ?>pages/courses.php#github" data-i18n="github">GitHub</a></li>
+                    <li><a href="<?php echo $basePath; ?>pages/courses.php#ai" data-i18n="ai">AI</a></li>
+                    <li><a href="<?php echo $basePath; ?>pages/courses.php" data-i18n="view_all">View All</a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
                 <h4 class="footer-heading" data-i18n="footer_resources">Resources</h4>
                 <ul class="footer-links">
-                    <li><a href="pages/about.html" data-i18n="nav_about">About Us</a></li>
-                    <li><a href="pages/contact.html" data-i18n="nav_contact">Contact</a></li>
+                    <li><a href="<?php echo $basePath; ?>pages/about.php" data-i18n="nav_about">About Us</a></li>
+                    <li><a href="<?php echo $basePath; ?>pages/contact.php" data-i18n="nav_contact">Contact</a></li>
                     <li><a href="#" data-i18n="footer_blog">Blog</a></li>
                     <li><a href="#" data-i18n="footer_faq">FAQ</a></li>
                 </ul>
@@ -57,7 +61,7 @@
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; <span id="currentYear">2026</span> <span data-i18n="ariba_study">Ariba Study</span>. <span
+            <p>&copy; <span id="currentYear"><?php echo date('Y'); ?></span> <span data-i18n="ariba_study">Ariba Study</span>. <span
                     data-i18n="footer_rights">All rights reserved.</span></p>
             <div class="footer-legal">
                 <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
@@ -89,9 +93,6 @@
 </svg>
 
 <script>
-    // Set current year
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-
     // Newsletter form submission
     document.querySelector('.newsletter-form')?.addEventListener('submit', (e) => {
         e.preventDefault();

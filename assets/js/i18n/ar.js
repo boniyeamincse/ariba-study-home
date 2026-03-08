@@ -34,7 +34,25 @@ translations.ar = {
         explore_modules: "استكشف الوحدات",
         nav_learning: "التعلم",
         ariba_study: "أريبا ستدي",
-        linux_study: "دراسة لينكس"
+        linux_study: "دراسة لينكس",
+        login: "تسجيل الدخول",
+        signup: "اشتراك",
+        login_title: "مرحباً بعودتك",
+        login_subtitle: "قم بتسجيل الدخول لمتابعة تقدمك ومواصلة التعلم.",
+        login_btn: "تسجيل الدخول",
+        signup_title: "انضم إلينا",
+        signup_subtitle: "أنشئ حساباً لمتابعة تقدمك وابدأ رحلتك.",
+        signup_btn: "إنشاء حساب",
+        username: "اسم المستخدم",
+        password: "كلمة المرور",
+        email: "البريد الإلكتروني",
+        no_account: "ليس لديك حساب؟",
+        have_account: "لديك حساب بالفعل؟",
+        nav_home: "الرئيسية",
+        nav_learning: "التعلم",
+        nav_courses: "الدورات",
+        nav_about: "حول",
+        nav_contact: "اتصل بنا"
     },
     modules: [
         {

@@ -1,3 +1,6 @@
+<?php
+$basePath = '../';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +14,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="header-placeholder"></div>
+    <div id="header-placeholder">
+        <?php include '../includes/header.php'; ?>
+    </div>
 
     <main class="page-content">
         <section class="page-hero">
@@ -86,7 +91,9 @@
         </section>
     </main>
 
-    <div id="footer-placeholder"></div>
+    <div id="footer-placeholder">
+        <?php include '../includes/footer.php'; ?>
+    </div>
 
     <script src="../assets/js/i18n/en.js"></script>
     <script src="../assets/js/i18n/bn.js"></script>

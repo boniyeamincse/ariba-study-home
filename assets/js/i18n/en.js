@@ -89,7 +89,20 @@ const translations = {
             contact_email_label: "Email",
             contact_subject: "Subject",
             contact_message: "Message",
-            contact_send: "Send Message"
+            contact_send: "Send Message",
+            login: "Login",
+            signup: "Sign Up",
+            login_title: "Welcome Back",
+            login_subtitle: "Login to track your progress and continue learning.",
+            login_btn: "Login",
+            signup_title: "Join Us",
+            signup_subtitle: "Create an account to track your progress and start your journey.",
+            signup_btn: "Create Account",
+            username: "Username",
+            password: "Password",
+            email: "Email",
+            no_account: "Don't have an account?",
+            have_account: "Already have an account?"
         },
         modules: [
             {

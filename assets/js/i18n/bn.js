@@ -34,7 +34,25 @@ translations.bn = {
         explore_modules: "মডিউল অন্বেষণ করুন",
         nav_learning: "লার্নিং",
         ariba_study: "আরিবা স্টাডি",
-        linux_study: "লিনাক্স স্টাডি"
+        linux_study: "লিনাক্স স্টাডি",
+        login: "লগইন",
+        signup: "সাইন আপ",
+        login_title: "স্বাগতম",
+        login_subtitle: "আপনার অগ্রগতি ট্র্যাক করতে এবং শেখা চালিয়ে যেতে লগইন করুন।",
+        login_btn: "লগইন",
+        signup_title: "আমাদের সাথে যোগ দিন",
+        signup_subtitle: "আপনার শেখার যাত্রা শুরু করতে একটি অ্যাকাউন্ট তৈরি করুন।",
+        signup_btn: "অ্যাকাউন্ট তৈরি করুন",
+        username: "ব্যবহারকারীর নাম",
+        password: "পাসওয়ার্ড",
+        email: "ইমেল",
+        no_account: "অ্যাকাউন্ট নেই?",
+        have_account: "ইতিমধ্যেই অ্যাকাউন্ট আছে?",
+        nav_home: "হোম",
+        nav_learning: "লার্নিং",
+        nav_courses: "কোর্স",
+        nav_about: "আমাদের সম্পর্কে",
+        nav_contact: "যোগাযোগ"
     },
     modules: [
         {

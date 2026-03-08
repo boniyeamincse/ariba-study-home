@@ -1,3 +1,6 @@
+<?php
+$basePath = '';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,7 +18,7 @@
 </head>
 
 <body class="hub-page">
-    <div id="header-placeholder"></div>
+    <?php include 'includes/header.php'; ?>
 
     <!-- Hub View -->
     <div id="hubView" class="view">
@@ -32,7 +35,9 @@
                 <div class="banner-content">
                     <div class="banner-text">
                         <h2 class="banner-title" data-i18n="banner_title">Start Your Learning Journey Today</h2>
-                        <p class="banner-description" data-i18n="banner_desc">Master essential skills with interactive lessons, hands-on exercises, and real-world projects. Join thousands of learners advancing their careers.</p>
+                        <p class="banner-description" data-i18n="banner_desc">Master essential skills with interactive
+                            lessons, hands-on exercises, and real-world projects. Join thousands of learners advancing
+                            their careers.</p>
                         <div class="banner-stats">
                             <div class="stat-item">
                                 <span class="stat-number">50+</span>
@@ -48,8 +53,11 @@
                             </div>
                         </div>
                         <div class="banner-cta">
-                            <button class="btn-primary" onclick="document.getElementById('enterLinux').click()" data-i18n="get_started">Get Started</button>
-                            <button class="btn-secondary" onclick="window.scrollTo({top: document.querySelector('.hub-grid').offsetTop - 100, behavior: 'smooth'})" data-i18n="explore_modules">Explore Modules</button>
+                            <button class="btn-primary" onclick="document.getElementById('enterLinux').click()"
+                                data-i18n="get_started">Get Started</button>
+                            <button class="btn-secondary"
+                                onclick="window.scrollTo({top: document.querySelector('.hub-grid').offsetTop - 100, behavior: 'smooth'})"
+                                data-i18n="explore_modules">Explore Modules</button>
                         </div>
                     </div>
                     <div class="banner-visual">
@@ -120,7 +128,6 @@
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
-                <!-- Adding progress text back if needed elsewhere, but keeping CSS consistent -->
             </div>
         </header>
 
@@ -193,13 +200,14 @@
         </div>
     </div>
 
-    <div id="footer-placeholder"></div>
+    <?php include 'includes/footer.php'; ?>
 
     <script src="assets/js/i18n/en.js"></script>
     <script src="assets/js/i18n/bn.js"></script>
     <script src="assets/js/i18n/ar.js"></script>
     <script src="assets/js/lessons-content.js"></script>
     <script src="assets/js/components.js"></script>
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 
